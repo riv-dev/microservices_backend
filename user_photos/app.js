@@ -5,7 +5,6 @@ var jwt = require('jsonwebtoken');
 var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
-var bcrypt = require('bcrypt'); //for password hashing
 var expressValidator = require('express-validator');
 var multer  = require('multer');
 var path = require('path');

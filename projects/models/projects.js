@@ -1,6 +1,5 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
-var bcrypt = require('bcrypt'); //for password hashing
 
 //The Projects model class
 var Projects = function (id, lastname, firstname, title) {

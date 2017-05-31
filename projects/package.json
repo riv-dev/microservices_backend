@@ -15,7 +15,6 @@
     "jsonwebtoken": "*",
     "express-jwt": "*",
     "morgan": "*",
-    "bcrypt": "*",
     "express-validator": "*"
   }
 }

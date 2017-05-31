@@ -9,7 +9,7 @@ var bcrypt = require('bcrypt-nodejs'); //for password hashing
 var expressValidator = require('express-validator');
 
 //Configuration
-app.set('port',process.env.PORT || 3000);
+app.set('port',process.env.PORT || 5000);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

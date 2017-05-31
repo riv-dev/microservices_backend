@@ -24,7 +24,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 //Configuration
-app.set('port',process.env.PORT || 3001);
+app.set('port',process.env.PORT || 5001);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

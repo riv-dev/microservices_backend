@@ -1,6 +1,6 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
-var bcrypt = require('bcrypt'); //for password hashing
+var bcrypt = require('bcrypt-nodejs'); //for password hashing
 
 //The Users model class
 var Users = function (id, lastname, firstname, title) {
@@ -63,7 +63,7 @@ Users.create_default_user = function() {
     }
 
     if(rows && rows.length == 0) {
-      Users.add({firstname:'Root', lastname:'Admin', title:'Default User', email:'admin@admin.com', hashed_password:bcrypt.hashSync("password", 10), admin:1}, function(err, rows, field) {
+      Users.add({firstname:'Root', lastname:'Admin', title:'Default User', email:'admin@admin.com', hashed_password:bcrypt.hashSync("password"), admin:1}, function(err, rows, field) {
          if(err) {
            console.log(err);
          }

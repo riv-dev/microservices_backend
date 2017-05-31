@@ -5,7 +5,7 @@ var jwt = require('jsonwebtoken');
 var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
-var bcrypt = require('bcrypt'); //for password hashing
+var bcrypt = require('bcrypt-nodejs'); //for password hashing
 var expressValidator = require('express-validator');
 
 //Configuration
@@ -57,7 +57,7 @@ router.post('/users/authenticate', function(req, res) {
     } 
 	else if(user) {
 		// Load hash from your password DB.
-		bcrypt.compare(req.body.password, user.hashed_password).then(function(validated) {
+		bcrypt.compare(req.body.password, user.hashed_password, function(err, validated) {
 			// res == true
 			if(validated == true) {
 				user.hashed_password = null;
@@ -97,10 +97,40 @@ router.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentials
 	});
 });
 
-app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+router.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user.admin) {
-		Users.add(request.body);
-		response.send({message: "User added!"});
+		request.checkBody('lastname', "can't be empty").notEmpty();
+		request.checkBody('lastname', "must be alpha characters").isAlpha();
+		request.checkBody('firstname',"can't be empty").notEmpty();
+		request.checkBody('firstname', "must be alpha characters").isAlpha();
+
+		if(request.body.email && request.body.email != null)
+			request.checkBody('email', 'must be a valid email address').isEmail();
+
+		if(request.body.admin && request.body.admin != null)
+			request.checkBody('admin', 'must be boolean value').isBoolean();
+
+		if(request.body.password && request.body.password.length > 0) {
+			request.body.hashed_password = bcrypt.hashSync(request.body.password);
+			delete request.body.password; //prep request.body to feed into User.update
+		}
+
+
+		request.getValidationResult().then(function(result) {
+			if (!result.isEmpty()) {
+				console.log(result.array());
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				Users.add(request.body, function(err, rows, field) {
+					if(err) {
+						response.send({status: "fail", message: "Failed to add user"});
+					} else {
+						response.send({status: "success", message: "User added!"});
+					}
+				});
+			}
+		});
 	} else {
 		response.sendStatus(401);
 	}
@@ -121,7 +151,7 @@ router.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 
 		var hashed_password;
 		if(request.body.password && request.body.password.length > 0) {
-			request.body.hashed_password = bcrypt.hashSync(request.body.password, 10);
+			request.body.hashed_password = bcrypt.hashSync(request.body.password);
 			delete request.body.password; //prep request.body to feed into User.update
 		}
 
@@ -152,7 +182,7 @@ router.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken
 			if(err) {
 				response.send(err);
 			} else {
-				response.json({message: "User deleted."});
+				response.json({status: "success", message: "User deleted."});
 			}
 		});
 	} else {

@@ -44,9 +44,7 @@ function getTokenFromHeader(request) {
 			return token;
 }
 
-var router = express.Router();
-
-router.post('/users/authenticate', function(req, res) {
+app.post('/users/authenticate', function(req, res) {
   //Find the user
   Users.find_by_email(req.body.email, function(err, rows, fields) {
     if(err) throw err;
@@ -77,7 +75,7 @@ router.post('/users/authenticate', function(req, res) {
   }); //End User.find_by_email
 });
 
-router.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	results = Users.find_all(function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -87,7 +85,7 @@ router.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequ
 	});
 });
 
-router.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = Users.find_by_id(request.params.id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -97,7 +95,7 @@ router.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentials
 	});
 });
 
-router.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user.admin) {
 		request.checkBody('lastname', "can't be empty").notEmpty();
 		request.checkBody('lastname', "must be alpha characters").isAlpha();
@@ -136,7 +134,7 @@ router.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	}
 });
 
-router.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Allow admin and owner of the account to modify attributes
 	if(request.user.admin || request.user.id == request.params.id) {
 
@@ -176,7 +174,7 @@ router.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 	}
 });
 
-router.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user.admin) {
 		result = Users.delete(request.params.id, function(err, rows, fields) {
 			if(err) {
@@ -189,8 +187,6 @@ router.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken
 		response.sendStatus(401);
 	}
 });
-
-app.use('/api',router);
 
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+

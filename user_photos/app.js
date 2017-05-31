@@ -58,9 +58,7 @@ function getTokenFromHeader(request) {
 			return token;
 }
 
-var router = express.Router();
-
-router.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = UserPhotos.find_by_user_id(request.params.id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -74,7 +72,7 @@ router.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), crede
 	});
 });
 
-router.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = UserPhotos.find_by_user_id(request.params.id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -89,7 +87,7 @@ router.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'),
 	});
 });
 
-router.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user.admin || request.user.id == request.params.id) {
 		console.log("Valid user");
 		request.checkBody('lastname', "can't be empty").notEmpty();
@@ -138,7 +136,7 @@ router.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app
 
 });
 
-router.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user.admin || request.user.id == request.params.id) {
 		requestBody = {}
 
@@ -197,7 +195,7 @@ router.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.
 
 });
 
-router.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 		if(request.user.admin || request.user.id == request.params.id) {
 			UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
 				//Delete from the filesystem
@@ -219,8 +217,6 @@ router.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), ge
 			response.sendStatus(401);
 		}
 });
-
-app.use('/api',router);
 
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+

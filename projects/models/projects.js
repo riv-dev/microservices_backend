@@ -45,7 +45,7 @@ Projects.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, source_code_url varchar(2083), development_server_url varchar(2083), production_server_url varchar(2083), PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255), deadline datetime,  PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -79,7 +79,7 @@ Projects.find_by_id = function (id, call_back) {
 
 Projects.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into projects (name, description, source_code_url, development_server_url, production_server_url) values (?,?,?,?,?);", [body.name, body.description, body.source_code_url, body.development_server_url, body.production_server_url], function(err, results, fields) {
+  this.db.query("INSERT into projects (name, description, value, effort, status, deadline) values (?,?,?,?,?,?);", [body.name, body.description, body.value, body.effort, body.status, body.deadline], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

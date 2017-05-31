@@ -132,7 +132,7 @@ router.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_sec
 						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 						return;
 					} else {
-						ProjectUsers.add(request.params.project_id, request.body.user_id, "Accepted", request.body.write_access, function(err, results, fields) {
+						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, "active", request.body.write_access, function(err, results, fields) {
 							if(err) {
 								console.log(err);
 								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
@@ -151,7 +151,7 @@ router.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_sec
 	}
 });
 
-router.post('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+/*router.post('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Request to be added to a project
 	if(request.user && request.user.id == request.params.user_id) {
 		request.checkBody('project_id', "can't be empth").notEmpty();
@@ -176,7 +176,7 @@ router.post('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret
 	} else {
 		response.sendStatus(401);	
 	}
-});
+});*/
 
 //router.post('/projects');
 router.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
@@ -194,7 +194,7 @@ router.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: g
 					if(err) {
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						ProjectUsers.add(results.insertId, request.user.id, "Created", 2, function(err, results, fields) {
+						ProjectUsers.add(results.insertId, request.user.id, null,"active", 2, function(err, results, fields) {
 							response.json({status: "success", message: "Project added!"});
 						}); //Give level 2 write permissions
 					}

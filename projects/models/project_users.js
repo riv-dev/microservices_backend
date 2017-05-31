@@ -45,7 +45,7 @@ ProjectUsers.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS project_users (id int NOT NULL AUTO_INCREMENT, project_id int, user_id int, status varchar(255), write_access int DEFAULT 0, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS project_users (id int NOT NULL AUTO_INCREMENT, project_id int, user_id int, role varchar(255), status varchar(255), write_access int DEFAULT 0, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -72,7 +72,7 @@ ProjectUsers.find_by_user_id = function (user_id, call_back) {
 ProjectUsers.find_all_users_by_project_id = function(project_id, call_back) {
   console.log("find_by_id called.");
 
-  this.db.query("SELECT user_id, write_access FROM project_users WHERE project_id = ?;", [project_id], function (err, results, fields) {
+  this.db.query("SELECT user_id, role, status, write_access FROM project_users WHERE project_id = ?;", [project_id], function (err, results, fields) {
     call_back(err, results, fields);
   });  
 }
@@ -93,9 +93,9 @@ ProjectUsers.find_project_user_pairing = function(project_id, user_id, call_back
   });
 }
 
-ProjectUsers.add = function(project_id, user_id, status, write_access, call_back) {
+ProjectUsers.add = function(project_id, user_id, role, status, write_access, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into project_users (project_id, user_id, status, write_access) values (?,?,?,?);", [project_id, user_id, status, write_access], function(err, results, fields) {
+  this.db.query("INSERT into project_users (project_id, user_id, role, status, write_access) values (?,?,?,?,?);", [project_id, user_id, role, status, write_access], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

@@ -3,6 +3,7 @@
 //credentials.js should not be uploaded onto Github
 module.exports = {
     mysql: {
+        host: 'localhost',
         username: 'root',
         password: 'password'
     },

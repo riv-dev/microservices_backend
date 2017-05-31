@@ -12,7 +12,7 @@ Projects.db = "Yo!";
 
 Projects.connect = function () {
   this.db = mysql.createConnection({
-    host: 'localhost',
+    host: credentials.mysql.host,
     user: credentials.mysql.username,
     password: credentials.mysql.password,
   });

@@ -307,6 +307,7 @@ app.delete('/projects/:project_id/users/:user_id', express_jwt({secret: app.get(
 		response.sendStatus(401);
 	}	
 });
+
 //app.delete(/users/:user_id/projects/:project_id) remove a project from a user
 app.delete('/users/:user_id/projects/:project_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Edit user permissions
@@ -323,18 +324,27 @@ app.delete('/users/:user_id/projects/:project_id', express_jwt({secret: app.get(
 		response.sendStatus(401);
 	}
 });
+
 //app.delete(/projects/:id) remove an entire project
 app.delete('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	if(request.user.admin) {
-		Projects.delete(request.params.id, function(err, results, fields) {
-			if(err) {
-				response.send(err);
-			} else {
-				ProjectUsers.delete_all(request.params.id, function(err, results, fields) {
-					response.json({message: "Project deleted."});
+	if(request.user) {
+		ProjectUsers.find_project_user_pairing(project_id, user_id, function(err, results, fields) {
+			if(request.user.admin || (results && results.length > 0 && results[0].write_access == 2)) {
+				Projects.delete(request.params.id, function(err, results, fields) {
+					if(err) {
+						response.status(500).json({status: "fail", message: "System error."});
+					} else {
+						ProjectUsers.delete_all(request.params.id, function(err, results, fields) {
+							response.json({message: "Project deleted."});
+						});
+					}
 				});
+			} else {
+				response.sendStatus(401);
 			}
 		});
+
+	
 	} else {
 		response.sendStatus(401);
 	}

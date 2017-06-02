@@ -47,11 +47,12 @@ function getTokenFromHeader(request) {
 app.post('/users/authenticate', function(req, res) {
   //Find the user
   Users.find_by_email(req.body.email, function(err, rows, fields) {
-    if(err) throw err;
-		var user = rows[0];
-
-    if(!user) {
-    	res.json({ success: false, message: 'Authentication failed. User not found.' });
+    if(err) {
+		console.log(err);
+		res.status(500).json({status: "fail", message: "System error."});
+	}
+    else if(!user) {
+    	res.status(401).json({status: "fail", message: 'Authentication failed. User not found.' });
     } 
 	else if(user) {
 		// Load hash from your password DB.
@@ -63,12 +64,12 @@ app.post('/users/authenticate', function(req, res) {
 
 				// return the information including token as JSON
 				res.json({
-					success: true,
+					status: "success",
 					message: 'Enjoy your token!',
 					token: token
 				});
 			} else {
-				res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+				res.status(401).json({ status: "fail", message: 'Authentication failed. Wrong password.' });
 			}
 		}); //End bcrypt
     } //End else if(user)
@@ -78,7 +79,8 @@ app.post('/users/authenticate', function(req, res) {
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	results = Users.find_all(function(err,rows,fields) {
 		if(err) {
-			response.send(err);
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
 		} else {
 			response.json(rows);
 		}
@@ -88,7 +90,8 @@ app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequire
 app.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = Users.find_by_id(request.params.id, function(err,rows,fields) {
 		if(err) {
-			response.send(err);
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
 		} else {
 			response.json(rows[0]);
 		}
@@ -122,7 +125,8 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 			} else {
 				Users.add(request.body, function(err, rows, field) {
 					if(err) {
-						response.send({status: "fail", message: "Failed to add user"});
+						console.log(err);
+						response.status(500).json({status: "fail", message: "System error."});
 					} else {
 						response.send({status: "success", message: "User added!"});
 					}
@@ -162,7 +166,7 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 				Users.update(request.params.id, request.body, function(err, rows, fields) {
 					if(err) {
 						console.log(err);
-						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+						response.status(500).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
 						response.json({status: "success", message: "User updated!"});
 					}
@@ -178,7 +182,8 @@ app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 	if(request.user.admin) {
 		result = Users.delete(request.params.id, function(err, rows, fields) {
 			if(err) {
-				response.send(err);
+				console.log(err);
+				response.status(500).json({status: "fail", message: "System error."});
 			} else {
 				response.json({status: "success", message: "User deleted."});
 			}

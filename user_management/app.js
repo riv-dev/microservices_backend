@@ -46,15 +46,13 @@ function getTokenFromHeader(request) {
 
 app.post('/users/authenticate', function(req, res) {
   //Find the user
-  Users.find_by_email(req.body.email, function(err, rows, fields) {
+  Users.find_by_email(req.body.email, function(err, results, fields) {
     if(err) {
 		console.log(err);
 		res.status(500).json({status: "fail", message: "System error."});
 	}
-    else if(!user) {
-    	res.status(401).json({status: "fail", message: 'Authentication failed. User not found.' });
-    } 
-	else if(user) {
+	else if(results && results.length > 0) {
+		var user = results[0];
 		// Load hash from your password DB.
 		bcrypt.compare(req.body.password, user.hashed_password, function(err, validated) {
 			// res == true
@@ -73,27 +71,31 @@ app.post('/users/authenticate', function(req, res) {
 			}
 		}); //End bcrypt
     } //End else if(user)
+    else {
+    	res.status(401).json({status: "fail", message: 'Authentication failed. User not found.' });
+    } 
+
   }); //End User.find_by_email
 });
 
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
-	results = Users.find_all(function(err,rows,fields) {
+	results = Users.find_all(function(err,results,fields) {
 		if(err) {
 			console.log(err)
 			response.status(500).json({status: "fail", message: "System error."});
 		} else {
-			response.json(rows);
+			response.json(results);
 		}
 	});
 });
 
 app.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
-	result = Users.find_by_id(request.params.id, function(err,rows,fields) {
+	result = Users.find_by_id(request.params.id, function(err,results,fields) {
 		if(err) {
 			console.log(err);
 			response.status(500).json({status: "fail", message: "System error."});
 		} else {
-			response.json(rows[0]);
+			response.json(results[0]);
 		}
 	});
 });
@@ -123,7 +125,7 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				Users.add(request.body, function(err, rows, field) {
+				Users.add(request.body, function(err, results, field) {
 					if(err) {
 						console.log(err);
 						response.status(500).json({status: "fail", message: "System error."});
@@ -163,7 +165,7 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				Users.update(request.params.id, request.body, function(err, rows, fields) {
+				Users.update(request.params.id, request.body, function(err, results, fields) {
 					if(err) {
 						console.log(err);
 						response.status(500).json({status: "fail", message: "MySQL error", errors: err});
@@ -180,7 +182,7 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 
 app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user.admin) {
-		result = Users.delete(request.params.id, function(err, rows, fields) {
+		result = Users.delete(request.params.id, function(err, results, fields) {
 			if(err) {
 				console.log(err);
 				response.status(500).json({status: "fail", message: "System error."});

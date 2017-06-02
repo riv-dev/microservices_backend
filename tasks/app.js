@@ -8,7 +8,7 @@ var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 
 //Configuration
-app.set('port',process.env.PORT || 5002);
+app.set('port',process.env.PORT || 5003);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

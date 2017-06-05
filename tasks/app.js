@@ -218,7 +218,7 @@ app.post('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_sec
 				//already exists
 				response.status(400).json({status: "fail", message: "User already assigned to task."});
 			} else {
-				TaskAssignments.add(request.params.task_id, request.params.user_id, 0, "Added to task.", function(err, results, fields) {
+				TaskAssignments.add(request.params.task_id, request.params.user_id, "Added to task.", function(err, results, fields) {
 					if(err) {
 						response.status(500).json({status: "fail", message: "A system error occured."});
 					} else {

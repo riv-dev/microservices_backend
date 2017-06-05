@@ -50,7 +50,7 @@ Patches.apply_patch = function(call_back) {
     } 
   });
  
-  this.db.query('ALTER TABLE task_assignments CHANGE status_description progress_description;', function(err) {
+  this.db.query('ALTER TABLE task_assignments CHANGE status_description progress_description text;', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -87,7 +87,7 @@ Patches.reverse_patch = function(call_back) {
     } 
   });
 
-  this.db.query('ALTER TABLE task_assignments CHANGE progress_description status_description;', function(err) {
+  this.db.query('ALTER TABLE task_assignments CHANGE progress_description status_description text;', function(err) {
     if(err) {
       console.log(err);
     } 

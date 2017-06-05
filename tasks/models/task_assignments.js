@@ -45,7 +45,7 @@ TaskAssignments.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS task_assignments (id int NOT NULL AUTO_INCREMENT, task_id int NOT NULL, user_id int NOT NULL, status text, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS task_assignments (id int NOT NULL AUTO_INCREMENT, task_id int NOT NULL, user_id int NOT NULL, status int DEFAULT 0, status_description text, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -71,7 +71,7 @@ TaskAssignments.find_by_user_id = function (user_id, call_back) {
 TaskAssignments.find_all_users_by_task_id = function(task_id, call_back) {
   console.log("find_by_id called.");
 
-  this.db.query("SELECT user_id, status FROM task_assignments WHERE task_id = ?;", [task_id], function (err, results, fields) {
+  this.db.query("SELECT user_id, status, status_description FROM task_assignments WHERE task_id = ?;", [task_id], function (err, results, fields) {
     call_back(err, results, fields);
   });  
 }
@@ -92,9 +92,9 @@ TaskAssignments.find_task_assignment = function(task_id, user_id, call_back) {
   });
 }
 
-TaskAssignments.add = function(task_id, user_id, status, call_back) {
+TaskAssignments.add = function(task_id, user_id, status, status_description, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into task_assignments (task_id, user_id,, status) values (?,?,?);", [task_id, user_id, status], function(err, results, fields) {
+  this.db.query("INSERT into task_assignments (task_id, user_id, status, status_description) values (?,?,?,?);", [task_id, user_id, status, status_description], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

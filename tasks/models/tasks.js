@@ -87,7 +87,7 @@ Tasks.find_by_id = function (id, call_back) {
 
 Tasks.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into tasks (name, description, priority, status, deadline, project_id, user_id) values (?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status, body.deadline, body.project_id, body.user_id], function(err, results, fields) {
+  this.db.query("INSERT into tasks (name, description, priority, status, deadline, project_id, user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status, body.deadline, body.project_id, body.user_id], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

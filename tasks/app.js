@@ -26,7 +26,7 @@ app.use(morgan('dev'));
 var Tasks = require('./models/tasks.js');
 Tasks.connect();
 
-var TaskAssignments = require('./models/task_users.js');
+var TaskAssignments = require('./models/task_assignments.js');
 TaskAssignments.connect();
 
 //////////////
@@ -91,6 +91,18 @@ app.get('/tasks/:task_id/users', express_jwt({secret: app.get('jwt_secret'), cre
 //app.get('/users/:id/tasks');
 app.get('/users/:user_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	Tasks.find_all_by_user_id(request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results);
+		}
+	});
+});
+
+//app.get('/projects/:project_id/tasks');
+app.get('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Tasks.find_all_by_project_id(request.params.project_id, function(err,results,fields) {
 		if(err) {
 			console.log(err)
 			response.status(500).json({status: "fail", message: "System error."});
@@ -203,16 +215,15 @@ app.post('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_sec
 				//already exists
 				response.status(400).json({status: "fail", message: "User already assigned to task."});
 			} else {
-				TaskAssignments.add(request.params.task_id, request.params.user_id, "Added to task.", function(err, results, fields) {
+				TaskAssignments.add(request.params.task_id, request.params.user_id, 0, "Added to task.", function(err, results, fields) {
 					if(err) {
 						response.status(500).json({status: "fail", message: "A system error occured."});
 					} else {
-						response.sendStatus({status: "success", message: "User added to the task!"});
+						response.json({status: "success", message: "User added to the task!"});
 					}
 				});
 			}
 		});
-
 	} else {
 		response.sendStatus(401);		
 	}

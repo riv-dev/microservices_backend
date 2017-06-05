@@ -78,6 +78,10 @@ app.post('/users/authenticate', function(req, res) {
   }); //End User.find_by_email
 });
 
+app.get('/', function(request, response) {
+	response.send("Welcome to the Users API.");
+});
+
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	results = Users.find_all(function(err,results,fields) {
 		if(err) {

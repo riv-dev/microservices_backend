@@ -46,6 +46,10 @@ function getTokenFromHeader(request) {
 			return token;
 }
 
+app.get('/', function(request, response) {
+	response.send("Welcome to the Projects API");
+});
+
 //List routes
 //app.get('/projects/:id/users');
 app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {

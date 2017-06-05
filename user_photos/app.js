@@ -58,6 +58,10 @@ function getTokenFromHeader(request) {
 			return token;
 }
 
+app.get('/', function(request, response) {
+	response.send("Welcome to the User Photos API");
+});
+
 app.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = UserPhotos.find_by_user_id(request.params.id, function(err,rows,fields) {
 		if(err) {

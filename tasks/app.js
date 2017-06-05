@@ -49,6 +49,9 @@ function getTokenFromHeader(request) {
 //////////////////
 // GET Requests //
 //////////////////
+app.get('/', function(request, response) {
+	response.send("Welcome to the Tasks API.");
+});
 
 //app.get('/tasks');
 app.get('/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {

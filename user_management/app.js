@@ -58,7 +58,7 @@ app.post('/users/authenticate', function(req, res) {
 			// res == true
 			if(validated == true) {
 				user.hashed_password = null;
-				var token = jwt.sign(user, app.get('jwt_secret'));
+				var token = jwt.sign(user, app.get('jwt_secret'), {expiresIn: '8h'});
 
 				// return the information including token as JSON
 				res.json({

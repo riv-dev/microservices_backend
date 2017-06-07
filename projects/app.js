@@ -134,7 +134,7 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 						return;
 					} else {
-						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, "active", request.body.write_access, function(err, results, fields) {
+						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, 1, request.body.write_access, function(err, results, fields) {
 							if(err) {
 								console.log(err);
 								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
@@ -196,7 +196,7 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 					if(err) {
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						ProjectUsers.add(results.insertId, request.user.id, null,"active", 2, function(err, results, fields) {
+						ProjectUsers.add(results.insertId, request.user.id, null, 1, 2, function(err, results, fields) {
 							response.json({status: "success", message: "Project added!"});
 						}); //Give level 2 write permissions
 					}

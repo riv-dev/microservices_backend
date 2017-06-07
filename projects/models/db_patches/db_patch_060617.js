@@ -44,6 +44,12 @@ Patches.apply_patch = function(call_back) {
     } 
   });
 
+  this.db.query('UPDATE project_users SET status = "1";', function(err) {
+    if(err) {
+      console.log(err);
+    } 
+  });    
+
   this.db.query('ALTER TABLE project_users CHANGE status status_code int DEFAULT 0;', function(err) {
     if(err) {
       console.log(err);

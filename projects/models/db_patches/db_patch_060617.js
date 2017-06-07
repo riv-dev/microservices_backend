@@ -69,7 +69,7 @@ Patches.reverse_patch = function(call_back) {
     } 
   });
 
-  this.db.query('ALTER TABLE project_users CHANGE status status_code int DEFAULT 0;', function(err) {
+  this.db.query('ALTER TABLE project_users CHANGE status_code status;', function(err) {
     if(err) {
       console.log(err);
     } 

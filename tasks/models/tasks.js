@@ -45,7 +45,7 @@ Tasks.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status int DEFAULT 0, deadline datetime, project_id int, user_id int, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status_code int DEFAULT 0, deadline datetime, project_id int, user_id int, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     }
@@ -87,7 +87,7 @@ Tasks.find_by_id = function (id, call_back) {
 
 Tasks.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into tasks (name, description, priority, status, deadline, project_id, user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status, body.deadline, body.project_id, body.user_id], function(err, results, fields) {
+  this.db.query("INSERT into tasks (name, description, priority, status_code, deadline, project_id, user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status_code, body.deadline, body.project_id, body.user_id], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

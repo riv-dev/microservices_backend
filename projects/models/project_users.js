@@ -72,7 +72,7 @@ ProjectUsers.find_by_user_id = function (user_id, call_back) {
 ProjectUsers.find_all_users_by_project_id = function(project_id, call_back) {
   console.log("find_by_id called.");
 
-  this.db.query("SELECT user_id, role, status, write_access FROM project_users WHERE project_id = ?;", [project_id], function (err, results, fields) {
+  this.db.query("SELECT user_id, role, status_code, write_access FROM project_users WHERE project_id = ?;", [project_id], function (err, results, fields) {
     call_back(err, results, fields);
   });  
 }

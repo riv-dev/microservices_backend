@@ -81,7 +81,6 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 				}
 			}
 
-			console.log(idsArrStr);
 			httpRequest("https://ryukyu-social.cleverword.com/users_service/api/users?"+idsArrStr, function(error, httpResponse, body) {
 				if(error) {
 					//return without the user details

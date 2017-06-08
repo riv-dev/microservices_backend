@@ -15,6 +15,7 @@
     "jsonwebtoken": "*",
     "express-jwt": "*",
     "morgan": "*",
-    "express-validator": "*"
+    "express-validator": "*",
+    "request": "*"
   }
 }

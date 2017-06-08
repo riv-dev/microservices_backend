@@ -6,6 +6,7 @@ var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
+var httpRequest = require('request');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);
@@ -19,6 +20,16 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 app.use(expressValidator()); // Used for post and put data validation
 
 app.use(morgan('dev'));
+
+//////////////////////
+// Helper Functions //
+//////////////////////
+function extend(obj, src) {
+    for (var key in src) {
+        if (src.hasOwnProperty(key)) obj[key] = src[key];
+    }
+    return obj;
+}
 
 ////////////////
 /// Database ///
@@ -58,7 +69,32 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 		if(err) {
 			response.send(err);
 		} else {
-			response.json(results);
+			var idsArrStr = "ids=";
+			var indexedResults = {};
+			for(var i=0;i<results.length;i++) {
+				//build ids array
+				idsArrStr += results[i].user_id;
+				indexedResults[results[i].user_id] = results[i]; //index for faster searching
+
+				if(i < results.length-1) {
+					idsArrStr += ",";
+				}
+			}
+
+			console.log(idsArrStr);
+			httpRequest("https://ryukyu-social.cleverword.com/users_service/api/users?"+idsArrStr, function(error, httpResponse, body) {
+				if(error) {
+					//return without the user details
+					response.json(results);
+				} else {
+					//return with the user details
+					var users = JSON.parse(body);
+					for(var i=0;i<users.length;i++) {
+						users[i] = extend(users[i], indexedResults[users[i].id]);
+					}
+					response.json(users);
+				}
+			});
 		}
 	});
 });

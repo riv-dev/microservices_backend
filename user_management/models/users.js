@@ -80,6 +80,22 @@ Users.find_all = function (call_back) {
   });
 }
 
+Users.find_all_by_ids = function(idArr, call_back) {
+  var whereStr = "";
+  for(var i=0;i<idArr.length;i++) {
+    if(!isNaN(idArr[i])) { //make sure a valid int
+      whereStr += "id="+idArr[i];
+      if(i < idArr.length - 1) {
+        whereStr +=" OR ";
+      }
+    }
+  }
+
+  this.db.query('SELECT id,lastname,firstname,title,email,admin FROM users WHERE ' + whereStr + ';', function (err, rows, fields) {
+    call_back(err, rows, fields);
+  });
+}
+
 Users.find_by_id = function (id, call_back) {
   console.log("find_by_id called.");
 

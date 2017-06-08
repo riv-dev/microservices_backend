@@ -89,9 +89,9 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 					} else {
 						//return with the user details
 						var users = JSON.parse(body);
-						/*for(var i=0;i<users.length;i++) {
+						for(var i=0;i<users.length;i++) {
 							users[i] = extend(users[i], indexedResults[users[i].id]);
-						}*/
+						}
 						response.json(users);
 					}
 				});

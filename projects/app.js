@@ -238,7 +238,7 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 					if(err) {
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						ProjectUsers.add(results.insertId, request.user.id, null, 1, 2, function(err, results, fields) {
+						ProjectUsers.add(results.insertId, request.user.id, null, 1, 2, function(err, resultTwo, fields) {
 							response.json({status: "success", message: "Project added!", project_id: results.insertId});
 						}); //Give level 2 write permissions
 					}

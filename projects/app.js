@@ -369,15 +369,15 @@ app.delete('/users/:user_id/projects/:project_id', express_jwt({secret: app.get(
 });
 
 //app.delete(/projects/:id) remove an entire project
-app.delete('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.delete('/projects/:project_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
-		ProjectUsers.find_project_user_pairing(project_id, user_id, function(err, results, fields) {
+		ProjectUsers.find_project_user_pairing(request.params.project_id, request.user.id, function(err, results, fields) {
 			if(request.user.admin || (results && results.length > 0 && results[0].write_access == 2)) {
-				Projects.delete(request.params.id, function(err, results, fields) {
+				Projects.delete(request.params.project_id, function(err, results, fields) {
 					if(err) {
 						response.status(500).json({status: "fail", message: "System error."});
 					} else {
-						ProjectUsers.delete_all(request.params.id, function(err, results, fields) {
+						ProjectUsers.delete_all(request.params.project_id, function(err, results, fields) {
 							response.json({message: "Project deleted."});
 						});
 					}

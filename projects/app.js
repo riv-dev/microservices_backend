@@ -112,6 +112,7 @@ app.get('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret'), 
 		}
 	});
 });
+
 //app.get('/projects');
 app.get('/projects', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	Projects.find_all(function(err,results,fields) {
@@ -135,6 +136,7 @@ app.get('/projects/:project_id/users/:user_id', express_jwt({secret: app.get('jw
 		}
 	});
 });
+
 //app.get('/users/:user_id/projects/:project_id); details of project regarding user (e.g. permissions)
 app.get('/users/:user_id/projects/:project_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	//ProjectUsers.find(:project_id,:user_id)
@@ -146,6 +148,7 @@ app.get('/users/:user_id/projects/:project_id', express_jwt({secret: app.get('jw
 		}
 	});
 }); 
+
 //app.get('/projects/:id'); entire project details
 app.get('/projects/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	Projects.find_by_id(request.params.id, function(err,results,fields) {
@@ -178,7 +181,7 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 								console.log(err);
 								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 							} else {
-								response.json({status: "success", message: "User added to project!"});
+								response.json({status: "success", message: "User added to project!", project_id: request.params.project_id});
 							}
 						});
 					}
@@ -236,7 +239,7 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
 						ProjectUsers.add(results.insertId, request.user.id, null, 1, 2, function(err, results, fields) {
-							response.json({status: "success", message: "Project added!"});
+							response.json({status: "success", message: "Project added!", project_id: results.insertId});
 						}); //Give level 2 write permissions
 					}
 				});
@@ -259,7 +262,7 @@ app.put('/projects/:project_id/users/:user_id', express_jwt({secret: app.get('jw
 						console.log(err);
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "Project permissions updated!"});
+						response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
 					}
 				});
 			} else {
@@ -281,7 +284,7 @@ app.put('/users/:user_id/projects/:project_id',  express_jwt({secret: app.get('j
 						console.log(err);
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "Project permissions updated!"});
+						response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
 					}
 				});
 			} else {
@@ -312,9 +315,9 @@ app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 						Projects.update(request.params.id, request.body, function(err, results, fields) {
 							if(err) {
 								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+								response.status(400).json({status: "fail", message: "MySQL error.  Check all field names are correct.", errors: err});
 							} else {
-								response.json({status: "success", message: "Project updated!"});
+								response.json({status: "success", message: "Project updated!", project_id: request.params.id});
 							}
 						});
 					}
@@ -339,7 +342,7 @@ app.delete('/projects/:project_id/users/:user_id', express_jwt({secret: app.get(
 						console.log(err);
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "User deleted from project."});
+						response.json({status: "success", message: "User deleted from project.", project_id: request.params.project_id});
 					}
 				});
 			} else {
@@ -360,7 +363,7 @@ app.delete('/users/:user_id/projects/:project_id', express_jwt({secret: app.get(
 				console.log(err);
 				response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 			} else {
-				response.json({status: "success", message: "Removed self from project."});
+				response.json({status: "success", message: "Removed self from project.", project_id: request.params.project_id});
 			}
 		});
 	} else {

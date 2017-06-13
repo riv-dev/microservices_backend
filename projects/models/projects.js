@@ -9,6 +9,16 @@ var Projects = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 Projects.db = "Yo!";
 
+Projects.schema = {
+  name: {type: "varchar(255)", required: true},
+  description: {type: "text", required: false},
+  value: {type: "int", required: false},
+  effort: {type: "int", required: false},
+  status: {type: "varchar(255)", required: true, default: "new", options: ["new", "doing", "finished"]},
+  start_date: {type: "datetime", required: false},
+  deadline: {type: "datetime", required: false}
+}
+
 Projects.connect = function () {
   this.db = mysql.createConnection({
     host: credentials.mysql.host,
@@ -45,7 +55,7 @@ Projects.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status_code int, start_date datetime, deadline datetime,  PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "new", start_date datetime, deadline datetime,  PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -79,7 +89,7 @@ Projects.find_by_id = function (id, call_back) {
 
 Projects.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into projects (name, description, value, effort, status_code, start_date, deadline) values (?,?,?,?,?,?,?);", [body.name, body.description, body.value, body.effort, body.status_code, body.start_date, body.deadline], function(err, results, fields) {
+  this.db.query("INSERT into projects (name, description, value, effort, status, start_date, deadline) values (?,?,?,?,?,?,?);", [body.name, body.description, body.value, body.effort, body.status, body.start_date, body.deadline], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

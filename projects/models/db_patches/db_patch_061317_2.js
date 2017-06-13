@@ -43,7 +43,20 @@ Patches.apply_patch = function(call_back) {
       console.log(err);
     } 
   });
- 
+
+  this.db.query('UPDATE projects SET status = "doing" WHERE status = 1;', function(err) {
+    if(err) {
+      console.log(err);
+    } 
+  });
+
+
+  this.db.query('UPDATE projects SET status = "finished" WHERE status > 1;', function(err) {
+    if(err) {
+      console.log(err);
+    } 
+  });  
+
   Patches.disconnect();
 
 }

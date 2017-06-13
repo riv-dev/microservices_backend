@@ -14,7 +14,7 @@ Tasks.schema = {
   name: {type: "varchar(255)", required: true},
   description: {type: "text", required: false},
   priority: {type: "int", required: false},
-  status: {type: "varchar(255)", required: false, options: ["new", "doing", "finished"]},
+  status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
   deadline: {type: "datetime", required: false},
   project_id: {type: "int", required: false, description: "Usually defined when POSTING a task to a URL /projects/:project_id/tasks. No need to edit"},
   creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"}
@@ -98,7 +98,20 @@ Tasks.find_by_id = function (id, call_back) {
 
 Tasks.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into tasks (name, description, priority, status, deadline, project_id, creator_user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status, body.deadline, body.project_id, body.creator_user_id], function(err, results, fields) {
+
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property)) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }

@@ -154,9 +154,7 @@ app.options('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
-		request.checkBody('status', "can't be empty").notEmpty();
 		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
-	
 		
 		request.getValidationResult().then(function(result) {
 
@@ -190,8 +188,7 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
-		request.checkBody('status', "can't be empty").notEmpty();
-		request.checkBody('status',"options are: [new, doing, finished]").matches(/\b(?:new|doing|finished)\b/);
+		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 	
 		request.getValidationResult().then(function(result) {
 
@@ -262,7 +259,6 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
-				request.checkBody('status', "can't be empty").optional().notEmpty();
 				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 
 				request.getValidationResult().then(function(result) {
@@ -285,7 +281,6 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 				Tasks.find_by_id(request.params.id, function(err, results, fields) {
 					if(results && results.length > 0 && results[0].user_id == request.user.id) {
 						request.checkBody('name', "can't be empty").optional().notEmpty();
-						request.checkBody('status', "can't be empty").optional().notEmpty();
 						request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 
 						request.getValidationResult().then(function(result) {

@@ -14,7 +14,7 @@ Projects.schema = {
   description: {type: "text", required: false},
   value: {type: "int", required: false},
   effort: {type: "int", required: false},
-  status: {type: "varchar(255)", required: true, default: "new", options: ["new", "doing", "finished"]},
+  status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
   start_date: {type: "datetime", required: false},
   deadline: {type: "datetime", required: false}
 }
@@ -89,13 +89,27 @@ Projects.find_by_id = function (id, call_back) {
 
 Projects.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into projects (name, description, value, effort, status, start_date, deadline) values (?,?,?,?,?,?,?);", [body.name, body.description, body.value, body.effort, body.status, body.start_date, body.deadline], function(err, results, fields) {
+
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property)) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into projects (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
     call_back(err, results, fields);
   });
 }
+
 
 Projects.update = function(id, body, call_back) {
   console.log("update called");

@@ -222,11 +222,17 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 	}
 });*/
 
+app.options('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	response.json(Projects.schema);
+});
+
 //app.post('/projects');
 app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		//(id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description varchar(255), source_code_url varchar(255), development_server_url varchar(255), production_server_url varchar(255), PRIMARY KEY(id)
 		request.checkBody('name', "can't be empty").notEmpty();
+		request.checkBody('status', "can't be empty").notEmpty();
+		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 		
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
@@ -305,6 +311,9 @@ app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 		ProjectUsers.find_project_user_pairing(request.params.id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 0)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
+				request.checkBody('status', "can't be empty").optional().notEmpty();
+				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+	
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {

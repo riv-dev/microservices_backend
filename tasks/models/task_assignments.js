@@ -9,6 +9,12 @@ var TaskAssignments = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 TaskAssignments.db = "Yo!";
 
+TaskAssignments.schema = {
+  task_id: {type: "int", required: true, description: "Usually defined in the URL"},
+  user_id: {type: "int", required: true, description: "Usually defined in the URL"},
+  progress_description: {type: "text", required: false}
+}
+
 TaskAssignments.connect = function () {
   this.db = mysql.createConnection({
     host: credentials.mysql.host,

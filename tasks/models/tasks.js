@@ -9,6 +9,17 @@ var Tasks = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 Tasks.db = "Yo!";
 
+//'name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "new", deadline datetime, project_id int, user_id int, PRIMARY KEY(id));'  
+Tasks.schema = {
+  name: {type: "varchar(255)", required: true},
+  description: {type: "text", required: false},
+  priority: {type: "int", required: false},
+  status: {type: "varchar(255)", required: false, options: ["new", "doing", "finished"]},
+  deadline: {type: "datetime", required: false},
+  project_id: {type: "int", required: false, description: "Usually defined when POSTING a task to a URL /projects/:project_id/tasks. No need to edit"},
+  creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"}
+}
+
 Tasks.connect = function () {
   this.db = mysql.createConnection({
     host: credentials.mysql.host,
@@ -45,7 +56,7 @@ Tasks.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status_code int DEFAULT 0, deadline datetime, project_id int, user_id int, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "new", deadline datetime, project_id int, creator_user_id int, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     }
@@ -87,7 +98,7 @@ Tasks.find_by_id = function (id, call_back) {
 
 Tasks.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into tasks (name, description, priority, status_code, deadline, project_id, user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status_code, body.deadline, body.project_id, body.user_id], function(err, results, fields) {
+  this.db.query("INSERT into tasks (name, description, priority, status, deadline, project_id, creator_user_id) values (?,?,?,?,?,?,?);", [body.name, body.description, body.priority, body.status, body.deadline, body.project_id, body.creator_user_id], function(err, results, fields) {
     if(err) {
       console.log(err);
     }

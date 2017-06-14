@@ -223,7 +223,7 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 	}
 });*/
 
-app.options('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/projects', function(request, response) {
 	response.header("Allow", "GET,POST,OPTIONS");
 	response.json({methods: ["GET","POST"], POST: {body: Projects.schema}});
 });
@@ -257,7 +257,7 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	}
 });
 
-app.options('/projects/:project_id/users/:user_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/projects/:project_id/users/:user_id', function(request, response) {
 	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
 	response.json({methods:["GET","PUT","DELETE"], PUT: {notes: "project_id and user_id is defined in the URL, not the body", body: ProjectUsers.schema}});
 });
@@ -298,7 +298,7 @@ app.put('/projects/:project_id/users/:user_id', express_jwt({secret: app.get('jw
 	}
 });
 
-app.options('/users/:user_id/projects/:project_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/users/:user_id/projects/:project_id', function(request, response) {
 	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
 	response.json({methods:["GET","PUT","DELETE"], PUT: {notes: "project_id and user_id is defined in the URL, not the body", body: ProjectUsers.schema}});
 });
@@ -338,7 +338,7 @@ app.put('/users/:user_id/projects/:project_id',  express_jwt({secret: app.get('j
 	}
 });
 
-app.options('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/projects/:id', function(request, response) {
 	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
 	response.json({methods:["GET","PUT","DELETE"],PUT:{body:Projects.schema}});
 });

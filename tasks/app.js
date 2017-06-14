@@ -146,7 +146,8 @@ app.get('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_secr
 ///////////////////
 // POST Requests //
 ///////////////////
-app.options('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/tasks', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
 	response.json({methods: ["GET","POST"], POST: {body: Tasks.schema}});
 });
 
@@ -179,7 +180,8 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 	}
 });
 
-app.options('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/projects/:project_id/tasks', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
 	response.json({methods: ["GET","POST"], POST: {body: Tasks.schema}});
 });
 
@@ -214,7 +216,8 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 	}
 });
 
-app.options('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/tasks/:task_id/users/:user_id', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
 	response.json({methods:["GET","POST"], POST: {description: "Add a user to a task", notes: "task_id and user_id is defined in the URL, not the body", body: TaskAssignments.schema}});
 });
 
@@ -249,7 +252,8 @@ app.post('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_sec
 /// PUT Requests ///
 ////////////////////
 
-app.options('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/tasks/:id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
 	response.json({methods: ["GET","PUT","DELETE"], PUT: {body: Tasks.schema}});
 });
 
@@ -310,7 +314,8 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	}
 });
 
-app.options('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.options('/users/:user_id/tasks/:task_id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
 	response.json({methods: ["GET","PUT","DELETE"], PUT: {notes: "task_id and user_id is defined in the URL, not the body", body: TaskAssignments.schema}});
 });
 

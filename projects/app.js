@@ -58,7 +58,7 @@ function getTokenFromHeader(request) {
 }
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the Projects API");
+	response.send("Welcome to the Projects API.  Updated the code!  Updated again!");
 });
 
 //List routes

@@ -68,6 +68,18 @@ Users.create_default_user = function() {
            console.log(err);
          }
       });
+
+      Users.add({firstname:'John', lastname:'Doe', title:'Example User 1', email:'john@example.com', hashed_password:bcrypt.hashSync("passwordjohn"), admin:0}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Users.add({firstname:'Michael', lastname:'Jordan', title:'Example User 2', email:'mike@example.com', hashed_password:bcrypt.hashSync("passwordmike"), admin:0}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
     }
   });
 }

@@ -79,7 +79,7 @@ app.post('/users/authenticate', function(req, res) {
 });
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the Users API.");
+	response.send("Welcome to the Users API. It's been updated! And again!!");
 });
 
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {

@@ -56,6 +56,62 @@ TaskAssignments.initialize_db = function(call_back) {
       console.log(err);
     } 
   });
+
+  TaskAssignments.create_default_task_assignments();
+}
+
+TaskAssignments.create_default_task_assignments = function() {
+  TaskAssignments.find_all(function(err, rows, fields) {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    if(rows && rows.length == 0) {
+      TaskAssignments.add(1,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(2,3, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(3,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(4,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(5,3, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(6,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(7,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+    }
+   
+  });
 }
 
 TaskAssignments.find_all = function (call_back) {

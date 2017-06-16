@@ -7,6 +7,7 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var httpRequest = require('request');
+var api_urls = require('./api-urls');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);
@@ -20,6 +21,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 app.use(expressValidator()); // Used for post and put data validation
 
 app.use(morgan('dev'));
+
+console.log("Environment: " + app.get('env'));
 
 //////////////////////
 // Helper Functions //
@@ -82,9 +85,25 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 					}
 				}
 
-				httpRequest("https://ryukyu-social.cleverword.com/users_service/api/users?"+idsArrStr, function(error, httpResponse, body) {
+				var users_service_url;
+				switch(app.get('env')) {
+					case 'development':
+						users_service_url = api_urls.local_development.users_service;
+						break;
+					case 'remote_development':
+						users_service_url = api_urls.remote_development.users_service;
+						break;
+					case 'production':
+						users_service_url = api_urls.remote_development.users_service;
+						break;
+					default:
+						throw new Error('Unknown execution environment: ' + app.get('env'));
+				}
+
+				httpRequest(users_service_url + "/users?" + idsArrStr, function(error, httpResponse, body) {
 					if(error) {
 						//return without the user details
+						console.log("Error: " + error);
 						response.json(results);
 					} else {
 						//return with the user details

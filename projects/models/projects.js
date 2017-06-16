@@ -61,6 +61,37 @@ Projects.initialize_db = function(call_back) {
     } 
   });
 
+  Projects.create_default_projects();
+}
+
+Projects.create_default_projects = function() {
+  Projects.find_all(function(err, rows, fields) {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    if(rows && rows.length == 0) {
+      Projects.add({name:'Project 1', description:'Example project 1 description.', value:'1000', effort: '700'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Projects.add({name:'Project 2', description:'Example project 2 description.', value:'2000', effort: '100'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Projects.add({name:'Project 3', description:'Example project 3 description.', value:'800', effort: '600'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+    }
+
+  });
 }
 
 Projects.find_all = function (call_back) {

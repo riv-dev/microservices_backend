@@ -59,6 +59,42 @@ ProjectUsers.initialize_db = function(call_back) {
     } 
   });
 
+  ProjectUsers.create_default_project_users();
+}
+
+ProjectUsers.create_default_project_users = function() {
+  ProjectUsers.find_all(function(err, rows, fields) {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    if(rows && rows.length == 0) {
+      ProjectUsers.add(1,2,"Front End","active",1, function(err,rows,fields) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      ProjectUsers.add(1,3,"Back End","active",1, function(err,rows,fields) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      ProjectUsers.add(2,2,"Full Stack","active",1, function(err,rows,fields) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      ProjectUsers.add(3,2,"Full Stack","active",1, function(err,rows,fields) {
+         if(err) {
+           console.log(err);
+         }
+      });
+    }
+  });
 }
 
 ProjectUsers.find_all = function (call_back) {

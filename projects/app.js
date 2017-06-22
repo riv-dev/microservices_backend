@@ -94,7 +94,7 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 						users_service_url = api_urls.remote_development.users_service;
 						break;
 					case 'production':
-						users_service_url = api_urls.remote_development.users_service;
+						users_service_url = api_urls.production.users_service;
 						break;
 					default:
 						throw new Error('Unknown execution environment: ' + app.get('env'));

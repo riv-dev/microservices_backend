@@ -199,7 +199,7 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				request.body.user_id = request.user.id;
+				request.body.creator_user_id = request.user.id;
 				request.body.project_id = request.params.project_id;
 
 				Tasks.add(request.body, function(err, results, fields) {

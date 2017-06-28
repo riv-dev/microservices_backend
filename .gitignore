@@ -2,5 +2,6 @@
 node_modules
 uploads
 credentials.js
+credentials.rb
 *.vscode*
 db

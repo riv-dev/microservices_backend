@@ -1,0 +1,3 @@
+#Run "bundle" on command line
+#If that does not work run "gem install slack-api" instead. 
+gem 'slack-api'

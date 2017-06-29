@@ -16,3 +16,8 @@ puts "All Messages:"
 puts chatwork.get_all_messages
 puts
 puts
+
+puts "All Tasks:"
+puts chatwork.get_all_tasks
+puts
+puts

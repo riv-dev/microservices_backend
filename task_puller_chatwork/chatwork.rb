@@ -59,6 +59,10 @@ class Chatwork
         return get_request("/rooms/#{room_id}/messages/#{message_id}")
     end
 
+    def get_room_tasks(room_id)
+        return get_request("/rooms/#{room_id}/tasks")
+    end
+
     def get_all_messages
         rooms = get_rooms
 
@@ -72,6 +76,21 @@ class Chatwork
         end
 
         return messages
+    end
+
+    def get_all_tasks
+        rooms = get_rooms
+
+        tasks = []
+
+        rooms.each do |room|
+            room_id = room["room_id"] 
+            room_name = @rooms_hash[room_id]
+            room_tasks = get_room_tasks(room_id)
+            tasks.push({"room_id" => room_id, "room_name" => room_name, "tasks" => room_tasks})
+        end
+
+        return tasks
     end
 
 end

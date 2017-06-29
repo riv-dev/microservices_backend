@@ -1,6 +1,6 @@
-def Credentials
+class Credentials
 
-    def self.slack_token
+    def self.chatwork_token
         "abcd"
     end
 

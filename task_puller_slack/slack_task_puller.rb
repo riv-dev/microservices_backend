@@ -57,7 +57,7 @@ class SlackTaskPuller
 
         if /^\s*@task\s+/.match(text)
           puts "Adding a new task!!!"
-          tasks << {"name" => "Slack Task from #{user_name} in ##{c["name"]} at #{Time.at(message["ts"].to_f)}", "description" => text}
+          tasks << {"name" => "Slack Task from #{user_name} in ##{c["name"]} at #{Time.at(message["ts"].to_f).strftime('%c')}", "description" => text}
         end
       end
 

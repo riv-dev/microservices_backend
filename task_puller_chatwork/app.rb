@@ -1,9 +1,7 @@
 require 'sinatra'
-require 'net/http'
-require 'net/https'
-require 'uri'
 require './chatwork_task_puller.rb'
 require './credentials.rb'
+require './rest_helper.rb'
 
 set :port, 4568
 
@@ -25,29 +23,26 @@ get '/new-chatwork-tasks' do
       results = /Chatwork Task\[(\d+)\]/m.match(task["name"])
       chatwork_task_id = results[1]
 
-      put_uri = URI.parse("https://ryukyu-social.cleverword.com/tasks_service/api/tasks/name-like/#{chatwork_task_id}")
-      https = Net::HTTP.new(put_uri.host,put_uri.port)
-      https.use_ssl = true
-      my_put_request = Net::HTTP::Put.new(put_uri.path, initheader = {'Content-Type' =>'application/json',
-                                                                       'x-access-token' => Credentials.tasks_service_token})
-      my_put_request.set_form_data(task)
-      http_response = https.request(my_put_request)
+      retrieved_task = RestHelper.get("https://ryukyu-social.cleverword.com/tasks_service/api/tasks-with-name-like/#{chatwork_task_id}",
+                                     {'Content-Type' =>'application/json', 'x-access-token' => Credentials.tasks_service_token})
+      
+      if retrieved_task and retrieved_task["id"]
+        http_response = RestHelper.put("https://ryukyu-social.cleverword.com/tasks_service/api/tasks/#{retrieved_task['id']}",
+                                       task,
+                                       {'Content-Type' =>'application/json', 'x-access-token' => Credentials.tasks_service_token})
 
-      response = {}
-      response["ryukyu_tasks_service_response"] = http_response.body
-      response["task"] = task
-      responses << response
+        response = {}
+        response["ryukyu_tasks_service_response"] = http_response
+        response["task"] = task
+        responses << response
+      end
     else #brand new task, add it
-      uri = URI.parse("https://ryukyu-social.cleverword.com/tasks_service/api/tasks")
-      https = Net::HTTP.new(uri.host,uri.port)
-      https.use_ssl = true
-      my_post_request = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json',
-                                                                    'x-access-token' => Credentials.tasks_service_token})
-      my_post_request.set_form_data(task)
-      http_response = https.request(my_post_request)
+      http_response = RestHelper.post("https://ryukyu-social.cleverword.com/tasks_service/api/tasks",
+                                     task,
+                                     {'Content-Type' =>'application/json', 'x-access-token' => Credentials.tasks_service_token})
 
       response = {}
-      response["ryukyu_tasks_service_response"] = http_response.body
+      response["ryukyu_tasks_service_response"] = http_response
       response["task"] = task
       responses << response
     end

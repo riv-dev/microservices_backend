@@ -77,6 +77,17 @@ app.get('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), credentialsReq
 	});
 });
 
+app.get('/tasks-with-name-like/:name_str', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	Tasks.find_name_like(request.params.name_str, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0]);
+		}
+	});
+});
+
 //List routes
 //app.get('/tasks/:id/users');
 app.get('/tasks/:task_id/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {

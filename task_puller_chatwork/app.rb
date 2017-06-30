@@ -7,11 +7,6 @@ require './credentials.rb'
 
 set :port, 4568
 
-uri = URI.parse("https://ryukyu-social.cleverword.com/tasks_service/api/tasks")
-https = Net::HTTP.new(uri.host,uri.port)
-https.use_ssl = true
-my_post_request = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json',
-                                                      'x-access-token' => Credentials.tasks_service_token})
 
 
 #REST API Endpoints
@@ -26,14 +21,37 @@ get '/new-chatwork-tasks' do
   #Post to Ryukyu Social API with token and new task for each task
   responses = []
   tasks.each do |task|
-    my_post_request.set_form_data(task)
-    http_response = https.request(my_post_request)
+    if task["status"] == "finished" #existing task, update the status
+      results = /Chatwork Task\[(\d+)\]/m.match(task["name"])
+      chatwork_task_id = results[1]
 
-    response = {}
-    response["ryukyu_tasks_service_response"] = http_response.body
-    response["task"] = task
+      put_uri = URI.parse("https://ryukyu-social.cleverword.com/tasks_service/api/tasks/name-like/#{chatwork_task_id}")
+      https = Net::HTTP.new(put_uri.host,put_uri.port)
+      https.use_ssl = true
+      my_put_request = Net::HTTP::Put.new(put_uri.path, initheader = {'Content-Type' =>'application/json',
+                                                                       'x-access-token' => Credentials.tasks_service_token})
+      my_put_request.set_form_data(task)
+      http_response = https.request(my_put_request)
 
-    responses << response
+      response = {}
+      response["ryukyu_tasks_service_response"] = http_response.body
+      response["task"] = task
+      responses << response
+    else #brand new task, add it
+      uri = URI.parse("https://ryukyu-social.cleverword.com/tasks_service/api/tasks")
+      https = Net::HTTP.new(uri.host,uri.port)
+      https.use_ssl = true
+      my_post_request = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json',
+                                                                    'x-access-token' => Credentials.tasks_service_token})
+      my_post_request.set_form_data(task)
+      http_response = https.request(my_post_request)
+
+      response = {}
+      response["ryukyu_tasks_service_response"] = http_response.body
+      response["task"] = task
+      responses << response
+    end
+
   end
 
   responses.to_json

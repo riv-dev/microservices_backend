@@ -153,6 +153,15 @@ Tasks.find_by_id = function (id, call_back) {
   });
 }
 
+Tasks.find_name_like = function (str, call_back) {
+  console.log("find_by_id called.");
+
+  this.db.query("SELECT * FROM tasks WHERE name LIKE ? LIMIT 1;", [str], function (err, results, fields) {
+    call_back(err, results, fields);
+  });
+}
+
+
 Tasks.add = function(body, call_back) {
   console.log("add called.");
 

@@ -10,6 +10,7 @@ class ChatworkTaskPuller
       all_room_messages = chatwork.get_all_messages
 
       all_room_messages.each do |room|
+          room_id = room["room_id"]
           room_name = room["room_name"]
           messages = room["messages"]
 
@@ -23,8 +24,20 @@ class ChatworkTaskPuller
             if /^\s*@task\s+/.match(text)
               puts "Adding a new task!!!"
               tasks << {"name" => "Chatwork Task from #{user_name} in ##{room_name} at #{time.strftime('%c')}", "description" => text}
-            elsif results = /\[info\]\[title\]\[dtext:task_added\]\[\/title\]\[task\said=(\d+).*?\slt=(\d+)\](.*)?\[\/task\]/m.match(text.gsub(/\n/,''))
-              tasks << {"name" => "Chatwork Task[#{results[1]}] from #{user_name} in ##{room_name} at #{time.strftime('%c')}", "description" => results[3], "deadline" => Time.at(results[2].to_f).strftime('%Y-%m-%d %H:%M:%S')}
+            elsif results = /\[info\]\[title\]\[dtext:task_added\]\[\/title\]\[task\said=\d+.*?\slt=(\d+)\](.*)?\[\/task\]/m.match(text.gsub(/\n/,''))
+              task_description = results[2]
+              task_deadline = results[1]
+              task_id = nil
+              #Find the ID of the task
+              #Get all the tasks in the room
+              all_room_tasks = chatwork.get_room_tasks(room_id)
+              #Search for the task ID
+              all_room_tasks.each do |room_task|
+                if room_task["body"] == task_description  
+                  task_id = room_task["task_id"]
+                end
+              end
+              tasks << {"name" => "Chatwork Task[#{task_id}] from #{user_name} in ##{room_name} at #{time.strftime('%c')}", "description" => task_description, "deadline" => Time.at(task_deadline.to_f).strftime('%Y-%m-%d %H:%M:%S')}
               puts "Adding a new task!!!"
             end
           end

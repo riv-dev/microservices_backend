@@ -54,7 +54,7 @@ class ChatworkTaskPuller
             #  end
             #  tasks << {"name" => "Chatwork Task[#{task_id}] from #{user_name} in ##{room_name} at #{time.strftime('%c')}", "description" => task_description, "deadline" => Time.at(task_deadline.to_f).strftime('%Y-%m-%d %H:%M:%S'), "status" => "finished"}
             #  puts "Task status update found!"
-            #end
+            end
           end
       end
 

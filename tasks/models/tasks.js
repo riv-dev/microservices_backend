@@ -177,6 +177,7 @@ Tasks.add = function(body, call_back) {
       }
   }
   console.log("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");");
+  console.log(JSON.parse(addValuesArray));
   this.db.query("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);

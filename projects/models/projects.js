@@ -9,6 +9,16 @@ var Projects = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 Projects.db = "Yo!";
 
+Projects.schema = {
+  name: {type: "varchar(255)", required: true},
+  description: {type: "text", required: false},
+  value: {type: "int", required: false},
+  effort: {type: "int", required: false},
+  status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
+  start_date: {type: "datetime", required: false},
+  deadline: {type: "datetime", required: false}
+}
+
 Projects.connect = function () {
   this.db = mysql.createConnection({
     host: credentials.mysql.host,
@@ -45,12 +55,43 @@ Projects.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status_code int, start_date datetime, deadline datetime,  PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "new", start_date datetime, deadline datetime,  PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
   });
 
+  Projects.create_default_projects();
+}
+
+Projects.create_default_projects = function() {
+  Projects.find_all(function(err, rows, fields) {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    if(rows && rows.length == 0) {
+      Projects.add({name:'Project 1', description:'Example project 1 description.', value:'1000', effort: '700'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Projects.add({name:'Project 2', description:'Example project 2 description.', value:'2000', effort: '100'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Projects.add({name:'Project 3', description:'Example project 3 description.', value:'800', effort: '600'}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+    }
+
+  });
 }
 
 Projects.find_all = function (call_back) {
@@ -79,13 +120,27 @@ Projects.find_by_id = function (id, call_back) {
 
 Projects.add = function(body, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into projects (name, description, value, effort, status_code, start_date, deadline) values (?,?,?,?,?,?,?);", [body.name, body.description, body.value, body.effort, body.status_code, body.start_date, body.deadline], function(err, results, fields) {
+
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property)) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into projects (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
     call_back(err, results, fields);
   });
 }
+
 
 Projects.update = function(id, body, call_back) {
   console.log("update called");

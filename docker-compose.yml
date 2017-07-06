@@ -1,0 +1,88 @@
+version: '3'
+
+services:
+  ryukyu-users-service:
+    build: ./user_management
+    image: kenle545/ryukyu-users-service-img
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./user_management:/usr/src/app
+    links:
+      - db-users
+    environment:
+      - NODE_ENV=development
+  
+  db-users:
+    image: mysql:5.7
+    ports:
+      - "5300:3306"
+    volumes:
+      - ./user_management/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+
+
+  ryukyu-user-photos-service:
+    build: ./user_photos
+    image: ryukyu-user-photos-service-img
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./user_photos:/usr/src/app
+    links:
+      - db-user-photos
+    environment:
+      - NODE_ENV=development
+
+  db-user-photos:
+    image: mysql:5.7
+    ports:
+      - "5301:3306"
+    volumes:
+      - ./user_photos/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+
+  ryukyu-projects-service:
+    build: ./projects
+    image: ryukyu-projects-service-img
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./projects:/usr/src/app
+    links:
+      - db-projects
+      - ryukyu-users-service
+    environment:
+      - NODE_ENV=development
+
+  db-projects:
+    image: mysql:5.7
+    ports:
+      - "5302:3306"
+    volumes:
+      - ./projects/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+  
+  ryukyu-tasks-service:
+    build: ./tasks
+    image: ryukyu-tasks-service-img
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./tasks:/usr/src/app
+    links:
+      - db-tasks
+    environment:
+      - NODE_ENV=development
+
+  db-tasks:
+    image: mysql:5.7
+    ports:
+      - "5303:3306"
+    volumes:
+      - ./tasks/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

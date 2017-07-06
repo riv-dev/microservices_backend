@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  ryukyu-users-service:
+    build: .
+    image: ryukyu-users-service-img
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/usr/src/app
+    links:
+      - db-users
+    environment:
+      - NODE_ENV=development
+
+  db-users:
+    image: mysql:5.7
+    ports:
+      - "5300:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

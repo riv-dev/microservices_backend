@@ -1,7 +1,7 @@
 {
-  "name": "user_management",
+  "name": "tasks",
   "version": "1.0.0",
-  "description": "User Management",
+  "description": "Tasks",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

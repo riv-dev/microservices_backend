@@ -9,6 +9,12 @@ var TaskAssignments = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 TaskAssignments.db = "Yo!";
 
+TaskAssignments.schema = {
+  task_id: {type: "int", required: true, description: "Usually defined in the URL"},
+  user_id: {type: "int", required: true, description: "Usually defined in the URL"},
+  progress_description: {type: "text", required: false}
+}
+
 TaskAssignments.connect = function () {
   this.db = mysql.createConnection({
     host: credentials.mysql.host,
@@ -49,6 +55,62 @@ TaskAssignments.initialize_db = function(call_back) {
     if(err) {
       console.log(err);
     } 
+  });
+
+  TaskAssignments.create_default_task_assignments();
+}
+
+TaskAssignments.create_default_task_assignments = function() {
+  TaskAssignments.find_all(function(err, rows, fields) {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    if(rows && rows.length == 0) {
+      TaskAssignments.add(1,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(2,3, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(3,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(4,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(5,3, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(6,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      TaskAssignments.add(7,2, "Added to task", function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+    }
+   
   });
 }
 

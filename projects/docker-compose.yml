@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  ryukyu-projects-service:
+    build: .
+    image: ryukyu-projects-service-img
+    ports:
+      - "5002:5002"
+    volumes:
+      - .:/usr/src/app
+    links:
+      - db-projects
+    environment:
+      - NODE_ENV=remote_development
+
+  db-projects:
+    image: mysql:5.7
+    ports:
+      - "5302:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

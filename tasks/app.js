@@ -37,7 +37,7 @@ TaskAssignments.connect();
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
 
@@ -68,6 +68,17 @@ app.get('/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequire
 //app.get('/tasks/:id'); entire task details
 app.get('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	Tasks.find_by_id(request.params.id, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0]);
+		}
+	});
+});
+
+app.get('/tasks-with-name-like/:name_str', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	Tasks.find_name_like(request.params.name_str, function(err,results,fields) {
 		if(err) {
 			console.log(err);
 			response.status(500).json({status: "fail", message: "System error."});
@@ -146,11 +157,16 @@ app.get('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_secr
 ///////////////////
 // POST Requests //
 ///////////////////
+app.options('/tasks', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
+	response.json({methods: ["GET","POST"], POST: {body: Tasks.schema}});
+});
 
 //app.post('/tasks');
 app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
+		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 		
 		request.getValidationResult().then(function(result) {
 
@@ -159,7 +175,7 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				request.body.user_id = request.user.id;
+				request.body.creator_user_id = request.user.id;
 
 				Tasks.add(request.body, function(err, results, fields) {
 					if(err) {
@@ -175,12 +191,18 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 	}
 });
 
+app.options('/projects/:project_id/tasks', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
+	response.json({methods: ["GET","POST"], POST: {body: Tasks.schema}});
+});
+
 app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Need to add API request to Projects service to see if the user is on the project
 
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
-		
+		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+	
 		request.getValidationResult().then(function(result) {
 
 			if (!result.isEmpty()) {
@@ -188,7 +210,7 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				request.body.user_id = request.user.id;
+				request.body.creator_user_id = request.user.id;
 				request.body.project_id = request.params.project_id;
 
 				Tasks.add(request.body, function(err, results, fields) {
@@ -203,6 +225,11 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 	} else {
 		response.sendStatus(401);
 	}
+});
+
+app.options('/tasks/:task_id/users/:user_id', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
+	response.json({methods:["GET","POST"], POST: {description: "Add a user to a task", notes: "task_id and user_id is defined in the URL, not the body", body: TaskAssignments.schema}});
 });
 
 //Add routes
@@ -236,12 +263,18 @@ app.post('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_sec
 /// PUT Requests ///
 ////////////////////
 
+app.options('/tasks/:id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
+	response.json({methods: ["GET","PUT","DELETE"], PUT: {body: Tasks.schema}});
+});
+
 //app.put('/tasks/:task_id')
 app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
+				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {
@@ -263,6 +296,7 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 				Tasks.find_by_id(request.params.id, function(err, results, fields) {
 					if(results && results.length > 0 && results[0].user_id == request.user.id) {
 						request.checkBody('name', "can't be empty").optional().notEmpty();
+						request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 
 						request.getValidationResult().then(function(result) {
 							if (!result.isEmpty()) {
@@ -289,6 +323,11 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	} else {
 		response.sendStatus(401);
 	}
+});
+
+app.options('/users/:user_id/tasks/:task_id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
+	response.json({methods: ["GET","PUT","DELETE"], PUT: {notes: "task_id and user_id is defined in the URL, not the body", body: TaskAssignments.schema}});
 });
 
 //app.put('/users/:user_id/tasks/:task_id')

@@ -46,7 +46,7 @@ Users.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS users (id int NOT NULL AUTO_INCREMENT, lastname varchar(255) NOT NULL, firstname varchar(255) NOT NULL, title varchar(255), email varchar(255), hashed_password char(60), admin boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS users (id int NOT NULL AUTO_INCREMENT, lastname varchar(255) NOT NULL, firstname varchar(255) NOT NULL, title varchar(255), email varchar(255), hashed_password char(60), admin boolean DEFAULT FALSE, UNIQUE(email), PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -64,6 +64,18 @@ Users.create_default_user = function() {
 
     if(rows && rows.length == 0) {
       Users.add({firstname:'Root', lastname:'Admin', title:'Default User', email:'admin@admin.com', hashed_password:bcrypt.hashSync("password"), admin:1}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Users.add({firstname:'John', lastname:'Doe', title:'Example User 1', email:'john@example.com', hashed_password:bcrypt.hashSync("passwordjohn"), admin:0}, function(err, rows, field) {
+         if(err) {
+           console.log(err);
+         }
+      });
+
+      Users.add({firstname:'Michael', lastname:'Jordan', title:'Example User 2', email:'mike@example.com', hashed_password:bcrypt.hashSync("passwordmike"), admin:0}, function(err, rows, field) {
          if(err) {
            console.log(err);
          }

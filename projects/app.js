@@ -7,6 +7,7 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var httpRequest = require('request');
+var api_urls = require('./api-urls');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);
@@ -20,6 +21,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 app.use(expressValidator()); // Used for post and put data validation
 
 app.use(morgan('dev'));
+
+console.log("Environment: " + app.get('env'));
 
 //////////////////////
 // Helper Functions //
@@ -48,7 +51,7 @@ ProjectUsers.connect();
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
 
@@ -58,7 +61,7 @@ function getTokenFromHeader(request) {
 }
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the Projects API");
+	response.send("Welcome to the Projects API.  Updated the code!  Updated again!");
 });
 
 //List routes
@@ -82,9 +85,25 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 					}
 				}
 
-				httpRequest("https://ryukyu-social.cleverword.com/users_service/api/users?"+idsArrStr, function(error, httpResponse, body) {
+				var users_service_url;
+				switch(app.get('env')) {
+					case 'development':
+						users_service_url = api_urls.local_development.users_service;
+						break;
+					case 'remote_development':
+						users_service_url = api_urls.remote_development.users_service;
+						break;
+					case 'production':
+						users_service_url = api_urls.production.users_service;
+						break;
+					default:
+						throw new Error('Unknown execution environment: ' + app.get('env'));
+				}
+
+				httpRequest(users_service_url + "/users?" + idsArrStr, function(error, httpResponse, body) {
 					if(error) {
 						//return without the user details
+						console.log("Error: " + error);
 						response.json(results);
 					} else {
 						//return with the user details
@@ -168,7 +187,8 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 		ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 0)) {	
 				request.checkBody('user_id', "can't be empth").notEmpty();
-				request.checkBody('user_id', "must be numeric").isInt();
+				request.checkBody('status',"options are: [active, inactive]").optional().matches(/\b(?:active|inactive)\b/);
+				request.checkBody('write_access', "options are: [0, 1, 2]").optional().matches(/\b(?:0|1|2)\b/);
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {
@@ -176,7 +196,7 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 						return;
 					} else {
-						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, 1, request.body.write_access, function(err, results, fields) {
+						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, "active", request.body.write_access, function(err, results, fields) {
 							if(err) {
 								console.log(err);
 								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
@@ -222,11 +242,17 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 	}
 });*/
 
+app.options('/projects', function(request, response) {
+	response.header("Allow", "GET,POST,OPTIONS");
+	response.json({methods: ["GET","POST"], POST: {body: Projects.schema}});
+});
+
 //app.post('/projects');
 app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		//(id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description varchar(255), source_code_url varchar(255), development_server_url varchar(255), production_server_url varchar(255), PRIMARY KEY(id)
 		request.checkBody('name', "can't be empty").notEmpty();
+		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
 		
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
@@ -238,7 +264,7 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 					if(err) {
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						ProjectUsers.add(results.insertId, request.user.id, null, 1, 2, function(err, resultTwo, fields) {
+						ProjectUsers.add(results.insertId, request.user.id, null, "active", 2, function(err, resultTwo, fields) {
 							response.json({status: "success", message: "Project added!", project_id: results.insertId});
 						}); //Give level 2 write permissions
 					}
@@ -250,52 +276,92 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	}
 });
 
+app.options('/projects/:project_id/users/:user_id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
+	response.json({methods:["GET","PUT","DELETE"], PUT: {notes: "project_id and user_id is defined in the URL, not the body", body: ProjectUsers.schema}});
+});
+
 //Edit routes
 //app.put('/projects/:project_id/users/:user_id')
 app.put('/projects/:project_id/users/:user_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Edit user permissions
 	if(request.user) {
-		ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
-			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 1)) {
-				ProjectUsers.update(request.params.project_id, request.params.user_id, request.body, function(err, results, fields) {
-					if(err) {
-						console.log(err);
-						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+		//(id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description varchar(255), source_code_url varchar(255), development_server_url varchar(255), production_server_url varchar(255), PRIMARY KEY(id)
+		request.checkBody('status',"options are: [active, inactive]").optional().matches(/\b(?:active|inactive)\b/);
+		request.checkBody('write_access', "options are: [0, 1, 2]").optional().matches(/\b(?:0|1|2)\b/);
+		
+		request.getValidationResult().then(function(result)  {
+			if (!result.isEmpty()) {
+				console.log(JSON.stringify(result.array()));
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
+					if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 1)) {
+						ProjectUsers.update(request.params.project_id, request.params.user_id, request.body, function(err, results, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
+							}
+						});
 					} else {
-						response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
+						response.sendStatus(401);
 					}
 				});
-			} else {
-				response.sendStatus(401);
 			}
 		});
 	} else {
 		response.sendStatus(401);
 	}
 });
+
+app.options('/users/:user_id/projects/:project_id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
+	response.json({methods:["GET","PUT","DELETE"], PUT: {notes: "project_id and user_id is defined in the URL, not the body", body: ProjectUsers.schema}});
+});
+
 //app.put('/users/:user_id/projects/:project_id')
 app.put('/users/:user_id/projects/:project_id',  express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Edit user permissions
 	if(request.user) {
-		ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
-			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 1)) {
-				ProjectUsers.update(request.params.project_id, request.params.user_id, request.body, function(err, results, fields) {
-					if(err) {
-						console.log(err);
-						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+		//(id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description varchar(255), source_code_url varchar(255), development_server_url varchar(255), production_server_url varchar(255), PRIMARY KEY(id)
+		request.checkBody('status',"options are: [active, inactive]").optional().matches(/\b(?:active|inactive)\b/);
+		request.checkBody('write_access', "options are: [0, 1, 2]").optional().matches(/\b(?:0|1|2)\b/);
+		
+		request.getValidationResult().then(function(result)  {
+			if (!result.isEmpty()) {
+				console.log(JSON.stringify(result.array()));
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
+					if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 1)) {
+						ProjectUsers.update(request.params.project_id, request.params.user_id, request.body, function(err, results, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
+							}
+						});
 					} else {
-						response.json({status: "success", message: "Project permissions updated!", project_id: request.params.project_id});
+						response.sendStatus(401);
 					}
 				});
-			} else {
-				response.sendStatus(401);
 			}
 		});
 	} else {
 		response.sendStatus(401);
-	}	
-
+	}
 });
+
+app.options('/projects/:id', function(request, response) {
+	response.header("Allow", "GET,PUT,DELETE,OPTIONS");
+	response.json({methods:["GET","PUT","DELETE"],PUT:{body:Projects.schema}});
+});
+
 //app.put('/projects/:project_id')
 app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	//Allow admin, creator of project, and people with project write access to edit the project
@@ -305,6 +371,8 @@ app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 		ProjectUsers.find_project_user_pairing(request.params.id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 0)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
+				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+	
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {

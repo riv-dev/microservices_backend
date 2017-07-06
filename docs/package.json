@@ -1,0 +1,14 @@
+{
+  "name": "documentation",
+  "version": "1.0.0",
+  "description": "Documentation",
+  "main": "doc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ken Le",
+  "license": "ISC",
+  "dependencies": {
+    "express-api-doc": "*"
+  }
+}

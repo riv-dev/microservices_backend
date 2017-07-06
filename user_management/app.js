@@ -35,7 +35,7 @@ Users.connect();
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
 
@@ -79,7 +79,7 @@ app.post('/users/authenticate', function(req, res) {
 });
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the Users API.");
+	response.send("Welcome to the Users API. It's been updated! And again!!");
 });
 
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
@@ -117,43 +117,56 @@ app.get('/users/:id', express_jwt({secret: app.get('jwt_secret'), credentialsReq
 });
 
 app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	if(request.user.admin) {
-		request.checkBody('lastname', "can't be empty").notEmpty();
-		request.checkBody('lastname', "must be alpha characters").isAlpha();
-		request.checkBody('firstname',"can't be empty").notEmpty();
-		request.checkBody('firstname', "must be alpha characters").isAlpha();
+  	Users.find_by_email(request.body.email, function(err, results, fields) { //make sure email has not already been taken
+		var emailUniqueError = null;
 
-		if(request.body.email && request.body.email != null)
-			request.checkBody('email', 'must be a valid email address').isEmail();
-
-		if(request.body.admin && request.body.admin != null)
-			request.checkBody('admin', 'must be boolean value').isBoolean();
-
-		if(request.body.password && request.body.password.length > 0) {
-			request.body.hashed_password = bcrypt.hashSync(request.body.password);
-			delete request.body.password; //prep request.body to feed into User.update
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
 		}
+		else if(results && results.length > 0) {
+			emailUniqueError = {"param":"email", "msg":"Email is already used.  Please choose another one."};
+		} //End else if(user)
 
+		if(request.user.admin) {
+			request.checkBody('lastname', "can't be empty").notEmpty();
+			request.checkBody('lastname', "must be alpha characters").isAlpha();
+			request.checkBody('firstname',"can't be empty").notEmpty();
+			request.checkBody('firstname', "must be alpha characters").isAlpha();
 
-		request.getValidationResult().then(function(result) {
-			if (!result.isEmpty()) {
-				console.log(result.array());
-				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
-				return;
-			} else {
-				Users.add(request.body, function(err, results, field) {
-					if(err) {
-						console.log(err);
-						response.status(500).json({status: "fail", message: "System error."});
-					} else {
-						response.send({status: "success", message: "User added!"});
-					}
-				});
+			if(request.body.email && request.body.email != null)
+				request.checkBody('email', 'must be a valid email address').isEmail();
+
+			if(request.body.admin && request.body.admin != null)
+				request.checkBody('admin', 'must be boolean value').isBoolean();
+
+			if(request.body.password && request.body.password.length > 0) {
+				request.body.hashed_password = bcrypt.hashSync(request.body.password);
+				delete request.body.password; //prep request.body to feed into User.update
 			}
-		});
-	} else {
-		response.sendStatus(401);
-	}
+
+			request.getValidationResult().then(function(result) {
+				if (emailUniqueError || !result.isEmpty()) {
+					if(emailUniqueError) {result.array().push(emailUniqueError)};
+					console.log(result.array());
+					response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+					return;
+				} else {
+					Users.add(request.body, function(err, results, field) {
+						if(err) {
+							console.log(err);
+							response.status(500).json({status: "fail", message: "System error."});
+						} else {
+							response.send({status: "success", message: "User added!"});
+						}
+					});
+				}
+			});
+		} else {
+			response.sendStatus(401);
+		}
+  	});
+
 });
 
 app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {

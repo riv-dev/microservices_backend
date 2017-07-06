@@ -1,7 +1,7 @@
 {
-  "name": "user_management",
+  "name": "user_photos",
   "version": "1.0.0",
-  "description": "User Management",
+  "description": "User Photos",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -170,14 +170,13 @@ Tasks.add = function(body, call_back) {
   var addValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property)) {
+      if (body.hasOwnProperty(property) && body[property]) {
         addStringArray.push(property);
         addMarksArray.push("?");
         addValuesArray.push(body[property]);
       }
   }
   console.log("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");");
-  console.log(JSON.parse(addValuesArray));
   this.db.query("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);

@@ -176,7 +176,7 @@ Tasks.add = function(body, call_back) {
         addValuesArray.push(body[property]);
       }
   }
-
+  console.log("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");");
   this.db.query("INSERT into tasks (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);

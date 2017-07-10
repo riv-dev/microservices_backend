@@ -170,9 +170,8 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 });
 
 app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	//Allow admin and owner of the account to modify attributes
-	if(request.user.admin || request.user.id == request.params.id) {
-
+	//Allow only the admin to edit the user information
+	if(request.user.admin) {
 		request.checkBody('lastname', "can't be empty").optional().notEmpty();
 		request.checkBody('lastname', "must be alpha characters").optional().isAlpha();
 		request.checkBody('firstname',"can't be empty").optional().notEmpty();
@@ -208,6 +207,39 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 		response.sendStatus(401);
 	}
 });
+
+//Allow both admin and owners of account to update password
+app.put('/users/:id/password', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	//Allow only the admin to edit the user information
+	if(request.user.admin || request.user.id == request.params.id) {
+		var hashed_password;
+		if(request.body.password && request.body.password.length > 0) {
+			request.body.hashed_password = bcrypt.hashSync(request.body.password);
+			delete request.body.password; //prep request.body to feed into User.update
+		}
+
+		request.getValidationResult().then(function(result) {
+			if (!result.isEmpty()) {
+				console.log(result.array());
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				Users.update(request.params.id, request.body, function(err, results, fields) {
+					if(err) {
+						console.log(err);
+						response.status(500).json({status: "fail", message: "MySQL error", errors: err});
+					} else {
+						response.json({status: "success", message: "User password updated!"});
+					}
+				});
+			}
+		});			
+	} else {
+		response.sendStatus(401);
+	}
+});
+
+
 
 app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user.admin) {

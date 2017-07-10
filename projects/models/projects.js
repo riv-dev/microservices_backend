@@ -126,7 +126,7 @@ Projects.add = function(body, call_back) {
   var addValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property)) {
+      if (body.hasOwnProperty(property) && body[property] && body[property] != null) {
         addStringArray.push(property);
         addMarksArray.push("?");
         addValuesArray.push(body[property]);

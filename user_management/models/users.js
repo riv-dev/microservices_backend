@@ -141,7 +141,7 @@ Users.update = function(id, body, call_back) {
   var updateValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property)  && body[property] && body[property] != null) {
+      if (body.hasOwnProperty(property) && body[property] && body[property] != null) {
         updateStringArray.push(property + " = ?");
         updateValuesArray.push(body[property]);
       }

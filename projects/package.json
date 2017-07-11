@@ -17,6 +17,7 @@
     "express-jwt": "*",
     "morgan": "*",
     "express-validator": "*",
-    "request": "*"
+    "request": "*",
+    "moment": "*"
   }
 }

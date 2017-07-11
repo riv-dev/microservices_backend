@@ -8,6 +8,7 @@ var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var httpRequest = require('request');
 var api_urls = require('./api-urls');
+var moment = require('moment');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);
@@ -253,6 +254,8 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 		//(id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description varchar(255), source_code_url varchar(255), development_server_url varchar(255), production_server_url varchar(255), PRIMARY KEY(id)
 		request.checkBody('name', "can't be empty").notEmpty();
 		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+		request.checkBody('start_date',"must be a valid date in ISO8601 format").optional().isISO8601();
+		request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
 		
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
@@ -260,6 +263,14 @@ app.post('/projects', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
+				if(request.body.start_date) {
+					request.body.start_date = moment(request.body.start_date).format("YYYY-MM-DD HH:mm:ss");
+				}
+
+				if(request.body.deadline) {
+					request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+				}
+
 				Projects.add(request.body, function(err, results, fields) {
 					if(err) {
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
@@ -372,7 +383,8 @@ app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 0)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
 				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
-	
+				request.checkBody('start_date',"must be a valid date in ISO8601 format").optional().isISO8601();
+				request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();	
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {
@@ -380,6 +392,14 @@ app.put('/projects/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 						return;
 					} else {
+						if(request.body.start_date) {
+							request.body.start_date = moment(request.body.start_date).format("YYYY-MM-DD HH:mm:ss");
+						}
+
+						if(request.body.deadline) {
+							request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+						}
+
 						Projects.update(request.params.id, request.body, function(err, results, fields) {
 							if(err) {
 								console.log(err);

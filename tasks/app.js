@@ -6,6 +6,7 @@ var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
+var moment = require('moment');
 
 //Configuration
 app.set('port',process.env.PORT || 5003);
@@ -167,6 +168,7 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
 		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+		request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
 		
 		request.getValidationResult().then(function(result) {
 
@@ -176,6 +178,9 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 				return;
 			} else {
 				request.body.creator_user_id = request.user.id;
+				if(request.body.deadline) {
+					request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+				}
 
 				Tasks.add(request.body, function(err, results, fields) {
 					if(err) {
@@ -202,6 +207,7 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 	if(request.user) {
 		request.checkBody('name', "can't be empty").notEmpty();
 		request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+		request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
 	
 		request.getValidationResult().then(function(result) {
 
@@ -212,6 +218,9 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 			} else {
 				request.body.creator_user_id = request.user.id;
 				request.body.project_id = request.params.project_id;
+				if(request.body.deadline) {
+					request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+				}
 
 				Tasks.add(request.body, function(err, results, fields) {
 					if(err) {
@@ -275,6 +284,8 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 			if(request.user.admin || (results && results.length >= 1)) { 
 				request.checkBody('name', "can't be empty").optional().notEmpty();
 				request.checkBody('status',"options are: [new, doing, finished]").optional().matches(/\b(?:new|doing|finished)\b/);
+				request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
+	
 
 				request.getValidationResult().then(function(result) {
 					if (!result.isEmpty()) {
@@ -282,6 +293,10 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 						return;
 					} else {
+						if(request.body.deadline) {
+							request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+						}
+
 						Tasks.update(request.params.id, request.body, function(err, results, fields) {
 							if(err) {
 								console.log(err);

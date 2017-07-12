@@ -129,9 +129,11 @@ Tasks.find_all = function (query, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
           queryStringArray.push(property + " = ?");
           queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
         }
     }
   }
@@ -155,9 +157,11 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
           queryStringArray.push("tasks." + property + " = ?");
           queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
         }
     }
   }

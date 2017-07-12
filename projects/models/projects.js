@@ -65,7 +65,7 @@ Projects.initialize_db = function(call_back) {
 }
 
 Projects.create_default_projects = function() {
-  Projects.find_all(function(err, rows, fields) {
+  Projects.find_all(null, function(err, rows, fields) {
     if(err) {
       console.log(err);
       return;
@@ -94,20 +94,62 @@ Projects.create_default_projects = function() {
   });
 }
 
-Projects.find_all = function (call_back) {
+Projects.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM projects;', function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Projects.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM projects;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
-Projects.find_all_by_user_id = function(user_id, call_back) {
+Projects.find_all_by_user_id = function(query, user_id, call_back) {
   console.log("find_all_by_user_id called.");
 
-  this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ?;', [user_id], function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Projects.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("projects." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  queryValuesArray.push(user_id);
+
+  if(queryStringArray.length > 0) {  
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ?;', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ?;', [user_id], function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
 Projects.find_by_id = function (id, call_back) {

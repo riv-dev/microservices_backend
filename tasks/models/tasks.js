@@ -66,7 +66,7 @@ Tasks.initialize_db = function(call_back) {
 }
 
 Tasks.create_default_tasks = function() {
-  Tasks.find_all(function(err, rows, fields) {
+  Tasks.find_all(null, function(err, rows, fields) {
     if(err) {
       console.log(err);
       return;
@@ -121,20 +121,58 @@ Tasks.create_default_tasks = function() {
 }
 
 
-Tasks.find_all = function (call_back) {
+Tasks.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM tasks;', function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM tasks;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
-Tasks.find_all_by_user_id = function(user_id, call_back) {
+Tasks.find_all_by_user_id = function(query, user_id, call_back) {
   console.log("find_all_by_user_id called.");
 
-  this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("tasks." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  queryValuesArray.push(user_id);
+
+  if(queryStringArray.length > 0) {  
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ?;', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
 Tasks.find_all_by_project_id = function(project_id, call_back) {

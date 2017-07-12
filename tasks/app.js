@@ -188,7 +188,7 @@ app.post('/tasks', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 					if(err) {
 						response.status(500).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "Task added!"});
+						response.json({status: "success", message: "Task added!", task_id: results.insertId});
 					}
 				});
 			}
@@ -228,7 +228,7 @@ app.post('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret
 					if(err) {
 						response.status(500).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "Task added!"});
+						response.json({status: "success", message: "Task added!", task_id: results.insertId});
 					}
 				});
 			}

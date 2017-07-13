@@ -139,11 +139,11 @@ Tasks.find_all = function (query, call_back) {
   }
 
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY deadline ASC, priority DESC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks;', function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks ORDER BY deadline ASC, priority DESC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -169,23 +169,23 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ?;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ORDER BY tasks.deadline ASC, tasks.priority DESC, LENGTH(tasks.status) ASC, tasks.id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ORDER BY tasks.deadline ASC, tasks.priority DESC, LENGTH(tasks.status) ASC, tasks.id DESC;', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
 }
 
-Tasks.find_all_by_project_id = function(project_id, call_back) {
+/*Tasks.find_all_by_project_id = function(project_id, call_back) {
   console.log("find_all_by_project_id called.");
 
   this.db.query('SELECT * FROM tasks WHERE project_id = ?;', [project_id], function (err, results, fields) {
     call_back(err, results, fields);
   });  
-}
+}*/
 
 Tasks.find_by_id = function (id, call_back) {
   console.log("find_by_id called.");

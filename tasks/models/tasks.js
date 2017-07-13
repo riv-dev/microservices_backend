@@ -17,7 +17,8 @@ Tasks.schema = {
   status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
   deadline: {type: "datetime", required: false},
   project_id: {type: "int", required: false, description: "Usually defined when POSTING a task to a URL /projects/:project_id/tasks. No need to edit"},
-  creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"}
+  creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"},
+  archived: {type: "boolean", description: "Flag to archive the task."}
 }
 
 Tasks.connect = function () {
@@ -56,7 +57,7 @@ Tasks.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "new", deadline datetime, project_id int, creator_user_id int, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "new", deadline datetime, project_id int, creator_user_id int, archived boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     }
@@ -139,11 +140,11 @@ Tasks.find_all = function (query, call_back) {
   }
 
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY archived ASC, -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks ORDER BY -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks ORDER BY archived ASC, -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -169,11 +170,11 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ORDER BY -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ORDER BY tasks.archived ASC, -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ORDER BY -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ORDER BY tasks.archived ASC, -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

@@ -112,11 +112,11 @@ Projects.find_all = function (query, call_back) {
   }
 
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY deadline ASC, value DESC, start_date ASC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY -deadline DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects ORDER BY deadline ASC, value DESC, start_date ASC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
+    this.db.query('SELECT * FROM projects ORDER BY -deadline DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -142,11 +142,11 @@ Projects.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ? ORDER BY projects.deadline ASC, projects.value DESC, projects.start_date ASC, LENGTH(projects.status) ASC, projects.id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ? ORDER BY -projects.deadline DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ? ORDER BY projects.deadline ASC, projects.value DESC, projects.start_date ASC, LENGTH(projects.status) ASC, projects.id DESC;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ? ORDER BY -projects.deadline DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC;', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

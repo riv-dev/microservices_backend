@@ -139,12 +139,14 @@ Tasks.find_all = function (query, call_back) {
     }
   }
 
+  var orderByClause =  " ORDER BY archived ASC, CASE WHEN archived=0 THEN -deadline END DESC, CASE WHEN archived=1 THEN -deadline END ASC, -priority ASC, LENGTH(status) ASC, id DESC";
+
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY archived ASC, -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + orderByClause + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks ORDER BY archived ASC, -deadline DESC, -priority ASC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks ' + orderByClause + ';', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -169,12 +171,14 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
 
   queryValuesArray.push(user_id);
 
+  var orderByClause =  " ORDER BY tasks.archived ASC, CASE WHEN tasks.archived=0 THEN -tasks.deadline END DESC, CASE WHEN tasks.archived=1 THEN -tasks.deadline END ASC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC";
+
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ORDER BY tasks.archived ASC, -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ' + orderByClause + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ORDER BY tasks.archived ASC, -tasks.deadline DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ' + orderByClause + ';', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

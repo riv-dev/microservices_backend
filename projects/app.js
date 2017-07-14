@@ -122,6 +122,17 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 	});
 });
 
+//app.get('/users/:id/projects-count');
+app.get('/users/:user_id/projects-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Projects.count_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			response.send(err);
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
 //app.get('/users/:id/projects');
 app.get('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	Projects.find_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
@@ -129,6 +140,17 @@ app.get('/users/:user_id/projects', express_jwt({secret: app.get('jwt_secret'), 
 			response.send(err);
 		} else {
 			response.json(results);
+		}
+	});
+});
+
+//app.get('/projects-count');
+app.get('/projects-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Projects.count_all(request.query, function(err,results,fields) {
+		if(err) {
+			response.send(err);
+		} else {
+			response.json(results[0].num_rows);
 		}
 	});
 });

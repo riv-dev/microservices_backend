@@ -55,6 +55,18 @@ app.get('/', function(request, response) {
 });
 
 //app.get('/tasks');
+app.get('/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Tasks.count_all(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+//app.get('/tasks');
 app.get('/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	Tasks.find_all(request.query, function(err,results,fields) {
 		if(err) {
@@ -104,6 +116,18 @@ app.get('/tasks/:task_id/users', express_jwt({secret: app.get('jwt_secret'), cre
 });
 
 //app.get('/users/:id/tasks');
+app.get('/users/:user_id/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Tasks.count_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+//app.get('/users/:id/tasks');
 app.get('/users/:user_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	Tasks.find_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
 		if(err) {
@@ -111,6 +135,20 @@ app.get('/users/:user_id/tasks', express_jwt({secret: app.get('jwt_secret'), cre
 			response.status(500).json({status: "fail", message: "System error."});
 		} else {
 			response.json(results);
+		}
+	});
+});
+
+//app.get('/projects/:project_id/tasks');
+app.get('/projects/:project_id/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.count_all(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
 		}
 	});
 });

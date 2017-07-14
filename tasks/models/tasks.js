@@ -121,8 +121,32 @@ Tasks.create_default_tasks = function() {
   });
 }
 
-Tasks.count_all = function(query) {
+Tasks.count_all = function(query, call_back) {
+  console.log("count_all called.");
 
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT count(id) as num_rows FROM tasks WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT count(id) as num_rows FROM tasks;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
 Tasks.find_all = function (query, call_back) {
@@ -161,6 +185,36 @@ Tasks.find_all = function (query, call_back) {
     });
   } else {
     this.db.query('SELECT * FROM tasks ' + orderByClause + limitStr + ';', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+}
+
+Tasks.count_all_by_user_id = function(query, user_id, call_back) {
+  console.log("count_all_by_user_id called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("tasks." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  queryValuesArray.push(user_id);
+
+  if(queryStringArray.length > 0) {  
+    this.db.query('SELECT count(id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ?;', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT count(id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

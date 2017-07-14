@@ -210,11 +210,11 @@ Tasks.count_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT count(id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ?;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT count(tasks.id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ?;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT count(id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT count(tasks.id) as num_rows FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ?;', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

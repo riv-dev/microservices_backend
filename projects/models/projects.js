@@ -153,11 +153,11 @@ Projects.find_all = function (query, call_back) {
   }
 
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT *,status AS project_status FROM projects WHERE ' + queryStringArray.join(" AND ") + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects' + orderByClause + limitStr + ';', function (err, results, fields) {
+    this.db.query('SELECT *,status AS project_status FROM projects' + orderByClause + limitStr + ';', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -226,11 +226,11 @@ Projects.find_all_by_user_id = function(query, user_id, call_back) {
   }
 
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ?' + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT *,projects.status AS project_status,project_users.status AS user_status FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ?' + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ?' + orderByClause + limitStr + ';', [user_id], function (err, results, fields) {
+    this.db.query('SELECT *,projects.status AS project_status,project_users.status AS user_status FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ?' + orderByClause + limitStr + ';', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

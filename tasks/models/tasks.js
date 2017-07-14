@@ -121,6 +121,9 @@ Tasks.create_default_tasks = function() {
   });
 }
 
+Tasks.count_all = function(query) {
+
+}
 
 Tasks.find_all = function (query, call_back) {
   console.log("find_all called.");
@@ -139,14 +142,25 @@ Tasks.find_all = function (query, call_back) {
     }
   }
 
+  //Task Ranking
   var orderByClause =  " ORDER BY archived ASC, CASE WHEN archived=0 THEN -deadline END DESC, CASE WHEN archived=1 THEN -deadline END ASC, -priority ASC, LENGTH(status) ASC, id DESC";
 
+  //Pagination
+  var limitStr = "";
+
+  if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+  }
+  else if(query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + orderByClause + ';', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks WHERE ' + queryStringArray.join(" AND ") + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks ' + orderByClause + ';', function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks ' + orderByClause + limitStr + ';', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -171,14 +185,25 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
 
   queryValuesArray.push(user_id);
 
+  //Task Ranking
   var orderByClause =  " ORDER BY tasks.archived ASC, CASE WHEN tasks.archived=0 THEN -tasks.deadline END DESC, CASE WHEN tasks.archived=1 THEN -tasks.deadline END ASC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC";
 
+  //Pagination
+  var limitStr = "";
+
+  if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+  }
+  else if(query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ' + orderByClause + ';', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE '+ queryStringArray.join(" AND ") + ' AND task_assignments.user_id = ? ' + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ' + orderByClause + ';', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM tasks INNER JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.user_id = ? ' + orderByClause + limitStr + ';', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

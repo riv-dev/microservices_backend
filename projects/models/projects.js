@@ -111,12 +111,25 @@ Projects.find_all = function (query, call_back) {
     }
   }
 
+  //Project Ranking
+  var orderByClause = ' ORDER BY -deadline DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC';
+
+  //Pagination
+  var limitStr = "";
+
+  if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+  }
+  else if(query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
   if(queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY -deadline DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" AND ") + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects ORDER BY -deadline DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC;', function (err, results, fields) {
+    this.db.query('SELECT * FROM projects' + orderByClause + limitStr + ';', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }
@@ -141,12 +154,25 @@ Projects.find_all_by_user_id = function(query, user_id, call_back) {
 
   queryValuesArray.push(user_id);
 
+  //Project Ranking
+  var orderByClause = ' ORDER BY -projects.deadline DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC';
+
+  //Pagination
+  var limitStr = "";
+
+  if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+  }
+  else if(query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
   if(queryStringArray.length > 0) {  
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ? ORDER BY -projects.deadline DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC;', queryValuesArray, function (err, results, fields) {
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE '+ queryStringArray.join(" AND ") + ' AND project_users.user_id = ?' + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ? ORDER BY -projects.deadline DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC;', [user_id], function (err, results, fields) {
+    this.db.query('SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = ?' + orderByClause + limitStr + ';', [user_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

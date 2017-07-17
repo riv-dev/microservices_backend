@@ -8,6 +8,7 @@ var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var moment = require('moment');
 
+
 //Configuration
 app.set('port',process.env.PORT || 5003);
 app.set('jwt_secret', credentials.authentication.secret);

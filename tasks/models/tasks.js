@@ -1,6 +1,5 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
-var htmlencode = require('htmlencode');
 
 //The Tasks model class
 var Tasks = function (id, lastname, firstname, title) {
@@ -300,11 +299,6 @@ Tasks.add = function(body, call_back) {
       if (body.hasOwnProperty(property) && body[property] != null) {
         addStringArray.push(property);
         addMarksArray.push("?");
-
-        //Encode HTML for description field
-        if(property == "description") {
-          body[property] = htmlencode.htmlEncode(body[property]);
-        }
         addValuesArray.push(body[property]);
       }
   }
@@ -326,12 +320,6 @@ Tasks.update = function(id, body, call_back) {
   for (var property in body) {
       if (body.hasOwnProperty(property) && body[property] != null) {
         updateStringArray.push(property + " = ?");
-
-        //Encode HTML for description field
-        if(property == "description") {
-          body[property] = htmlencode.htmlEncode(body[property]);
-        }
-
         updateValuesArray.push(body[property]);
       }
   }

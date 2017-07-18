@@ -14,7 +14,7 @@ Tasks.schema = {
   name: {type: "varchar(255)", required: true},
   description: {type: "text", required: false},
   priority: {type: "int", required: false},
-  status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
+  status: {type: "varchar(255)", required: false, default: "dump", options: ["dump", "waiting", "doing", "finished"]},
   deadline: {type: "datetime", required: false},
   project_id: {type: "int", required: false, description: "Usually defined when POSTING a task to a URL /projects/:project_id/tasks. No need to edit"},
   creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"},
@@ -57,7 +57,7 @@ Tasks.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "new", deadline datetime, project_id int, creator_user_id int, archived boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "dump", deadline datetime, project_id int, creator_user_id int, archived boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     }

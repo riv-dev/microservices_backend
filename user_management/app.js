@@ -131,7 +131,7 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 		if(request.user.admin) {
 			request.checkBody('lastname', "can't be empty").notEmpty();
 			request.checkBody('firstname',"can't be empty").notEmpty();
-			request.checkBody('email', 'must be a valid email address').notEmpty();
+			request.checkBody('email', "can't be empty").notEmpty();
 			request.checkBody('email', 'must be a valid email address').isEmail();
 
 			if(request.body.admin && request.body.admin != null)
@@ -171,7 +171,7 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	if(request.user.admin) {
 		request.checkBody('lastname', "can't be empty").optional().notEmpty();
 		request.checkBody('firstname',"can't be empty").optional().notEmpty();
-		request.checkBody('email', 'must be a valid email address').optional().notEmpty();
+		request.checkBody('email', "can't be empty").optional().notEmpty();
 		request.checkBody('email', 'must be a valid email address').optional().isEmail();
 
 		if(request.body.admin && request.body.admin != null)

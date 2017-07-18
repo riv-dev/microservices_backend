@@ -130,12 +130,9 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 
 		if(request.user.admin) {
 			request.checkBody('lastname', "can't be empty").notEmpty();
-			request.checkBody('lastname', "must be alpha characters").isAlpha();
 			request.checkBody('firstname',"can't be empty").notEmpty();
-			request.checkBody('firstname', "must be alpha characters").isAlpha();
-
-			if(request.body.email && request.body.email != null)
-				request.checkBody('email', 'must be a valid email address').isEmail();
+			request.checkBody('email', 'must be a valid email address').notEmpty();
+			request.checkBody('email', 'must be a valid email address').isEmail();
 
 			if(request.body.admin && request.body.admin != null)
 				request.checkBody('admin', 'must be boolean value').isBoolean();
@@ -173,11 +170,10 @@ app.put('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 	//Allow only the admin to edit the user information
 	if(request.user.admin) {
 		request.checkBody('lastname', "can't be empty").optional().notEmpty();
-		request.checkBody('lastname', "must be alpha characters").optional().isAlpha();
 		request.checkBody('firstname',"can't be empty").optional().notEmpty();
-		request.checkBody('firstname', "must be alpha characters").optional().isAlpha();
-		if(request.body.email && request.body.email != null)
-			request.checkBody('email', 'must be a valid email address').optional().isEmail();
+		request.checkBody('email', 'must be a valid email address').optional().notEmpty();
+		request.checkBody('email', 'must be a valid email address').optional().isEmail();
+
 		if(request.body.admin && request.body.admin != null)
 			request.checkBody('admin', 'must be boolean value').optional().isBoolean();
 

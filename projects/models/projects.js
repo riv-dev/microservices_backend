@@ -55,7 +55,7 @@ Projects.initialize_db = function(call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "new", start_date datetime, deadline datetime, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "new", start_date datetime, deadline datetime, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 

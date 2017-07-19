@@ -168,6 +168,34 @@ app.get('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'
 	});
 });
 
+//app.get('/projects/:project_id/tasks');
+app.get('/projects/:project_id/users/:user_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.find_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results);
+		}
+	});
+});
+
+//Same as above
+app.get('/users/:user_id/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.find_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results);
+		}
+	});
+});
+
 //Detail routes
 //app.get('/tasks/:task_id/users/:user_id); details of user regarding task (e.g. permissions)
 app.get('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {

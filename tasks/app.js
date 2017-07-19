@@ -168,6 +168,34 @@ app.get('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'
 	});
 });
 
+//Count
+app.get('/projects/:project_id/users/:user_id/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.count_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+//Same as above
+app.get('/users/:user_id/projects/:project_id/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.count_all_by_user_id(request.query, request.params.user_id, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
 //app.get('/projects/:project_id/tasks');
 app.get('/projects/:project_id/users/:user_id/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	request.query.project_id = request.params.project_id;

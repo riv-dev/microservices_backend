@@ -167,7 +167,7 @@ Tasks.find_all = function (query, call_back) {
   }
 
   //Task Ranking
-  var orderByClause =  " ORDER BY archived ASC, CASE WHEN archived=0 THEN -deadline END DESC, CASE WHEN archived=1 THEN -deadline END ASC, -priority ASC, LENGTH(status) ASC, id DESC";
+  var orderByClause =  " ORDER BY archived ASC, CASE WHEN archived=0 THEN -deadline END DESC, CASE WHEN archived=1 THEN -deadline END ASC, -priority ASC, LENGTH(status) ASC, id DESC, updated_at DESC";
 
   //Pagination
   var limitStr = "";
@@ -240,7 +240,7 @@ Tasks.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   //Task Ranking
-  var orderByClause =  " ORDER BY tasks.archived ASC, CASE WHEN tasks.archived=0 THEN -tasks.deadline END DESC, CASE WHEN tasks.archived=1 THEN -tasks.deadline END ASC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC";
+  var orderByClause =  " ORDER BY tasks.archived ASC, CASE WHEN tasks.archived=0 THEN -tasks.deadline END DESC, CASE WHEN tasks.archived=1 THEN -tasks.deadline END ASC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC, tasks.updated_at DESC";
 
   //Pagination
   var limitStr = "";

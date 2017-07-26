@@ -4,7 +4,8 @@
   "description": "User Management",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "test": "mocha --timeout 10000"
   },
   "author": "Ken Le",
   "license": "ISC",
@@ -16,6 +17,15 @@
     "express-jwt": "*",
     "morgan": "*",
     "bcrypt-nodejs": "*",
-    "express-validator": "*"
-  }
+    "express-validator": "*",
+    "faker": "*",
+    "chai": "*",
+    "chai-http": "*"
+  },
+  "devDependencies": {
+    "faker": "*",
+    "chai": "*",
+    "chai-http": "*",
+    "mocha": "*"
+  } 
 }

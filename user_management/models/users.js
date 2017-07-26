@@ -10,11 +10,11 @@ var Users = function (id, lastname, firstname, title) {
 //Static Methods and Variables
 Users.db = "Yo!";
 
-Users.connect = function () {
+Users.connect = function (env) {
   this.db = mysql.createConnection({
-    host: credentials.mysql.host,
-    user: credentials.mysql.username,
-    password: credentials.mysql.password,
+    host: credentials.mysql[env].host,
+    user: credentials.mysql[env].username,
+    password: credentials.mysql[env].password
   });
 
   this.db.connect(function(err) {
@@ -64,18 +64,6 @@ Users.create_default_user = function() {
 
     if(rows && rows.length == 0) {
       Users.add({firstname:'Root', lastname:'Admin', title:'Default User', email:'admin@admin.com', hashed_password:bcrypt.hashSync("password"), admin:1}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      Users.add({firstname:'John', lastname:'Doe', title:'Example User 1', email:'john@example.com', hashed_password:bcrypt.hashSync("passwordjohn"), admin:0}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      Users.add({firstname:'Michael', lastname:'Jordan', title:'Example User 2', email:'mike@example.com', hashed_password:bcrypt.hashSync("passwordmike"), admin:0}, function(err, rows, field) {
          if(err) {
            console.log(err);
          }

@@ -7,6 +7,7 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var bcrypt = require('bcrypt-nodejs'); //for password hashing
 var expressValidator = require('express-validator');
+var seeder = require('./seeder.js');
 
 //Configuration
 app.set('port',process.env.PORT || 5000);
@@ -25,7 +26,9 @@ app.use(morgan('dev'));
 /// Database ///
 ////////////////
 var Users = require('./models/users.js');
-Users.connect();
+Users.connect(app.get("env"));
+
+
 
 //////////////
 /// Routes ///
@@ -125,7 +128,7 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 			response.status(500).json({status: "fail", message: "System error."});
 		}
 		else if(results && results.length > 0) {
-			emailUniqueError = {"param":"email", "msg":"Email is already used.  Please choose another one."};
+			emailUniqueError = {"param":"email", "msg":"Email is already used.  Please choose another one.", "user_id": results[0].id};
 		} //End else if(user)
 
 		if(request.user.admin) {
@@ -154,7 +157,7 @@ app.post('/users', express_jwt({secret: app.get('jwt_secret'), getToken: getToke
 							console.log(err);
 							response.status(500).json({status: "fail", message: "System error."});
 						} else {
-							response.send({status: "success", message: "User added!"});
+							response.send({status: "success", message: "User added!", user_id: results.insertId});
 						}
 					});
 				}
@@ -244,7 +247,7 @@ app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 				console.log(err);
 				response.status(500).json({status: "fail", message: "System error."});
 			} else {
-				response.json({status: "success", message: "User deleted."});
+				response.json({status: "success", message: "User deleted.", user_id: request.params.id});
 			}
 		});
 	} else {
@@ -255,4 +258,13 @@ app.delete('/users/:id', express_jwt({secret: app.get('jwt_secret'), getToken: g
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
+
+		console.log("NODE_ENV="+app.get('env'));
+
+	if(app.get('env') == "development" || app.get('env') == "remote_development") {
+		//Seed fake data
+		seeder.seed_data(app);
+	}
 });
+
+module.exports = app;

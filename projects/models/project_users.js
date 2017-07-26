@@ -17,11 +17,11 @@ ProjectUsers.schema = {
   write_access: {type: "int", required: false, options: [0,1,2]},
 }
 
-ProjectUsers.connect = function () {
+ProjectUsers.connect = function (env) {
   this.db = mysql.createConnection({
-    host: credentials.mysql.host,
-    user: credentials.mysql.username,
-    password: credentials.mysql.password,
+    host: credentials.mysql[env].host,
+    user: credentials.mysql[env].username,
+    password: credentials.mysql[env].password,
   });
 
   this.db.connect(function(err) {
@@ -57,43 +57,6 @@ ProjectUsers.initialize_db = function(call_back) {
     if(err) {
       console.log(err);
     } 
-  });
-
-  ProjectUsers.create_default_project_users();
-}
-
-ProjectUsers.create_default_project_users = function() {
-  ProjectUsers.find_all(function(err, rows, fields) {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    if(rows && rows.length == 0) {
-      ProjectUsers.add(1,2,"Front End","active",1, function(err,rows,fields) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      ProjectUsers.add(1,3,"Back End","active",1, function(err,rows,fields) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      ProjectUsers.add(2,2,"Full Stack","active",1, function(err,rows,fields) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      ProjectUsers.add(3,2,"Full Stack","active",1, function(err,rows,fields) {
-         if(err) {
-           console.log(err);
-         }
-      });
-    }
   });
 }
 

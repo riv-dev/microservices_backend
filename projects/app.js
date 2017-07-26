@@ -9,6 +9,7 @@ var expressValidator = require('express-validator');
 var httpRequest = require('request');
 var api_urls = require('./api-urls');
 var moment = require('moment');
+var seeder = require('./seeder');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);
@@ -39,10 +40,10 @@ function extend(obj, src) {
 /// Database ///
 ////////////////
 var Projects = require('./models/projects.js');
-Projects.connect();
+Projects.connect(app.get('env'));
 
 var ProjectUsers = require('./models/project_users.js');
-ProjectUsers.connect();
+ProjectUsers.connect(app.get('env'));
 
 //////////////
 /// Routes ///
@@ -209,26 +210,36 @@ app.post('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret
 	if(request.user) {
 		ProjectUsers.find_project_user_pairing(request.params.project_id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1 && results[0].write_access > 0)) {	
-				request.checkBody('user_id', "can't be empth").notEmpty();
-				request.checkBody('status',"options are: [active, inactive]").optional().matches(/\b(?:active|inactive)\b/);
-				request.checkBody('write_access', "options are: [0, 1, 2]").optional().matches(/\b(?:0|1|2)\b/);
-
-				request.getValidationResult().then(function(result) {
-					if (!result.isEmpty()) {
-						console.log(result.array());
-						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
-						return;
-					} else {
-						ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, "active", request.body.write_access, function(err, results, fields) {
-							if(err) {
-								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
-							} else {
-								response.json({status: "success", message: "User added to project!", project_id: request.params.project_id});
-							}
-						});
+				ProjectUsers.find_project_user_pairing(request.params.project_id,request.body.user_id, function(err,results,fields) {	
+					if(err) {
+						response.status(500).json({status: "fail", message: "A system error occured."});
 					}
-				});		
+					else if(results && results.length > 0) {
+						//already exists
+						response.status(400).json({status: "fail", message: "User already assigned to project."});
+					} else {
+						request.checkBody('user_id', "can't be empth").notEmpty();
+						request.checkBody('status',"options are: [active, inactive]").optional().matches(/\b(?:active|inactive)\b/);
+						request.checkBody('write_access', "options are: [0, 1, 2]").optional().matches(/\b(?:0|1|2)\b/);
+
+						request.getValidationResult().then(function(result) {
+							if (!result.isEmpty()) {
+								console.log(result.array());
+								response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+								return;
+							} else {
+								ProjectUsers.add(request.params.project_id, request.body.user_id, request.body.role, "active", request.body.write_access, function(err, results, fields) {
+									if(err) {
+										console.log(err);
+										response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+									} else {
+										response.json({status: "success", message: "User added to project!", project_id: request.params.project_id, user_id: request.body.user_id});
+									}
+								});
+							}
+						});	//end getValidationResult()	
+					} //end else
+				}); //end ProjectUsers.find_project_user_pairing
 			} else {
 				response.sendStatus(401);
 			}
@@ -509,4 +520,11 @@ app.delete('/projects/:project_id', express_jwt({secret: app.get('jwt_secret'), 
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
+
+	console.log("NODE_ENV="+app.get('env'));
+
+	if(app.get('env') == "development" || app.get('env') == "remote_development") {
+		//Seed fake data
+		seeder.seed_data(app);
+	}
 });

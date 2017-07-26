@@ -8,10 +8,11 @@ services:
       - "5002:5002"
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
     links:
       - db-projects
     environment:
-      - NODE_ENV=remote_development
+      - NODE_ENV=development
 
   db-projects:
     image: mysql:5.7

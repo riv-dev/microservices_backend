@@ -8,6 +8,7 @@ services:
       - "5000:5000"
     volumes:
       - ./user_management:/usr/src/app
+      - /usr/src/app/node_modules
     links:
       - db-users
     environment:
@@ -23,26 +24,26 @@ services:
       - MYSQL_ROOT_PASSWORD=password
 
 
-  ryukyu-user-photos-service:
-    build: ./user_photos
-    image: ryukyu-user-photos-service-img
-    ports:
-      - "5001:5001"
-    volumes:
-      - ./user_photos:/usr/src/app
-    links:
-      - db-user-photos
-    environment:
-      - NODE_ENV=development
+#  ryukyu-user-photos-service:
+#    build: ./user_photos
+#    image: ryukyu-user-photos-service-img
+#    ports:
+#      - "5001:5001"
+#    volumes:
+#      - ./user_photos:/usr/src/app
+#    links:
+#      - db-user-photos
+#    environment:
+#      - NODE_ENV=development
 
-  db-user-photos:
-    image: mysql:5.7
-    ports:
-      - "5301:3306"
-    volumes:
-      - ./user_photos/db:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
+#  db-user-photos:
+#    image: mysql:5.7
+#    ports:
+#      - "5301:3306"
+#    volumes:
+#      - ./user_photos/db:/var/lib/mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=password
 
   ryukyu-projects-service:
     build: ./projects
@@ -51,6 +52,7 @@ services:
       - "5002:5002"
     volumes:
       - ./projects:/usr/src/app
+      - /usr/src/app/node_modules
     links:
       - db-projects
       - ryukyu-users-service
@@ -66,23 +68,23 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
   
-  ryukyu-tasks-service:
-    build: ./tasks
-    image: ryukyu-tasks-service-img
-    ports:
-      - "5003:5003"
-    volumes:
-      - ./tasks:/usr/src/app
-    links:
-      - db-tasks
-    environment:
-      - NODE_ENV=development
-
-  db-tasks:
-    image: mysql:5.7
-    ports:
-      - "5303:3306"
-    volumes:
-      - ./tasks/db:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
+#  ryukyu-tasks-service:
+#    build: ./tasks
+#    image: ryukyu-tasks-service-img
+#    ports:
+#      - "5003:5003"
+#    volumes:
+#      - ./tasks:/usr/src/app
+#    links:
+#      - db-tasks
+#    environment:
+#      - NODE_ENV=development
+#
+#  db-tasks:
+#    image: mysql:5.7
+#    ports:
+#      - "5303:3306"
+#    volumes:
+#      - ./tasks/db:/var/lib/mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=password

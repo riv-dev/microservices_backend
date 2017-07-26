@@ -81,6 +81,7 @@ Users.find_all = function (call_back) {
 }
 
 Users.find_all_by_ids = function(idArr, call_back) {
+  console.log("find_all_by_id called: " + idArr);
   var whereStr = "";
   for(var i=0;i<idArr.length;i++) {
     if(!isNaN(idArr[i])) { //make sure a valid int

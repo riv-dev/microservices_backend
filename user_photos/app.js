@@ -13,7 +13,7 @@ var fs = require("fs");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads/')
+    cb(null, 'uploads/')
   },
   filename: function (req, file, cb) {
     cb(null, 'user_' + req.params.id + "_" + Date.now() + path.extname(file.originalname));
@@ -83,7 +83,7 @@ app.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), cr
 		} else {
 			if(rows && rows.length > 0) {
 				response.setHeader('Content-Type', rows[0].mimetype);
-				response.sendFile(rows[0].filepath);
+				response.sendFile(__dirname + "/" + rows[0].filepath);
 			} else {
 				response.sendStatus(404);
 			}
@@ -115,7 +115,7 @@ app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.ge
 					if(rows && rows.length > 0) {
 						for(var i=0;i<rows.length;i++) {
 							console.log("Deleting: " + rows[i].filepath);
-							fs.unlink(rows[i].filepath, function() {});
+							fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 						}
 					}
 
@@ -165,7 +165,7 @@ app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get
 						if(rows && rows.length > 0) {
 							for(var i=0;i<rows.length;i++) {
 								console.log("Deleting: " + rows[i].filepath);
-								fs.unlink(rows[i].filepath, function() {});
+								fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 							}				
 						}
 					});
@@ -206,7 +206,7 @@ app.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), getTo
 				if(rows && rows.length > 0) {
 					for(var i=0;i<rows.length;i++) {
 						console.log("Deleting: " + rows[i].filepath);
-						fs.unlink(rows[i].filepath, function() {});
+						fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 					}
 				} else {
 					response.sendStatus(404);

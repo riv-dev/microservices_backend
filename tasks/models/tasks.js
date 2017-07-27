@@ -21,11 +21,11 @@ Tasks.schema = {
   archived: {type: "boolean", description: "Flag to archive the task."}
 }
 
-Tasks.connect = function () {
+Tasks.connect = function (env) {
   this.db = mysql.createConnection({
-    host: credentials.mysql.host,
-    user: credentials.mysql.username,
-    password: credentials.mysql.password,
+    host: credentials.mysql[env].host,
+    user: credentials.mysql[env].username,
+    password: credentials.mysql[env].password,
   });
 
   this.db.connect(function(err) {
@@ -63,62 +63,6 @@ Tasks.initialize_db = function(call_back) {
     }
   });
 
-  Tasks.create_default_tasks();
-}
-
-Tasks.create_default_tasks = function() {
-  Tasks.find_all(null, function(err, rows, fields) {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    if(rows && rows.length == 0) {
-      Tasks.add({name:'Task 1', description:'Task 1 description.', priority: 8, project_id: 1, creator_user_id: 2}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      Tasks.add({name:'Task 2', description:'Task 2 description.', priority: 5, project_id: 1, creator_user_id: 3}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });
-
-      Tasks.add({name:'Task 3', description:'Task 3 description.', priority: 7, project_id: 1, creator_user_id: 2}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });            
-
-      Tasks.add({name:'Task 4', description:'Task 4 description.', priority: 6, project_id: 2, creator_user_id: 3}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });  
-
-      Tasks.add({name:'Task 5', description:'Task 5 description.', priority: 9, project_id: 2, creator_user_id: 2}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });  
-
-
-      Tasks.add({name:'Task 6', description:'Task 6 description.', priority: 8, project_id: 3, creator_user_id: 2}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });  
-
-      Tasks.add({name:'Task 7', description:'Task 7 description.', priority: 1, project_id: 3, creator_user_id: 2}, function(err, rows, field) {
-         if(err) {
-           console.log(err);
-         }
-      });  
-    }
-
-  });
 }
 
 Tasks.count_all = function(query, call_back) {

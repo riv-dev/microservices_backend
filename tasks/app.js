@@ -7,6 +7,7 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var moment = require('moment');
+var seeder = require('./seeder.L.js');
 
 
 //Configuration
@@ -26,10 +27,10 @@ app.use(morgan('dev'));
 /// Database ///
 ////////////////
 var Tasks = require('./models/tasks.js');
-Tasks.connect();
+Tasks.connect(app.get('env'));
 
 var TaskAssignments = require('./models/task_assignments.js');
-TaskAssignments.connect();
+TaskAssignments.connect(app.get('env'));
 
 //////////////
 /// Routes ///
@@ -548,4 +549,11 @@ app.delete('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_s
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
+
+	console.log("NODE_ENV="+app.get('env'));
+
+	if(app.get('env') == "development" || app.get('env') == "remote_development") {
+		//Seed fake data
+		seeder.seed_data(app);
+	}
 });

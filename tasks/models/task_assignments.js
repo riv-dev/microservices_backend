@@ -15,11 +15,11 @@ TaskAssignments.schema = {
   progress_description: {type: "text", required: false}
 }
 
-TaskAssignments.connect = function () {
+TaskAssignments.connect = function (env) {
   this.db = mysql.createConnection({
-    host: credentials.mysql.host,
-    user: credentials.mysql.username,
-    password: credentials.mysql.password,
+    host: credentials.mysql[env].host,
+    user: credentials.mysql[env].username,
+    password: credentials.mysql[env].password,
   });
 
   this.db.connect(function(err) {

@@ -19,9 +19,9 @@ function randomStatus(start_date, deadline) {
   var random = randomIntFromInterval(0, 10);
   if (moment(deadline) < moment()) {
     if (random > 3) {
-      return "doing";
+      return "finished";
     } else {
-      return "finished"
+      return "doing"
     }
   } else if (moment(start_date) < moment()) {
     if (random > 8) {

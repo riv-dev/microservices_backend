@@ -7,7 +7,7 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var bcrypt = require('bcrypt-nodejs'); //for password hashing
 var expressValidator = require('express-validator');
-var seeder = require('./seeder.js');
+var seeder = require('./seeder.SM.js');
 
 //Configuration
 app.set('port',process.env.PORT || 5000);

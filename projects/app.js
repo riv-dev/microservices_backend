@@ -9,7 +9,7 @@ var expressValidator = require('express-validator');
 var httpRequest = require('request');
 var api_urls = require('./api-urls');
 var moment = require('moment');
-var seeder = require('./seeder');
+var seeder = require('./seeder.SM.js');
 
 //Configuration
 app.set('port',process.env.PORT || 5002);

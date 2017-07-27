@@ -23,27 +23,27 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
 
+  ryukyu-user-photos-service:
+    build: ./user_photos
+    image: ryukyu-user-photos-service-img
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./user_photos:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db-user-photos
+    environment:
+      - NODE_ENV=development
 
-#  ryukyu-user-photos-service:
-#    build: ./user_photos
-#    image: ryukyu-user-photos-service-img
-#    ports:
-#      - "5001:5001"
-#    volumes:
-#      - ./user_photos:/usr/src/app
-#    depends_on:
-#      - db-user-photos
-#    environment:
-#      - NODE_ENV=development
-
-#  db-user-photos:
-#    image: mysql:5.7
-#    ports:
-#      - "5301:3306"
-#    volumes:
-#      - ./user_photos/db:/var/lib/mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=password
+  db-user-photos:
+    image: mysql:5.7
+    ports:
+      - "5301:3306"
+    volumes:
+      - ./user_photos/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
 
   ryukyu-projects-service:
     build: ./projects

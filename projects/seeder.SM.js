@@ -68,7 +68,7 @@ function randomProjectUserStatus(start_date, deadline) {
 
 module.exports = {
   seed_data: function (app) {
-    chai.request("http://localhost:7002")
+    chai.request("http://localhost:8002")
       .get('/projects')
       .set('x-access-token', credentials.authentication.development_token)
       .end(function (err, res) {
@@ -102,7 +102,7 @@ module.exports = {
               'status': status
             }
 
-            chai.request("http://localhost:7002")
+            chai.request("http://localhost:8002")
               .post('/projects')
               .set('x-access-token', credentials.authentication.development_token)
               .type('form')
@@ -114,7 +114,7 @@ module.exports = {
                 if (res.status == 200 && res.body.project_id) {
                   for (var i = 0; i < randomIntFromInterval(0, 8); i++) {
                     var random_user_id = randomIntFromInterval(1, 25); //Users Service development data uses Small Set = 25
-                    chai.request("http://localhost:7002")
+                    chai.request("http://localhost:8002")
                       .post('/projects/' + res.body.project_id + '/users')
                       .set('x-access-token', credentials.authentication.development_token)
                       .type('form')

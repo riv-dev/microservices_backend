@@ -8,7 +8,7 @@ var expect = chai.expect;
 
 module.exports = {
     seed_data: function (app) {
-      chai.request("http://localhost:7000")
+      chai.request("http://localhost:8000")
         .get('/users')
         .set('x-access-token', credentials.authentication.development_token)
         .end(function (err, res) {
@@ -22,7 +22,7 @@ module.exports = {
 
               console.log(firstname + " " + lastname + ": " + email);
 
-              chai.request("http://localhost:7000")
+              chai.request("http://localhost:8000")
                 .post('/users')
                 .set('x-access-token', credentials.authentication.development_token)
                 .type('form')

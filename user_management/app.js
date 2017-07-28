@@ -11,8 +11,8 @@ var seeder = require('./seeder.SM.js');
 
 //Configuration
 var port = {
-	development: 7000,
-	test: 8000,
+	development: 8000,
+	test: 7000,
 	production: 5000
 }
 

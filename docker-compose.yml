@@ -5,7 +5,7 @@ services:
     build: ./user_management
     image: kenle545/ryukyu-users-service-img
     ports:
-      - "7000:7000"
+      - "8000:8000"
     volumes:
       - ./user_management:/usr/src/app
       - /usr/src/app/node_modules
@@ -27,7 +27,7 @@ services:
     build: ./user_photos
     image: ryukyu-user-photos-service-img
     ports:
-      - "7001:7001"
+      - "8001:8001"
     volumes:
       - ./user_photos:/usr/src/app
       - /usr/src/app/node_modules
@@ -49,7 +49,7 @@ services:
     build: ./projects
     image: ryukyu-projects-service-img
     ports:
-      - "7002:7002"
+      - "8002:8002"
     volumes:
       - ./projects:/usr/src/app
       - /usr/src/app/node_modules
@@ -72,7 +72,7 @@ services:
     build: ./tasks
     image: ryukyu-tasks-service-img
     ports:
-      - "7003:7003"
+      - "8003:8003"
     volumes:
       - ./tasks:/usr/src/app
       - /usr/src/app/node_modules

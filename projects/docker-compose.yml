@@ -5,7 +5,7 @@ services:
     build: .
     image: ryukyu-projects-service-img
     ports:
-      - "7002:7002"
+      - "8002:8002"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

@@ -24,8 +24,8 @@ var upload = multer({ storage: storage });
 
 //Configuration
 var port = {
-	development: 7001,
-	test: 8001,
+	development: 8001,
+	test: 7001,
 	production: 5001
 }
 

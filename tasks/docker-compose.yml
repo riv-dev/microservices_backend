@@ -5,7 +5,7 @@ services:
     build: .
     image: ryukyu-tasks-service-img
     ports:
-      - "7003:7003"
+      - "8003:8003"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

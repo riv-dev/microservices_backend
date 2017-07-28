@@ -12,8 +12,8 @@ var seeder = require('./seeder.L.js');
 
 //Configuration
 var port = {
-	test: 8003,
-	development: 7003,
+	development: 8003,
+	test: 7003,
 	production: 5003
 }
 

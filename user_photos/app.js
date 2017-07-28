@@ -9,11 +9,13 @@ var expressValidator = require('express-validator');
 var multer  = require('multer');
 var path = require('path');
 var fs = require("fs");
+var mkdirp = require('mkdirp');
 
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/')
+	const dir = 'uploads/'
+	mkdirp(dir, err => cb(err, dir))
   },
   filename: function (req, file, cb) {
     cb(null, 'user_' + req.params.id + "_" + Date.now() + path.extname(file.originalname));

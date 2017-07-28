@@ -7,10 +7,10 @@ module.exports = {
     },
 
     local_development: {
-        users_service: 'http://ryukyu-users-service:5000',
-        user_photos_service: 'http://ryukyu-user-photos-service:5001',
-        projects_service: 'http://ryukyu-projects-service:5002',
-        tasks_service: 'http://ryukyu-tasks-service:5003'
+        users_service: 'http://ryukyu-users-service:8000',
+        user_photos_service: 'http://ryukyu-user-photos-service:8001',
+        projects_service: 'http://ryukyu-projects-service:8002',
+        tasks_service: 'http://ryukyu-tasks-service:8003'
     },
 
     //Same as development

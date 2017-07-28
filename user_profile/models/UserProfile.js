@@ -4,14 +4,20 @@ var UserProfile = function (user_id, nickname, bio, birthday) {
 
 }
 
+var db_name = {
+  development: "ryukyu_social_user_profile_service_dev",
+  test: "ryukyu_social_user_profile_service_test",
+  production: "ryukyu_social_user_profile_service"
+}
+
 //Static Methods and Variables
 UserProfile.db = "Yo!";
 
-UserProfile.connect = function () {
+UserProfile.connect = function (env) {
   this.db = mysql.createConnection({
-    host: credentials.mysql.host,
-    user: credentials.mysql.username,
-    password: credentials.mysql.password,
+    host: credentials.mysql[env].host,
+    user: credentials.mysql[env].username,
+    password: credentials.mysql[env].password,
   });
 
   this.db.connect(function(err) {
@@ -21,23 +27,23 @@ UserProfile.connect = function () {
     }
   });
 
-    UserProfile.initialize_db();
+    UserProfile.initialize_db(env);
 }
 
 UserProfile.disconnect = function () {
   this.db.end()
 }
 
-UserProfile.initialize_db = function(call_back) {
+UserProfile.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
-  this.db.query('CREATE DATABASE IF NOT EXISTS ryukyu_social_user_profile_service;', function(err) {
+  this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }
   });
 
-  this.db.query('USE ryukyu_social_user_profile_service;', function(err) {
+  this.db.query('USE ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }

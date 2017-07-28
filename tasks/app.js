@@ -11,7 +11,13 @@ var seeder = require('./seeder.L.js');
 
 
 //Configuration
-app.set('port',process.env.PORT || 5003);
+var port = {
+	test: 8003,
+	development: 7003,
+	production: 5003
+}
+
+app.set('port',process.env.PORT || port[app.get('env')]);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

@@ -6,6 +6,12 @@ var Tasks = function (id, lastname, firstname, title) {
 
 }
 
+var db_name = {
+  development: "ryukyu_social_tasks_service_dev",
+  test: "ryukyu_social_tasks_service_test",
+  production: "ryukyu_social_tasks_service"
+}
+
 //Static Methods and Variables
 Tasks.db = "Yo!";
 
@@ -35,23 +41,23 @@ Tasks.connect = function (env) {
     }
   });
 
-  Tasks.initialize_db();
+  Tasks.initialize_db(env);
 }
 
 Tasks.disconnect = function () {
   this.db.end()
 }
 
-Tasks.initialize_db = function(call_back) {
+Tasks.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
-  this.db.query('CREATE DATABASE IF NOT EXISTS ryukyu_social_tasks_service;', function(err) {
+  this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }
   });
 
-  this.db.query('USE ryukyu_social_tasks_service;', function(err) {
+  this.db.query('USE ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }

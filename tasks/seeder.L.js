@@ -55,7 +55,7 @@ function capitalize(string) {
 
 module.exports = {
   seed_data: function (app) {
-    chai.request("http://localhost:5003")
+    chai.request("http://localhost:7003")
       .get('/tasks')
       .set('x-access-token', credentials.authentication.development_token)
       .end(function (err, res) {
@@ -101,7 +101,7 @@ module.exports = {
               'archived': archived
             }
 
-            chai.request("http://localhost:5003")
+            chai.request("http://localhost:7003")
               .post('/tasks')
               .set('x-access-token', credentials.authentication.development_token)
               .type('form')
@@ -114,7 +114,7 @@ module.exports = {
                   var randomLength = randomIntFromInterval(0, 2); 
                   for (var i = 0; i < randomLength; i++) {
                     var random_user_id = randomIntFromInterval(1, 25); //Users Service development data uses Small Set = 25
-                    chai.request("http://localhost:5003")
+                    chai.request("http://localhost:7003")
                       .post('/tasks/' + res.body.task_id + '/users/' + random_user_id)
                       .set('x-access-token', credentials.authentication.development_token)
                       .type('form')

@@ -7,6 +7,12 @@ var Users = function (id, lastname, firstname, title) {
 
 }
 
+var db_name = {
+  development: "ryukyu_social_users_service_dev",
+  test: "ryukyu_social_users_service_test",
+  production: "ryukyu_social_users_service"
+}
+
 //Static Methods and Variables
 Users.db = "Yo!";
 
@@ -24,23 +30,23 @@ Users.connect = function (env) {
     }
   });
 
-  Users.initialize_db();
+  Users.initialize_db(env);
 }
 
 Users.disconnect = function () {
   this.db.end()
 }
 
-Users.initialize_db = function(call_back) {
+Users.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
-  this.db.query('CREATE DATABASE IF NOT EXISTS ryukyu_social_users_service;', function(err) {
+  this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }
   });
 
-  this.db.query('USE ryukyu_social_users_service;', function(err) {
+  this.db.query('USE ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }

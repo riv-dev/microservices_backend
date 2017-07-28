@@ -10,7 +10,13 @@ var expressValidator = require('express-validator');
 var seeder = require('./seeder.SM.js');
 
 //Configuration
-app.set('port',process.env.PORT || 5000);
+var port = {
+	development: 7000,
+	test: 8000,
+	production: 5000
+}
+
+app.set('port',process.env.PORT || port[app.get('env')]);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

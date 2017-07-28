@@ -12,7 +12,13 @@ var moment = require('moment');
 var seeder = require('./seeder.SM.js');
 
 //Configuration
-app.set('port',process.env.PORT || 5002);
+var port = {
+	development: 7002,
+	test: 8002,
+	production: 5002
+}
+
+app.set('port',process.env.PORT || port[app.get('env')]);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies

@@ -11,7 +11,13 @@ var path = require('path');
 var fs = require("fs");
 
 //Configuration
-app.set('port',process.env.PORT || 5001);
+port = {
+	development: 7004,
+	test: 8004,
+	production: 5004
+}
+
+app.set('port',process.env.PORT || port[app.get('env')]);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies
@@ -27,7 +33,7 @@ app.use(morgan('dev'));
 /// Database ///
 ////////////////
 var UserProfile = require('./models/UserProfile.js');
-UserProfile.connect();
+UserProfile.connect(app.get('env'));
 
 //////////////
 /// Routes ///

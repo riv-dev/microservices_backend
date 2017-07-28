@@ -23,7 +23,13 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 //Configuration
-app.set('port',process.env.PORT || 5001);
+var port = {
+	development: 7001,
+	test: 8001,
+	production: 5001
+}
+
+app.set('port',process.env.PORT || port[app.get('env')]);
 app.set('jwt_secret', credentials.authentication.secret);
 
 //Middleware for parsing POST bodies
@@ -39,7 +45,7 @@ app.use(morgan('dev'));
 /// Database ///
 ////////////////
 var UserPhotos = require('./models/UserPhotos.js');
-UserPhotos.connect();
+UserPhotos.connect(app.get('env'));
 
 //////////////
 /// Routes ///

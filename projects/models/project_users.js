@@ -6,6 +6,12 @@ var ProjectUsers = function (id, lastname, firstname, title) {
 
 }
 
+var db_name = {
+  development: "ryukyu_social_projects_service_dev",
+  test: "ryukyu_social_projects_service_test",
+  production: "ryukyu_social_projects_service"
+}
+
 //Static Methods and Variables
 ProjectUsers.db = "Yo!";
 
@@ -31,23 +37,23 @@ ProjectUsers.connect = function (env) {
     }
   });
 
-  ProjectUsers.initialize_db();
+  ProjectUsers.initialize_db(env);
 }
 
 ProjectUsers.disconnect = function () {
   this.db.end()
 }
 
-ProjectUsers.initialize_db = function(call_back) {
+ProjectUsers.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
-  this.db.query('CREATE DATABASE IF NOT EXISTS ryukyu_social_projects_service;', function(err) {
+  this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }
   });
 
-  this.db.query('USE ryukyu_social_projects_service;', function(err) {
+  this.db.query('USE ' + db_name[env] + ';', function(err) {
     if(err) {
       console.log(err);
     }

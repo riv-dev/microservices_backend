@@ -9,12 +9,12 @@ module.exports = {
             password: 'password'
         },
         development: {
-            host: 'db-user-photos',
+            host: 'db-user-profile',
             username: 'root',
             password: 'password'
         },
         test: {
-            host: 'db-user-photos',
+            host: 'db-user-profile',
             username: 'root',
             password: 'password'
         }

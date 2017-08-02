@@ -150,7 +150,7 @@ describe("Test DELETE /users/:user_id", function () {
             .end(function (err, res) {
                 res.should.have.status(200);
                 res.body.should.have.property("status").eql("success");
-                res.body.should.have.property("user_id").eql(added_user_id);
+                res.body.should.have.property("user_id").eql(added_user_id.toString());
                 done();
             });
     });

@@ -117,35 +117,39 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 				return;
 			} else {
 				ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
+					requestBody = {
+						project_id: request.params.id, 
+						name: request.body.name,
+						caption: request.body.caption,
+						filepath: request.file.path,
+						mimetype: request.file.mimetype
+					};
 					//Delete from the filesystem
 					if(rows && rows.length > 0) {
 						for(var i=0;i<rows.length;i++) {
 							console.log("Deleting: " + rows[i].filepath);
 							fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 						}
-					}
 
-					//Delete the entry in the database
-					ProjectPhotos.delete(request.params.id, function(err, rows, fields) {
-						if(err) {
-							console.log(err);
-							response.status(500).json({status: "fail", message: "System error."});
-						} else {
-							//Add new entry in the database
-							ProjectPhotos.add({project_id: request.params.id, 
-											name: request.body.name,
-											caption: request.body.caption,
-											filepath: request.file.path,
-											mimetype: request.file.mimetype}, function(err, results, fields) {
-								if(err) {
-									console.log(err);
-									response.status(500).json({status: "fail", message: "System error."});
-								} else {
-									response.send({status: "success", message: "Project photo added!", project_id: results.project_id});
-								}
-							});
-						}
-					});
+						ProjectPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "Project Photo Updated!"});
+							}
+						});
+					} else {
+						//Add new entry in the database
+						ProjectPhotos.add(requestBody, function(err, results, fields) {
+							if(err) {
+								console.log(err);
+								response.status(500).json({status: "fail", message: "System error."});
+							} else {
+								response.send({status: "success", message: "Project photo added!", project_id: results.project_id});
+							}
+						});
+					}
 				});
 			}
 		});	
@@ -217,14 +221,14 @@ app.delete('/projects/:id/photo', express_jwt({secret: app.get('jwt_secret'), ge
 					console.log("Deleting: " + rows[i].filepath);
 					fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 				}
+
+				//Delete the entry in the database
+				ProjectPhotos.delete(request.params.id, function(err, rows, fields) {
+					response.send({status: "success", message: "Project Photo Deleted!"});
+				});	
 			} else {
 				response.sendStatus(404);
 			}
-
-			//Delete the entry in the database
-			ProjectPhotos.delete(request.params.id, function(err, rows, fields) {
-				response.send({status: "success", message: "Project Photo Deleted!"});
-			});	
 		});
 	} else {
 		response.sendStatus(401);

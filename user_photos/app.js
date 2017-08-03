@@ -216,14 +216,14 @@ app.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), getTo
 						console.log("Deleting: " + rows[i].filepath);
 						fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 					}
+
+					//Delete the entry in the database
+					UserPhotos.delete(request.params.id, function(err, rows, fields) {
+						response.send({status: "success", message: "User Photo Deleted!"});
+					});	
 				} else {
 					response.sendStatus(404);
 				}
-
-				//Delete the entry in the database
-				UserPhotos.delete(request.params.id, function(err, rows, fields) {
-					response.send({status: "success", message: "User Photo Deleted!"});
-				});	
 			});
 		} else {
 			response.sendStatus(401);

@@ -18,7 +18,7 @@ var storage = multer.diskStorage({
 	mkdirp(dir, err => cb(err, dir))
   },
   filename: function (req, file, cb) {
-    cb(null, 'user_' + req.params.id + "_" + Date.now() + path.extname(file.originalname));
+    cb(null, 'project_' + req.params.id + "_" + Date.now() + path.extname(file.originalname));
   }
 })
 
@@ -26,9 +26,9 @@ var upload = multer({ storage: storage });
 
 //Configuration
 var port = {
-	development: 8001,
-	test: 7001,
-	production: 5001
+	development: 8004,
+	test: 7004,
+	production: 5004
 }
 
 app.set('port',process.env.PORT || port[app.get('env')]);
@@ -46,8 +46,8 @@ app.use(morgan('dev'));
 ////////////////
 /// Database ///
 ////////////////
-var UserPhotos = require('./models/UserPhotos.js');
-UserPhotos.connect(app.get('env'));
+var ProjectPhotos = require('./models/ProjectPhotos.js');
+ProjectPhotos.connect(app.get('env'));
 
 //////////////
 /// Routes ///
@@ -62,21 +62,21 @@ app.use(function(req, res, next) {
 });
 
 function getTokenFromHeader(request) {
-			var token = request.query.token || request.headers['x-access-token'];	
-			return token;
+	var token = request.query.token || request.headers['x-access-token'];	
+	return token;
 }
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the User Photos API");
+	response.send("Welcome to the Project Photos API");
 });
 
-app.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
-	result = UserPhotos.find_by_user_id(request.params.id, function(err,rows,fields) {
+app.get('/projects/:id/photo', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = ProjectPhotos.find_by_project_id(request.params.id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
 		} else {
 			if(rows && rows.length > 0) {
-				response.json({id: rows[0].id, user_id: rows[0].user_id, lastname: rows[0].lastname, firstname: rows[0].firstname, caption: rows[0].caption, photo_uri: "/users/" + request.params.id + "/photo.image"});
+				response.json({id: rows[0].id, project_id: rows[0].project_id, name: rows[0].name, caption: rows[0].caption, photo_uri: "/projects/" + request.params.id + "/photo.image"});
 			} else {
 				response.sendStatus(404);
 			}
@@ -84,8 +84,8 @@ app.get('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), credenti
 	});
 });
 
-app.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
-	result = UserPhotos.find_by_user_id(request.params.id, function(err,rows,fields) {
+app.get('/projects/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = ProjectPhotos.find_by_project_id(request.params.id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
 		} else {
@@ -99,13 +99,11 @@ app.get('/users/:id/photo.image', express_jwt({secret: app.get('jwt_secret'), cr
 	});
 });
 
-app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	if(request.user.admin || request.user.id == request.params.id) {
-		console.log("Valid user");
-		request.checkBody('lastname', "can't be empty").notEmpty();
-		request.checkBody('lastname', "must be alpha characters").isAlpha();
-		request.checkBody('firstname',"can't be empty").notEmpty();
-		request.checkBody('firstname', "must be alpha characters").isAlpha();
+app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+	if(request.user) {
+		console.log("Valid project");
+		request.checkBody('name', "can't be empty").notEmpty();
+		request.checkBody('name', "must be alpha characters").isAlpha();
 
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty() || !request.file) {
@@ -118,28 +116,41 @@ app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.ge
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+				ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
+					requestBody = {
+						project_id: request.params.id, 
+						name: request.body.name,
+						caption: request.body.caption,
+						filepath: request.file.path,
+						mimetype: request.file.mimetype
+					};
 					//Delete from the filesystem
 					if(rows && rows.length > 0) {
 						for(var i=0;i<rows.length;i++) {
 							console.log("Deleting: " + rows[i].filepath);
 							fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 						}
-					}
 
-					//Delete the entry in the database
-					UserPhotos.delete(request.params.id, function(err, rows, fields) {
-						//Add new entry in the database
-						UserPhotos.add({user_id: request.params.id, 
-										lastname: request.body.lastname, 
-										firstname: request.body.firstname, 
-										caption: request.body.caption,
-										filepath: request.file.path,
-										mimetype: request.file.mimetype}, function(err, rows, fields) {
+						ProjectPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "Project Photo Updated!"});
+							}
 						});
-					});
+					} else {
+						//Add new entry in the database
+						ProjectPhotos.add(requestBody, function(err, results, fields) {
+							if(err) {
+								console.log(err);
+								response.status(500).json({status: "fail", message: "System error."});
+							} else {
+								response.send({status: "success", message: "Project photo added!", project_id: results.project_id});
+							}
+						});
+					}
 				});
-				response.send("Yahoo!");
 			}
 		});	
 	} else {
@@ -148,14 +159,12 @@ app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.ge
 
 });
 
-app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	if(request.user.admin || request.user.id == request.params.id) {
+app.put('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+	if(request.user) {
 		requestBody = {}
 
-		request.checkBody('lastname', "can't be empty").optional().notEmpty();
-		request.checkBody('lastname', "must be alpha characters").optional().isAlpha();
-		request.checkBody('firstname',"can't be empty").optional().notEmpty();
-		request.checkBody('firstname', "must be alpha characters").optional().isAlpha()
+		request.checkBody('name', "can't be empty").optional().notEmpty();
+		request.checkBody('name', "must be alpha characters").optional().isAlpha();
 
 
 		request.getValidationResult().then(function(result) {
@@ -169,7 +178,7 @@ app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get
 					requestBody.mimetype = request.file.mimetype;
 
 					//delete the old file in the filesystem
-					UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+					ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
 						if(rows && rows.length > 0) {
 							for(var i=0;i<rows.length;i++) {
 								console.log("Deleting: " + rows[i].filepath);
@@ -179,24 +188,20 @@ app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get
 					});
 				}
 				
-				if(request.body.lastname) {
-					requestBody.lastname = request.body.lastname;
-				}
-
-				if(request.body.firstname) {
-					requestBody.firstname = request.body.firstname;
+				if(request.body.name) {
+					requestBody.name = request.body.name;
 				}
 
 				if(request.body.caption) {
 					requestBody.caption = request.body.caption;
 				}
 
-				UserPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
+				ProjectPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
 					if(err) {
 						console.log(err);
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "User Photo Updated!"});
+						response.json({status: "success", message: "Project Photo Updated!"});
 					}
 				});
 			}
@@ -207,30 +212,32 @@ app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get
 
 });
 
-app.delete('/users/:id/photo', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-		if(request.user.admin || request.user.id == request.params.id) {
-			UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
-				//Delete from the filesystem
-				if(rows && rows.length > 0) {
-					for(var i=0;i<rows.length;i++) {
-						console.log("Deleting: " + rows[i].filepath);
-						fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
-					}
-
-					//Delete the entry in the database
-					UserPhotos.delete(request.params.id, function(err, rows, fields) {
-						response.send({status: "success", message: "User Photo Deleted!"});
-					});	
-				} else {
-					response.sendStatus(404);
+app.delete('/projects/:id/photo', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
+			//Delete from the filesystem
+			if(rows && rows.length > 0) {
+				for(var i=0;i<rows.length;i++) {
+					console.log("Deleting: " + rows[i].filepath);
+					fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 				}
-			});
-		} else {
-			response.sendStatus(401);
-		}
+
+				//Delete the entry in the database
+				ProjectPhotos.delete(request.params.id, function(err, rows, fields) {
+					response.send({status: "success", message: "Project Photo Deleted!"});
+				});	
+			} else {
+				response.sendStatus(404);
+			}
+		});
+	} else {
+		response.sendStatus(401);
+	}
 });
 
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
 });
+
+module.exports = app;

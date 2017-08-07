@@ -20,7 +20,7 @@ Projects.schema = {
   description: {type: "text", required: false},
   value: {type: "int", required: false},
   effort: {type: "int", required: false},
-  status: {type: "varchar(255)", required: false, default: "new", options: ["new", "doing", "finished"]},
+  status: {type: "varchar(255)", required: false, default: "dump", options: ["dump", "waiting", "doing", "finished"]},
   start_date: {type: "datetime", required: false},
   deadline: {type: "datetime", required: false}
 }
@@ -61,7 +61,7 @@ Projects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "new", start_date datetime, deadline datetime, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "dump", start_date datetime, deadline datetime, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 

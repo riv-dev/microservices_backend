@@ -44,17 +44,11 @@ Patches.apply_patch = function(env, call_back) {
     }
   });
 
-  this.db.query('ALTER TABLE project_users CHANGE pinned user_pinned boolean DEFAULT FALSE;', function(err) {
+  this.db.query('ALTER TABLE project_users ADD COLUMN user_pinned boolean DEFAULT FALSE;', function(err) {
     if(err) {
       console.log(err);
     } 
-  });
-
-  /*this.db.query('ALTER TABLE project_users ADD COLUMN user_pinned boolean DEFAULT FALSE;', function(err) {
-    if(err) {
-      console.log(err);
-    } 
-  });*/  
+  });  
 
   Patches.disconnect();
 

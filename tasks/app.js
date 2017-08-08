@@ -98,6 +98,18 @@ app.get('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), credentialsReq
 	});
 });
 
+//Same as above
+app.get('/projects/:project_id/tasks/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	Tasks.find_by_id(request.params.id, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0]);
+		}
+	});
+});
+
 app.get('/tasks-with-name-like/:name_str', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	Tasks.find_name_like(request.params.name_str, function(err,results,fields) {
 		if(err) {
@@ -383,6 +395,69 @@ app.options('/tasks/:id', function(request, response) {
 
 //app.put('/tasks/:task_id')
 app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
+			if(request.user.admin || (results && results.length >= 1)) { 
+				request.checkBody('name', "can't be empty").optional().notEmpty();
+				request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+				request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
+	
+
+				request.getValidationResult().then(function(result) {
+					if (!result.isEmpty()) {
+						console.log(result.array());
+						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+						return;
+					} else {
+						if(request.body.deadline) {
+							request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+						}
+
+						Tasks.update(request.params.id, request.body, function(err, results, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "Task updated!"});
+							}
+						});
+					}
+				});			
+			} else {
+				Tasks.find_by_id(request.params.id, function(err, results, fields) {
+					if(results && results.length > 0 && results[0].user_id == request.user.id) {
+						request.checkBody('name', "can't be empty").optional().notEmpty();
+						request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+
+						request.getValidationResult().then(function(result) {
+							if (!result.isEmpty()) {
+								console.log(result.array());
+								response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+								return;
+							} else {
+								Tasks.update(request.params.id, request.body, function(err, results, fields) {
+									if(err) {
+										console.log(err);
+										response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+									} else {
+										response.json({status: "success", message: "Task updated!"});
+									}
+								});
+							}
+						});		
+					} else {
+						response.sendStatus(401);
+					}
+				});
+			}
+		});
+	} else {
+		response.sendStatus(401);
+	}
+});
+
+//Same as above.
+app.put('/projects/:project_id/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
 		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
 			if(request.user.admin || (results && results.length >= 1)) { 

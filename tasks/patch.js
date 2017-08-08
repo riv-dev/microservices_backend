@@ -1,4 +1,4 @@
-var patches = require("./models/db_patches/db_patch_071917.js");
+var patches = require("./models/db_patches/db_patch_080817.js");
 
 //Apply or unapply patches here
-patches.apply_patch();
+patches.apply_patch("development");

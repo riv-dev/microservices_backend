@@ -18,7 +18,8 @@ TaskAssignments.db = "Yo!";
 TaskAssignments.schema = {
   task_id: {type: "int", required: true, description: "Usually defined in the URL"},
   user_id: {type: "int", required: true, description: "Usually defined in the URL"},
-  progress_description: {type: "text", required: false}
+  progress_description: {type: "text", required: false},
+  user_pinned: {type: "boolean", required: false, default: false}
 }
 
 TaskAssignments.connect = function (env) {
@@ -57,7 +58,7 @@ TaskAssignments.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS task_assignments (id int NOT NULL AUTO_INCREMENT, task_id int NOT NULL, user_id int NOT NULL, progress_description text, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS task_assignments (id int NOT NULL AUTO_INCREMENT, task_id int NOT NULL, user_id int NOT NULL, progress_description text, user_pinned boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 

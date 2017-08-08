@@ -21,6 +21,7 @@ ProjectUsers.schema = {
   role: {type: "varchar(255)", required: false},
   status: {type: "varchar(255)", required: false, options: ["active", "inactive"]},
   write_access: {type: "int", required: false, options: [0,1,2]},
+  user_pinned: {type: "boolean", required: false, default: false}
 }
 
 ProjectUsers.connect = function (env) {
@@ -59,7 +60,7 @@ ProjectUsers.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS project_users (id int NOT NULL AUTO_INCREMENT, project_id int, user_id int, role varchar(255), status varchar(255), write_access int DEFAULT 0, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS project_users (id int NOT NULL AUTO_INCREMENT, project_id int, user_id int, role varchar(255), status varchar(255), write_access int DEFAULT 0, user_pinned boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 

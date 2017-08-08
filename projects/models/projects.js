@@ -22,7 +22,8 @@ Projects.schema = {
   effort: {type: "int", required: false},
   status: {type: "varchar(255)", required: false, default: "dump", options: ["dump", "waiting", "doing", "finished"]},
   start_date: {type: "datetime", required: false},
-  deadline: {type: "datetime", required: false}
+  deadline: {type: "datetime", required: false},
+  pinned: {type: "boolean", required: false, default: false}
 }
 
 Projects.connect = function (env) {
@@ -61,7 +62,7 @@ Projects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "dump", start_date datetime, deadline datetime, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS projects (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, value int, effort int, status varchar(255) DEFAULT "dump", start_date datetime, deadline datetime, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, pinned boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -115,7 +116,7 @@ Projects.find_all = function (query, call_back) {
   }
 
   //Project Ranking
-  var orderByClause = " ORDER BY CASE WHEN status!='finished' THEN -deadline END DESC, CASE WHEN status='finished' THEN deadline END DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC";
+  var orderByClause = " ORDER BY pinned DESC, CASE WHEN status!='finished' THEN -deadline END DESC, CASE WHEN status='finished' THEN deadline END DESC, -value ASC, -start_date DESC, LENGTH(status) ASC, id DESC";
 
   //Pagination
   var limitStr = "";
@@ -188,7 +189,7 @@ Projects.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   //Project Ranking
-  var orderByClause = " ORDER BY CASE WHEN projects.status!='finished' THEN -projects.deadline END DESC, CASE WHEN projects.status='finished' THEN projects.deadline END DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC";
+  var orderByClause = " ORDER BY projects.pinned DESC, CASE WHEN projects.status!='finished' THEN -projects.deadline END DESC, CASE WHEN projects.status='finished' THEN projects.deadline END DESC, -projects.value ASC, -projects.start_date DESC, LENGTH(projects.status) ASC, projects.id DESC";
 
   //Pagination
   var limitStr = "";

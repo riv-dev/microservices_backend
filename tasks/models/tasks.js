@@ -24,7 +24,9 @@ Tasks.schema = {
   deadline: {type: "datetime", required: false},
   project_id: {type: "int", required: false, description: "Usually defined when POSTING a task to a URL /projects/:project_id/tasks. No need to edit"},
   creator_user_id: {type: "int", description: "Usually defined when creating a task, the creator of the task. No need to edit"},
-  archived: {type: "boolean", description: "Flag to archive the task."}
+  archived: {type: "boolean", description: "Flag to archive the task."},
+  pinned: {type: "boolean", required: false, default: false},
+  project_pinned: {type: "boolean", required: false, default: false}
 }
 
 Tasks.connect = function (env) {
@@ -63,7 +65,7 @@ Tasks.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "dump", deadline datetime, project_id int, creator_user_id int, archived boolean DEFAULT FALSE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS tasks (id int NOT NULL AUTO_INCREMENT, name varchar(255) NOT NULL, description text, priority int, status varchar(255) DEFAULT "dump", deadline datetime, project_id int, creator_user_id int, archived boolean DEFAULT FALSE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, pinned boolean DEFAULT FALSE, project_pinned boolean DEFAULT FALSE, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     }
@@ -118,6 +120,10 @@ Tasks.find_all = function (query, call_back) {
 
   //Task Ranking
   var orderByClause =  " ORDER BY archived ASC, pinned DESC, CASE WHEN status!='finished' THEN -deadline END DESC, CASE WHEN status='finished' THEN deadline END DESC, -priority ASC, LENGTH(status) ASC, id DESC, updated_at DESC";
+
+  if(query && query.project_id) {
+    orderByClause =  " ORDER BY archived ASC, project_pinned DESC, CASE WHEN status!='finished' THEN -deadline END DESC, CASE WHEN status='finished' THEN deadline END DESC, -priority ASC, LENGTH(status) ASC, id DESC, updated_at DESC";
+  }
 
   //Pagination
   var limitStr = "";

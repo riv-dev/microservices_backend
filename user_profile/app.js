@@ -9,12 +9,13 @@ var expressValidator = require('express-validator');
 var multer  = require('multer');
 var path = require('path');
 var fs = require("fs");
+var moment = require('moment');
 
 //Configuration
 port = {
-	development: 7004,
-	test: 8004,
-	production: 5004
+	development: 8005,
+	test: 7005,
+	production: 5005
 }
 
 app.set('port',process.env.PORT || port[app.get('env')]);
@@ -53,16 +54,16 @@ function getTokenFromHeader(request) {
 }
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the User Photos API");
+	response.send("Welcome to the User Profile API");
 });
 
-app.get('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
-	result = UserProfile.find_by_user_id(request.params.id, function(err,rows,fields) {
+app.get('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = UserProfile.find_by_user_id(request.params.user_id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
 		} else {
 			if(rows && rows.length > 0) {
-				response.json({id: rows[0].id, user_id: rows[0].user_id, nickname: rows[0].nickname, bio: rows[0].bio, birthday: rows[0].birthday});
+				response.json(rows[0]);
 			} else {
 				response.sendStatus(404);
 			}
@@ -70,9 +71,11 @@ app.get('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), creden
 	});
 });
 
-
-app.post('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+//Behavior: Add if does not exist.  Return error if already exists.
+app.post('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user.admin || request.user.id == request.params.id) {
+		request.checkBody('birthday',"must be a valid date in ISO8601 format").optional().isISO8601();
+
 		console.log("Valid user");
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
@@ -80,19 +83,26 @@ app.post('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getTo
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-                UserProfile.add({user_id: request.body.user_id,
-                    nickname: request.body.nickname,
-                    bio: request.body.bio,
-                    birthday: request.body.birthday}, function(err, rows, fields) {
-                });
-				// UserProfile.find_by_user_id(request.params.id, function(err, rows, fields) {
-				// 	//Delete the entry in the database
-				// 	UserProfile.delete(request.params.id, function(err, rows, fields) {
-				// 		//Add new entry in the database
-				//
-				// 	});
-				// });
-				response.send("Yahoo!");
+				UserProfile.find_by_user_id(request.params.user_id, function(err, rows, fields) {
+					if(rows && rows.length > 0) {
+						response.status(400).json({status: "fail", message: "User profile already exists"});
+					} else {
+						request.body.user_id = request.params.user_id;
+
+						if(request.body.birthday) {
+							request.body.birthday = moment(request.body.birthday).format("YYYY-MM-DD");
+						}
+
+						UserProfile.add(request.body, function (err, rows, fields) {
+							if (err) {
+								console.log(err);
+								response.status(500).json({ status: "fail", message: "System error." });
+							} else {
+								response.send({ status: "success", message: "User profile added!", user_id: request.params.user_id});
+							}
+						});
+					}
+				});
 			}
 		});	
 	} else {
@@ -101,33 +111,25 @@ app.post('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getTo
 
 });
 
-app.put('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.put('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user.admin || request.user.id == request.params.id) {
-		requestBody = {}
+		request.checkBody('birthday',"must be a valid date in ISO8601 format").optional().isISO8601();
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
 				console.log(result.array());
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				if(request.body.nickname) {
-					requestBody.nickname = request.body.nickname;
-				}
-
-				if(request.body.bio) {
-					requestBody.bio = request.body.bio;
-				}
-
 				if(request.body.birthday) {
-					requestBody.birthday = request.body.birthday;
+					request.body.birthday = moment(request.body.birthday).format("YYYY-MM-DD");
 				}
 
-				UserProfile.update(request.params.id, requestBody, function(err, rows, fields) {
+				UserProfile.update(request.params.user_id, request.body, function(err, rows, fields) {
 					if(err) {
 						console.log(err);
 						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 					} else {
-						response.json({status: "success", message: "User Profile Updated!"});
+						response.json({status: "success", message: "User Profile Updated!", user_id: request.params.user_id});
 					}
 				});
 			}
@@ -135,7 +137,6 @@ app.put('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getTok
 	} else {
 		response.sendStatus(401);
 	}
-
 });
 
 app.delete('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {

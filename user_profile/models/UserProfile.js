@@ -49,7 +49,7 @@ UserProfile.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS user_profile (id int NOT NULL AUTO_INCREMENT, user_id int NOT NULL, nickname varchar(255), bio varchar(255), birthday DATE, PRIMARY KEY(id), UNIQUE (user_id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS user_profile (id int NOT NULL AUTO_INCREMENT, user_id int NOT NULL, nickname varchar(255), bio text, status varchar(255), phone_number varchar(20), birthday DATE, PRIMARY KEY(id), UNIQUE (user_id));', function(err) {
     if(err) {
       console.log(err);
     } 

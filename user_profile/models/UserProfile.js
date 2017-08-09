@@ -66,14 +66,24 @@ UserProfile.find_by_user_id = function (id, call_back) {
 
 UserProfile.add = function(body, call_back) {
   console.log("add called.");
-  //Only allow one photo
-    console.log(`INSERT into user_profile (user_id, nickname, bio, birthday) values (${body.user_id},${body.nickname},${body.bio},${body.birthday});`);
-  this.db.query("INSERT into user_profile (user_id, nickname, bio, birthday) values (?,?,?,?);", [body.user_id, body.nickname, body.bio, body.birthday], function(err, rows, fields) {
+
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property) && body[property] != null) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into user_profile (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
-
-    call_back(err, rows, fields);
+    call_back(err, results, fields);
   });
 }
 
@@ -84,7 +94,7 @@ UserProfile.update = function(user_id, body, call_back) {
   var updateValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property)) {
+      if (body.hasOwnProperty(property) && body[property] != null) {
         updateStringArray.push(property + " = ?");
         updateValuesArray.push(body[property]);
       }
@@ -94,10 +104,9 @@ UserProfile.update = function(user_id, body, call_back) {
 
   console.log(updateStringArray.join(", "));
   console.log(updateValuesArray.join(", "));
-  console.log("UPDATE user_profile SET " + updateStringArray.join(", ") + " WHERE user_id = ?;");
 
-  this.db.query("UPDATE user_profile SET " + updateStringArray.join(", ") + " WHERE user_id = ?;", updateValuesArray, function(err, rows, fields) {
-    call_back(err, rows, fields);
+  this.db.query("UPDATE user_profile SET " + updateStringArray.join(", ") + " WHERE user_id = ?;", updateValuesArray, function(err, results, fields) {
+    call_back(err, results, fields);
   });  
 }
 

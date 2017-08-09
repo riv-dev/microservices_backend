@@ -54,7 +54,7 @@ function getTokenFromHeader(request) {
 }
 
 app.get('/', function(request, response) {
-	response.send("Welcome to the User Photos API");
+	response.send("Welcome to the User Profile API");
 });
 
 app.get('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {

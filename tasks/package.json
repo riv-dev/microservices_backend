@@ -10,22 +10,23 @@
   "author": "Ken Le",
   "license": "ISC",
   "dependencies": {
-    "express": "*",
     "body-parser": "*",
-    "mysql": "*",
-    "jsonwebtoken": "*",
-    "express-jwt": "*",
-    "morgan": "*",
-    "express-validator": "*",
-    "moment": "*",
-    "faker": "*",
     "chai": "*",
-    "chai-http": "*"
+    "chai-http": "*",
+    "express": "*",
+    "express-jwt": "*",
+    "express-validator": "*",
+    "faker": "*",
+    "jsonwebtoken": "*",
+    "moment": "*",
+    "morgan": "*",
+    "mysql": "*",
+    "socket.io": "*"
   },
   "devDependencies": {
     "faker": "*",
     "chai": "*",
     "chai-http": "*",
     "mocha": "*"
-  } 
+  }
 }

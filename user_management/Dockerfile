@@ -11,5 +11,5 @@ RUN npm install
 # Bundle app source
 COPY . /usr/src/app
 
-CMD ["npm", "test"]
-#CMD ["node", "app.js"]
+#CMD ["npm", "test"]
+CMD ["node", "app.js"]

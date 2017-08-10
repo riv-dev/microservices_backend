@@ -1,6 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+
 var app = express();
+//var http = require('http').createServer(app);
+//var io = require('socket.io')(http,{ origins: '*:*'});
+
 var jwt = require('jsonwebtoken');
 var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
@@ -9,6 +13,7 @@ var expressValidator = require('express-validator');
 var moment = require('moment');
 var seeder = require('./seeder.L.js');
 
+var subscribe_notifications;
 
 //Configuration
 var port = {
@@ -47,6 +52,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
 
@@ -54,6 +60,9 @@ function getTokenFromHeader(request) {
 			var token = request.body.token || request.query.token || request.headers['x-access-token'];	
 			return token;
 }
+
+
+
 
 //////////////////
 // GET Requests //
@@ -375,6 +384,9 @@ app.post('/tasks/:task_id/users/:user_id', express_jwt({secret: app.get('jwt_sec
 						response.status(500).json({status: "fail", message: "A system error occured."});
 					} else {
 						response.json({status: "success", message: "User added to the task!"});
+
+						//Notifications
+						subscribe_notifications.emit('task_assigned', {user_id: request.params.user_id, task_id: request.params.task_id}); 
 					}
 				});
 			}
@@ -418,7 +430,20 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 								console.log(err);
 								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
 							} else {
-								response.json({status: "success", message: "Task updated!"});
+								response.json({
+									status: "success",
+									message: "Task updated!",
+									task_id: request.params.id
+								});
+
+								//Send notifications with socket.io
+								if(request.body.status && request.body.status != 'dump') {
+									subscribe_notifications.emit('task_status', {task_id: request.params.id, status: request.body.status});
+								}//end if(request.body.status)
+
+								if(request.body.priority && request.body.priority > 2) {
+									subscribe_notifications.emit('task_priority', {task_id: request.params.id, priority: request.body.priority});	
+								}
 							}
 						});
 					}
@@ -627,7 +652,7 @@ app.delete('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_s
 
 });
 
-app.listen(app.get('port'), function() {
+var server = app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
 
@@ -637,4 +662,21 @@ app.listen(app.get('port'), function() {
 		//Seed fake data
 		seeder.seed_data(app);
 	}
+});
+
+var io = require('socket.io').listen(server);
+
+subscribe_notifications = io.of('/subscribe-notifications').on('connection', function (socket) {
+	console.log('a user connected');
+
+  	socket.on('disconnect', function(){
+  	  console.log('user disconnected');
+  	});
+
+	/*socket.on('task_status_changed', function(task){
+	  if(task.status == "finished") {
+		  sock.emit('task_finished', task);
+	  }
+	  console.log('message: ' + msg);
+	});*/
 });

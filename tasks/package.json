@@ -21,7 +21,9 @@
     "moment": "*",
     "morgan": "*",
     "mysql": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "cors": "*",
+    "http": "*"
   },
   "devDependencies": {
     "faker": "*",

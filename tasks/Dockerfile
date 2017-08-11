@@ -1,10 +1,10 @@
-#FROM node:8.1.2
-FROM ubuntu:latest
+FROM node:alpine
+#FROM ubuntu:latest
 
-RUN apt-get update
-RUN apt-get install --yes nodejs
-RUN apt-get install --yes npm
-RUN apt-get install --yes build-essential
+#RUN apt-get update
+#RUN apt-get install --yes nodejs
+#RUN apt-get install --yes npm
+#RUN apt-get install --yes build-essential
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -15,4 +15,4 @@ RUN chmod -R 700 /usr/src/app/node_modules
 RUN npm install
 
 #CMD ["npm", "test"]
-CMD ["nodejs", "app.js"]
+CMD ["node", "app.js"]

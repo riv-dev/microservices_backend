@@ -665,7 +665,8 @@ var server = app.listen(app.get('port'), function() {
 
 var io = require('socket.io').listen(server);
 
-io.set('origins', '*:*');
+//Allow cross domain requests
+io.set('transports',['websockets']);
 
 subscribe_notifications = io.of('/subscribe-notifications').on('connection', function (socket) {
 	console.log('a user connected');

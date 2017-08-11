@@ -674,7 +674,7 @@ var io = require('socket.io').listen(server);
 //Allow cross domain requests
 io.set('transports',['websocket']);
 
-subscribe_notifications = io.of('/subscribe-notifications').on('connection', function (socket) {
+subscribe_notifications = io.on('connection', function (socket) {
 	console.log('a user connected');
 
   	socket.on('disconnect', function(){

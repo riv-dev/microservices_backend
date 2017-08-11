@@ -410,76 +410,83 @@ app.options('/tasks/:id', function(request, response) {
 });
 
 //app.put('/tasks/:task_id')
-app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	if(request.user) {
-		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
-			if(request.user.admin || (results && results.length >= 1)) { 
-				request.checkBody('name', "can't be empty").optional().notEmpty();
-				request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
-				request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
-	
-
-				request.getValidationResult().then(function(result) {
-					if (!result.isEmpty()) {
-						console.log(result.array());
-						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
-						return;
-					} else {
-						if(request.body.deadline) {
-							request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
-						}
-
-						Tasks.update(request.params.id, request.body, function(err, results, fields) {
-							if(err) {
-								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
-							} else {
-								response.json({
-									status: "success",
-									message: "Task updated!",
-									task_id: request.params.id
-								});
-
-								//Send notifications with socket.io
-								if(request.body.status && request.body.status != 'dump') {
-									subscribe_notifications.emit('task_status', {user_id: request.user.id, task_id: request.params.id, status: request.body.status});
-								}//end if(request.body.status)
-
-								if(request.body.priority && request.body.priority > 2) {
-									subscribe_notifications.emit('task_priority', {user_id: request.user.id, task_id: request.params.id, priority: request.body.priority});	
-								}
-							}
-						});
-					}
-				});			
-			} else {
-				Tasks.find_by_id(request.params.id, function(err, results, fields) {
-					if(results && results.length > 0 && results[0].user_id == request.user.id) {
+app.put('/tasks/:id', express_jwt({ secret: app.get('jwt_secret'), getToken: getTokenFromHeader }), function (request, response) {
+	if (request.user) {
+		Tasks.find_by_id(request.params.id, function (err, results, fields) {
+			var this_task = results[0];
+			if (this_task) {
+				TaskAssignments.find_task_assignment(request.params.id, request.user.id, function (err, results, fields) {
+					if (this_task.creator_user_id == request.user.id || request.user.admin || (results && results.length >= 1)) {
 						request.checkBody('name', "can't be empty").optional().notEmpty();
-						request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+						request.checkBody('status', "options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+						request.checkBody('deadline', "must be a valid date in ISO8601 format").optional().isISO8601();
 
-						request.getValidationResult().then(function(result) {
+
+						request.getValidationResult().then(function (result) {
 							if (!result.isEmpty()) {
 								console.log(result.array());
-								response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+								response.status(400).json({ status: "fail", message: "Validation error", errors: result.array() });
 								return;
 							} else {
-								Tasks.update(request.params.id, request.body, function(err, results, fields) {
-									if(err) {
+								if (request.body.deadline) {
+									request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+								}
+
+								Tasks.update(request.params.id, request.body, function (err, results, fields) {
+									if (err) {
 										console.log(err);
-										response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+										response.status(400).json({ status: "fail", message: "MySQL error", errors: err });
 									} else {
-										response.json({status: "success", message: "Task updated!"});
+										response.json({
+											status: "success",
+											message: "Task updated!",
+											task_id: request.params.id
+										});
+
+										//Send notifications with socket.io
+										if (request.body.status && request.body.status != 'dump') {
+											subscribe_notifications.emit('task_status', { user_id: request.user.id, task_id: request.params.id, status: request.body.status });
+										}//end if(request.body.status)
+
+										if (request.body.priority && request.body.priority > 2) {
+											subscribe_notifications.emit('task_priority', { user_id: request.user.id, task_id: request.params.id, priority: request.body.priority });
+										}
 									}
 								});
 							}
-						});		
+						});
 					} else {
-						response.sendStatus(401);
+						Tasks.find_by_id(request.params.id, function (err, results, fields) {
+							if (results && results.length > 0 && results[0].user_id == request.user.id) {
+								request.checkBody('name', "can't be empty").optional().notEmpty();
+								request.checkBody('status', "options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+
+								request.getValidationResult().then(function (result) {
+									if (!result.isEmpty()) {
+										console.log(result.array());
+										response.status(400).json({ status: "fail", message: "Validation error", errors: result.array() });
+										return;
+									} else {
+										Tasks.update(request.params.id, request.body, function (err, results, fields) {
+											if (err) {
+												console.log(err);
+												response.status(400).json({ status: "fail", message: "MySQL error", errors: err });
+											} else {
+												response.json({ status: "success", message: "Task updated!" });
+											}
+										});
+									}
+								});
+							} else {
+								response.sendStatus(401);
+							}
+						});
 					}
-				});
+				}); //End Find task assignment
+			} else {
+				response.sendStatus(404);
 			}
-		});
+		}); //End Find task
 	} else {
 		response.sendStatus(401);
 	}
@@ -487,62 +494,81 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 
 //Same as above.
 app.put('/projects/:project_id/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	if(request.user) {
-		TaskAssignments.find_task_assignment(request.params.id,request.user.id, function(err,results,fields) {
-			if(request.user.admin || (results && results.length >= 1)) { 
-				request.checkBody('name', "can't be empty").optional().notEmpty();
-				request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
-				request.checkBody('deadline',"must be a valid date in ISO8601 format").optional().isISO8601();
-	
-
-				request.getValidationResult().then(function(result) {
-					if (!result.isEmpty()) {
-						console.log(result.array());
-						response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
-						return;
-					} else {
-						if(request.body.deadline) {
-							request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
-						}
-
-						Tasks.update(request.params.id, request.body, function(err, results, fields) {
-							if(err) {
-								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
-							} else {
-								response.json({status: "success", message: "Task updated!"});
-							}
-						});
-					}
-				});			
-			} else {
-				Tasks.find_by_id(request.params.id, function(err, results, fields) {
-					if(results && results.length > 0 && results[0].user_id == request.user.id) {
+	if (request.user) {
+		Tasks.find_by_id(request.params.id, function (err, results, fields) {
+			var this_task = results[0];
+			if (this_task) {
+				TaskAssignments.find_task_assignment(request.params.id, request.user.id, function (err, results, fields) {
+					if (this_task.creator_user_id == request.user.id || request.user.admin || (results && results.length >= 1)) {
 						request.checkBody('name', "can't be empty").optional().notEmpty();
-						request.checkBody('status',"options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+						request.checkBody('status', "options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+						request.checkBody('deadline', "must be a valid date in ISO8601 format").optional().isISO8601();
 
-						request.getValidationResult().then(function(result) {
+						request.getValidationResult().then(function (result) {
 							if (!result.isEmpty()) {
 								console.log(result.array());
-								response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+								response.status(400).json({ status: "fail", message: "Validation error", errors: result.array() });
 								return;
 							} else {
-								Tasks.update(request.params.id, request.body, function(err, results, fields) {
-									if(err) {
+								if (request.body.deadline) {
+									request.body.deadline = moment(request.body.deadline).format("YYYY-MM-DD HH:mm:ss");
+								}
+
+								Tasks.update(request.params.id, request.body, function (err, results, fields) {
+									if (err) {
 										console.log(err);
-										response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+										response.status(400).json({ status: "fail", message: "MySQL error", errors: err });
 									} else {
-										response.json({status: "success", message: "Task updated!"});
+										response.json({
+											status: "success",
+											message: "Task updated!",
+											task_id: request.params.id
+										});
+
+										//Send notifications with socket.io
+										if (request.body.status && request.body.status != 'dump') {
+											subscribe_notifications.emit('task_status', { user_id: request.user.id, task_id: request.params.id, status: request.body.status });
+										}//end if(request.body.status)
+
+										if (request.body.priority && request.body.priority > 2) {
+											subscribe_notifications.emit('task_priority', { user_id: request.user.id, task_id: request.params.id, priority: request.body.priority });
+										}
 									}
 								});
 							}
-						});		
+						});
 					} else {
-						response.sendStatus(401);
+						Tasks.find_by_id(request.params.id, function (err, results, fields) {
+							if (results && results.length > 0 && results[0].user_id == request.user.id) {
+								request.checkBody('name', "can't be empty").optional().notEmpty();
+								request.checkBody('status', "options are: [dump, waiting, doing, finished]").optional().matches(/\b(?:dump|waiting|doing|finished)\b/);
+
+								request.getValidationResult().then(function (result) {
+									if (!result.isEmpty()) {
+										console.log(result.array());
+										response.status(400).json({ status: "fail", message: "Validation error", errors: result.array() });
+										return;
+									} else {
+										Tasks.update(request.params.id, request.body, function (err, results, fields) {
+											if (err) {
+												console.log(err);
+												response.status(400).json({ status: "fail", message: "MySQL error", errors: err });
+											} else {
+												response.json({ status: "success", message: "Task updated!" });
+											}
+										});
+									}
+								});
+							} else {
+								response.sendStatus(401);
+							}
+						});
 					}
-				});
+				}); //End Find task assignment
+			} else {
+				response.sendStatus(404);
 			}
-		});
+		}); //End Find task
 	} else {
 		response.sendStatus(401);
 	}

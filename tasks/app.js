@@ -663,7 +663,9 @@ var server = app.listen(app.get('port'), function() {
 	}
 });
 
-var io = require('socket.io').listen(server, {origins:'*:*'});
+var io = require('socket.io').listen(server);
+
+io.set('origins', '*:*');
 
 subscribe_notifications = io.of('/subscribe-notifications').on('connection', function (socket) {
 	console.log('a user connected');

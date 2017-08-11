@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
+var cors = require('cors');
 //var http = require('http').createServer(app);
 //var io = require('socket.io')(http,{ origins: '*:*'});
 
@@ -48,12 +49,16 @@ TaskAssignments.connect(app.get('env'));
 //////////////
 
 //Allow Cross-Domain Requests
-app.use(function(req, res, next) {
+/*app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
-});
+});*/
+
+var corsOptions = {allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, x-access-token"};
+
+app.use(cors(corsOptions));
 
 function getTokenFromHeader(request) {
 			var token = request.body.token || request.query.token || request.headers['x-access-token'];	
@@ -651,7 +656,8 @@ app.delete('/users/:user_id/tasks/:task_id', express_jwt({secret: app.get('jwt_s
 
 });
 
-var server = app.listen(app.get('port'), function() {
+var server = require('http').createServer(app).listen(app.get('port'), function() {
+
 	console.log('Express started on http://localhost:'+
 		app.get('port') + '; press Ctrl-C to terminate.');
 
@@ -666,7 +672,7 @@ var server = app.listen(app.get('port'), function() {
 var io = require('socket.io').listen(server);
 
 //Allow cross domain requests
-io.set('transports',['websockets']);
+io.set('transports',['websocket']);
 
 subscribe_notifications = io.of('/subscribe-notifications').on('connection', function (socket) {
 	console.log('a user connected');

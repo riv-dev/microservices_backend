@@ -442,11 +442,11 @@ app.put('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), getToken: getT
 
 								//Send notifications with socket.io
 								if(request.body.status && request.body.status != 'dump') {
-									subscribe_notifications.emit('task_status', {task_id: request.params.id, status: request.body.status});
+									subscribe_notifications.emit('task_status', {user_id: request.user.id, task_id: request.params.id, status: request.body.status});
 								}//end if(request.body.status)
 
 								if(request.body.priority && request.body.priority > 2) {
-									subscribe_notifications.emit('task_priority', {task_id: request.params.id, priority: request.body.priority});	
+									subscribe_notifications.emit('task_priority', {user_id: request.user.id, task_id: request.params.id, priority: request.body.priority});	
 								}
 							}
 						});

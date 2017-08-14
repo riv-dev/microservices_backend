@@ -160,43 +160,44 @@ app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get
 
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
-				console.log(result.array());
 				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
 				return;
 			} else {
-				if(request.file) {
-					requestBody.filepath = request.file.path;
-					requestBody.mimetype = request.file.mimetype;
+				UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+					if(rows && rows.length > 0) {
+						if(request.file) {
+							requestBody.filepath = request.file.path;
+							requestBody.mimetype = request.file.mimetype;
 
-					//delete the old file in the filesystem
-					UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
-						if(rows && rows.length > 0) {
-							for(var i=0;i<rows.length;i++) {
+							//delete the old file in the filesystem
+							for(var i = 0; i < rows.length; i++) {
 								console.log("Deleting: " + rows[i].filepath);
 								fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
-							}				
+							}
 						}
-					});
-				}
-				
-				if(request.body.lastname) {
-					requestBody.lastname = request.body.lastname;
-				}
+						
+						if(request.body.lastname) {
+							requestBody.lastname = request.body.lastname;
+						}
 
-				if(request.body.firstname) {
-					requestBody.firstname = request.body.firstname;
-				}
+						if(request.body.firstname) {
+							requestBody.firstname = request.body.firstname;
+						}
 
-				if(request.body.caption) {
-					requestBody.caption = request.body.caption;
-				}
+						if(request.body.caption) {
+							requestBody.caption = request.body.caption;
+						}
 
-				UserPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
-					if(err) {
-						console.log(err);
-						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+						UserPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
+							if(err) {
+								console.log(err);
+								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+							} else {
+								response.json({status: "success", message: "User Photo Updated!"});
+							}
+						});
 					} else {
-						response.json({status: "success", message: "User Photo Updated!"});
+						response.status(400).json({status: "fail", message: "No record", errors: ''});
 					}
 				});
 			}

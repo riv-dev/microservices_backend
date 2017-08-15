@@ -73,7 +73,7 @@ app.get('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), c
 
 //Behavior: Add if does not exist.  Return error if already exists.
 app.post('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	if(request.user.admin || request.user.id == request.params.id) {
+	if(request.user.admin || request.user.id == request.params.user_id) {
 		request.checkBody('birthday',"must be a valid date in ISO8601 format").optional().isISO8601();
 
 		console.log("Valid user");
@@ -112,7 +112,7 @@ app.post('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), 
 });
 
 app.put('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	if(request.user.admin || request.user.id == request.params.id) {
+	if(request.user.admin || request.user.id == request.params.user_id) {
 		request.checkBody('birthday',"must be a valid date in ISO8601 format").optional().isISO8601();
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty()) {
@@ -140,7 +140,7 @@ app.put('/users/:user_id/profile', express_jwt({secret: app.get('jwt_secret'), g
 });
 
 app.delete('/users/:id/profile', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-		if(request.user.admin || request.user.id == request.params.id) {
+		if(request.user.admin || request.user.id == request.params.user_id) {
 			UserProfile.find_by_user_id(request.params.id, function(err, rows, fields) {
 				//Delete the entry in the database
                 UserProfile.delete(request.params.id, function(err, rows, fields) {

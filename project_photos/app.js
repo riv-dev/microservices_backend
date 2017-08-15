@@ -103,7 +103,6 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 	if(request.user) {
 		console.log("Valid project");
 		request.checkBody('name', "can't be empty").notEmpty();
-		request.checkBody('name', "must be alpha characters").isAlpha();
 
 		request.getValidationResult().then(function(result) {
 			if (!result.isEmpty() || !request.file) {
@@ -164,7 +163,6 @@ app.put('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app.
 		requestBody = {}
 
 		request.checkBody('name', "can't be empty").optional().notEmpty();
-		request.checkBody('name', "must be alpha characters").optional().isAlpha();
 
 
 		request.getValidationResult().then(function(result) {

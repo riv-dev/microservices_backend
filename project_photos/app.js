@@ -116,7 +116,7 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 				return;
 			} else {
 				ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
-					requestBody = {
+					var requestBody = {
 						project_id: request.params.id, 
 						name: request.body.name,
 						caption: request.body.caption,
@@ -125,7 +125,7 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 					};
 					//Delete from the filesystem
 					if(rows && rows.length > 0) {
-						for(var i=0;i<rows.length;i++) {
+						for(var i = 0; i < rows.length; i++) {
 							console.log("Deleting: " + rows[i].filepath);
 							fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 						}
@@ -133,19 +133,42 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 						ProjectPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
 							if(err) {
 								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+								response.status(400).json({status: "fail", message: "MySQL error.", errors: err});
 							} else {
-								response.json({status: "success", message: "Project Photo Updated!"});
+								ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
+									if(err) {
+										response.send(err);
+									} else if(rows && rows.length > 0) {
+										var timestamp = new Date(rows[0].updated_at).getTime();
+										response.json({
+											status: "success", 
+											message: "Project Photo Updated!",
+											caption: rows[0].caption, 
+											photo_uri: "/projects/" + rows[0].project_id + "/photo.image?ver=" + timestamp
+										});
+									}
+								});
 							}
 						});
 					} else {
 						//Add new entry in the database
 						ProjectPhotos.add(requestBody, function(err, results, fields) {
 							if(err) {
-								console.log(err);
-								response.status(500).json({status: "fail", message: "System error."});
+								response.status(500).json({status: "fail", message: "MySQL error.", errors: err});
 							} else {
-								response.send({status: "success", message: "Project photo added!", project_id: results.project_id});
+								ProjectPhotos.find_by_project_id(request.params.id, function(err, rows, fields) {
+									if(err) {
+										response.send(err);
+									} else if(rows && rows.length > 0) {
+										var timestamp = new Date(rows[0].updated_at).getTime();
+										response.json({
+											status: "success", 
+											message: "Project Photo Added!",
+											caption: rows[0].caption, 
+											photo_uri: "/projects/" + rows[0].project_id + "/photo.image?ver=" + timestamp
+										});
+									}
+								});
 							}
 						});
 					}
@@ -160,7 +183,7 @@ app.post('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app
 
 app.put('/projects/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user) {
-		requestBody = {}
+		var requestBody = {}
 
 		request.checkBody('name', "can't be empty").optional().notEmpty();
 

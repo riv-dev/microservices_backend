@@ -69,12 +69,23 @@ ProjectPhotos.find_by_project_id = function (id, call_back) {
 ProjectPhotos.add = function(body, call_back) {
   console.log("add called.");
   //Only allow one photo
-  this.db.query("INSERT into project_photos (project_id, name, caption, filepath, mimetype) values (?,?,?,?,?);", [body.project_id, body.name, body.caption, body.filepath, body.mimetype], function(err, rows, fields) {
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property) && body[property] != null) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into project_photos (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
-
-    call_back(err, rows, fields);
+    call_back(err, results, fields);
   });
 }
 

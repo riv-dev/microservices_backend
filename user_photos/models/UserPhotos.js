@@ -51,7 +51,7 @@ UserPhotos.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS user_photos (id int NOT NULL AUTO_INCREMENT, user_id int NOT NULL, lastname varchar(255), firstname varchar(255), caption varchar(255), filepath varchar(255), mimetype varchar(30), PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS user_photos (id int NOT NULL AUTO_INCREMENT, user_id int NOT NULL, lastname varchar(255), firstname varchar(255), caption varchar(255), filepath varchar(255), mimetype varchar(30), updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -69,12 +69,23 @@ UserPhotos.find_by_user_id = function (id, call_back) {
 UserPhotos.add = function(body, call_back) {
   console.log("add called.");
   //Only allow one photo
-  this.db.query("INSERT into user_photos (user_id, lastname, firstname, caption, filepath, mimetype) values (?,?,?,?,?,?);", [body.user_id, body.lastname, body.firstname, body.caption, body.filepath, body.mimetype], function(err, rows, fields) {
+  var addStringArray = [];
+  var addMarksArray = [];
+  var addValuesArray = [];
+
+  for (var property in body) {
+      if (body.hasOwnProperty(property) && body[property] != null) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body[property]);
+      }
+  }
+
+  this.db.query("INSERT into user_photos (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
-
-    call_back(err, rows, fields);
+    call_back(err, results, fields);
   });
 }
 

@@ -119,27 +119,64 @@ app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.ge
 				return;
 			} else {
 				UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+					var requestBody = {
+						user_id: request.params.id, 
+						lastname: request.body.lastname, 
+						firstname: request.body.firstname, 
+						caption: request.body.caption,
+						filepath: request.file.path,
+						mimetype: request.file.mimetype
+					};
+
 					//Delete from the filesystem
 					if(rows && rows.length > 0) {
-						for(var i=0;i<rows.length;i++) {
+						for(var i = 0; i < rows.length; i++) {
 							console.log("Deleting: " + rows[i].filepath);
 							fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
 						}
-					}
 
-					//Delete the entry in the database
-					UserPhotos.delete(request.params.id, function(err, rows, fields) {
-						//Add new entry in the database
-						UserPhotos.add({user_id: request.params.id, 
-										lastname: request.body.lastname, 
-										firstname: request.body.firstname, 
-										caption: request.body.caption,
-										filepath: request.file.path,
-										mimetype: request.file.mimetype}, function(err, rows, fields) {
+						UserPhotos.update(request.params.id, requestBody, function(err, rows, fields) {
+							if(err) {
+								response.status(400).json({status: "fail", message: "MySQL error.", errors: err});
+							} else {
+								UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+									if(err) {
+										response.send(err);
+									} else if(rows && rows.length > 0) {
+										var timestamp = new Date(rows[0].updated_at).getTime();
+										response.json({
+											status: "success", 
+											message: "Yahoo!",
+											caption: rows[0].caption, 
+											photo_uri: "/users/" + rows[0].user_id + "/photo.image?ver=" + timestamp
+										});
+									}
+								});
+							}
 						});
-					});
+					} else {
+						//Add new entry in the database
+						UserPhotos.add(requestBody, function(err, rows, fields) {
+							if(err) {
+								response.status(400).json({status: "fail", message: "MySQL error.", errors: err});
+							} else {
+								UserPhotos.find_by_user_id(request.params.id, function(err, rows, fields) {
+									if(err) {
+										response.send(err);
+									} else if(rows && rows.length > 0) {
+										var timestamp = new Date(rows[0].updated_at).getTime();
+										response.json({
+											status: "success", 
+											message: "Yahoo!",
+											caption: rows[0].caption, 
+											photo_uri: "/users/" + rows[0].user_id + "/photo.image?ver=" + timestamp
+										});
+									}
+								});
+							}
+						});
+					}
 				});
-				response.send("Yahoo!");
 			}
 		});	
 	} else {
@@ -150,7 +187,7 @@ app.post('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.ge
 
 app.put('/users/:id/photo', upload.single('photo'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user.admin || request.user.id == request.params.id) {
-		requestBody = {}
+		var requestBody = {}
 
 		request.checkBody('lastname', "can't be empty").optional().notEmpty();
 		request.checkBody('lastname', "must be alpha characters").optional().isAlpha();

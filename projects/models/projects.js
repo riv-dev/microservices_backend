@@ -189,7 +189,7 @@ Projects.find_all_by_user_id = function(query, user_id, call_back) {
   queryValuesArray.push(user_id);
 
   //Project Ranking
-  var orderByClause = " ORDER BY project_users.user_pinned DESC, LENGTH(projects.project_status) ASC, CASE WHEN projects.status!='finished' THEN -projects.deadline END DESC, CASE WHEN projects.status='finished' THEN projects.deadline END DESC, -projects.value ASC, -projects.start_date DESC, projects.id DESC";
+  var orderByClause = " ORDER BY project_users.user_pinned DESC, LENGTH(projects.status) ASC, CASE WHEN projects.status!='finished' THEN -projects.deadline END DESC, CASE WHEN projects.status='finished' THEN projects.deadline END DESC, -projects.value ASC, -projects.start_date DESC, projects.id DESC";
 
   //Pagination
   var limitStr = "";

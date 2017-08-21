@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  ryukyu-files-service:
+    build: .
+    image: ryukyu-files-service-img
+    ports:
+      - "8006:8006"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db-files
+    environment:
+      - NODE_ENV=development
+
+  db-files:
+    image: mysql:5.7
+    ports:
+      - "5306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

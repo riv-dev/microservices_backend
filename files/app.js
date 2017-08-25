@@ -83,7 +83,7 @@ app.get('/:category/:category_id/files', express_jwt({secret: app.get('jwt_secre
 						id: rows[i].id, parent_id: rows[i].parent_id, 
 						category: rows[i].category, name: rows[i].original_file_name, 
 						file_type: rows[i].mimetype, 
-						file_uri: "/files/" + rows[i].id + "/" + rows[i].category + "/" + rows[i].original_file_name
+						file_uri: "/files/" + rows[i].id + "?filename=" + rows[i].original_file_name
 					};
 					results.push(obj);
 				}
@@ -141,7 +141,7 @@ app.post('/:category/:category_id/files', upload.single('file'), express_jwt({se
 								id: rows[0].id, parent_id: rows[0].parent_id, category: rows[0].category, 
 								name: rows[0].original_file_name,
 								file_type: rows[0].mimetype, 
-								file_uri: "/files/" + rows[0].id + "/" + rows[0].category + "/" + rows[0].original_file_name + "?ver=" + timestamp
+								file_uri: "/files/" + rows[0].id + "?filename=" + rows[0].original_file_name + "?ver=" + timestamp
 							});
 						}
 					});

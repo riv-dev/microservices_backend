@@ -71,8 +71,8 @@ app.get('/', function(request, response) {
 	response.send("Welcome to the Files API");
 });
 
-app.get('/files/:id/:category', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
-	result = Files.find_all_by_parent_id(request.params.id, request.params.category, function(err,rows,fields) {
+app.get('/:category/:category_id/files', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = Files.find_all_by_parent_id(request.params.category_id, request.params.category, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
 		} else {
@@ -95,7 +95,7 @@ app.get('/files/:id/:category', express_jwt({secret: app.get('jwt_secret'), cred
 	});
 });
 
-app.get('/files/:file_id/:category/:filename', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/files/:file_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = Files.find_by_id(request.params.file_id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -110,7 +110,7 @@ app.get('/files/:file_id/:category/:filename', express_jwt({secret: app.get('jwt
 	});
 });
 
-app.post('/files/:id/:category', upload.single('file'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.post('/:category/:category_id/files', upload.single('file'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user) {
 
 		if (!request.file) {
@@ -119,7 +119,7 @@ app.post('/files/:id/:category', upload.single('file'), express_jwt({secret: app
 			return;
 		} else {
 			requestBody = {
-				parent_id: request.params.id, 
+				parent_id: request.params.category_id, 
 				category: request.params.category,
 				original_file_name: request.file.originalname,
 				filepath: request.file.path,
@@ -154,56 +154,9 @@ app.post('/files/:id/:category', upload.single('file'), express_jwt({secret: app
 
 });
 
-app.put('/files/:file_id', upload.single('file'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.delete('/:category/:category_id/files', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
 	if(request.user) {
-		requestBody = {}
-
-		request.getValidationResult().then(function(result) {
-			if (!result.isEmpty()) {
-				console.log(result.array());
-				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
-				return;
-			} else {
-				Files.find_by_id(request.params.file_id, function(err, rows, fields) {
-					if(rows && rows.length > 0) {
-						if(request.file) {
-							requestBody.filepath = request.file.path;
-							requestBody.mimetype = request.file.mimetype;
-
-							//delete the old file in the filesystem
-							for(var i　=　0;　i　<　rows.length;　i++) {
-								console.log("Deleting: " + rows[i].filepath);
-								fs.unlink(__dirname + "/" + rows[i].filepath, function() {});
-							}
-						}
-						
-						if(request.body.name) {
-							requestBody.name = request.body.name;
-						}
-
-						Files.update(request.params.file_id, requestBody, function(err, rows, fields) {
-							if(err) {
-								console.log(err);
-								response.status(400).json({status: "fail", message: "MySQL error", errors: err});
-							} else {
-								response.json({status: "success", message: "File Updated!"});
-							}
-						});				
-					} else {
-						response.status(400).json({status: "fail", message: "No record", errors: ''});
-					}
-				});
-			}
-		});
-	} else {
-		response.sendStatus(401);
-	}
-
-});
-
-app.delete('/files/:id/:category', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	if(request.user) {
-		Files.find_all_by_parent_id(request.params.id, request.params.category, function(err, rows, fields) {
+		Files.find_all_by_parent_id(request.params.category_id, request.params.category, function(err, rows, fields) {
 			//Delete from the filesystem
 			if(rows && rows.length > 0) {
 				for(var i = 0; i < rows.length; i++) {
@@ -212,7 +165,7 @@ app.delete('/files/:id/:category', express_jwt({secret: app.get('jwt_secret'), g
 				}
 
 				//Delete the entry in the database
-				Files.delete_all(request.params.id, request.params.category, function(err, rows, fields) {
+				Files.delete_all(request.params.category_id, request.params.category, function(err, rows, fields) {
 					response.send({status: "success", message: "Success File Deleted!"});
 				});	
 			} else {

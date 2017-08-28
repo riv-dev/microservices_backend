@@ -19,7 +19,7 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
 	var extname = path.extname(file.originalname);
-    cb(null, req.params.category + '_file_' + req.params.id + Date.now() + extname);
+    cb(null, req.params.category + '_file_' + req.params.category_id + Date.now() + extname);
   }
 });
 
@@ -79,11 +79,12 @@ app.get('/:category/:category_id/files', express_jwt({secret: app.get('jwt_secre
 			if(rows && rows.length > 0) {
 				var results = [];
 				for(var i = 0; i < rows.length; i++) {
+					var timestamp = new Date(rows[i].updated_at).getTime();
 					var obj = {
 						id: rows[i].id, parent_id: rows[i].parent_id, 
 						category: rows[i].category, name: rows[i].original_file_name, 
 						file_type: rows[i].mimetype, 
-						file_uri: "/files/" + rows[i].id + "?filename=" + rows[i].original_file_name
+						file_uri: "/files/" + rows[i].id + "/filename/" + rows[i].original_file_name + "?ver=" + timestamp
 					};
 					results.push(obj);
 				}
@@ -95,7 +96,7 @@ app.get('/:category/:category_id/files', express_jwt({secret: app.get('jwt_secre
 	});
 });
 
-app.get('/files/:file_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/files/:file_id/filename/:filename', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	result = Files.find_by_id(request.params.file_id, function(err,rows,fields) {
 		if(err) {
 			response.send(err);
@@ -141,7 +142,7 @@ app.post('/:category/:category_id/files', upload.single('file'), express_jwt({se
 								id: rows[0].id, parent_id: rows[0].parent_id, category: rows[0].category, 
 								name: rows[0].original_file_name,
 								file_type: rows[0].mimetype, 
-								file_uri: "/files/" + rows[0].id + "?filename=" + rows[0].original_file_name + "?ver=" + timestamp
+								file_uri: "/files/" + rows[0].id + "/filename/" + rows[0].original_file_name + "?ver=" + timestamp
 							});
 						}
 					});

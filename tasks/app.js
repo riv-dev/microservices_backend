@@ -99,6 +99,30 @@ app.get('/tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequire
 	});
 });
 
+//app.get('/tasks');
+app.get('/unassigned-tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Tasks.count_all_unassigned(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+//app.get('/tasks');
+app.get('/unassigned-tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	Tasks.find_all_unassigned(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err);
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results);
+		}
+	});
+});
+
 //app.get('/tasks/:id'); entire task details
 app.get('/tasks/:id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
 	Tasks.find_by_id(request.params.id, function(err,results,fields) {
@@ -199,6 +223,35 @@ app.get('/projects/:project_id/tasks', express_jwt({secret: app.get('jwt_secret'
 		}
 	});
 });
+
+//app.get('/projects/:project_id/tasks');
+app.get('/projects/:project_id/unassigned-tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.count_all_unassigned(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+app.get('/projects/:project_id/unassigned-tasks', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	Tasks.find_all_unassigned(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results);
+		}
+	});
+});
+
+
 
 //Count
 app.get('/projects/:project_id/users/:user_id/tasks-count', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {

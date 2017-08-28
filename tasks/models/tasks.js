@@ -146,6 +146,79 @@ Tasks.find_all = function (query, call_back) {
   }
 }
 
+Tasks.count_all_unassigned = function(query, call_back) {
+  console.log("count_all_unassigned called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("tasks." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT count(tasks.id) as num_rows FROM tasks LEFT JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.task_id IS NULL AND ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT count(tasks.id) as num_rows FROM tasks LEFT JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.task_id IS NULL;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+}
+
+Tasks.find_all_unassigned = function (query, call_back) {
+  console.log("find_all called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if (query) {
+    for (var property in query) {
+      if (Tasks.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        queryStringArray.push("tasks." + property + " = ?");
+        queryValuesArray.push(query[property]);
+      } else {
+        console.log("Try to access unknown property: " + property);
+      }
+    }
+  }
+
+  //Task Ranking
+  var orderByClause = " ORDER BY tasks.archived ASC, tasks.pinned DESC, CASE WHEN tasks.status!='finished' THEN -tasks.deadline END DESC, CASE WHEN tasks.status='finished' THEN tasks.deadline END DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC, tasks.updated_at DESC";
+
+  if (query && query.project_id) {
+    orderByClause = " ORDER BY tasks.archived ASC, tasks.project_pinned DESC, CASE WHEN tasks.status!='finished' THEN -tasks.deadline END DESC, CASE WHEN tasks.status='finished' THEN tasks.deadline END DESC, -tasks.priority ASC, LENGTH(tasks.status) ASC, tasks.id DESC, tasks.updated_at DESC";
+  }
+
+  //Pagination
+  var limitStr = "";
+
+  if (query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page) - 1) * parseInt(query.limit) + "," + query.limit;
+  }
+  else if (query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT tasks.* FROM tasks LEFT JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.task_id IS NULL AND ' + queryStringArray.join(" AND ") + orderByClause + limitStr + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT tasks.* FROM tasks LEFT JOIN task_assignments ON tasks.id = task_assignments.task_id WHERE task_assignments.task_id IS NULL ' + orderByClause + limitStr + ';', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+}
+
 Tasks.count_all_by_user_id = function(query, user_id, call_back) {
   console.log("count_all_by_user_id called.");
 

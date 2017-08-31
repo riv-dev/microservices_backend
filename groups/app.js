@@ -45,10 +45,10 @@ function extend(obj, src) {
 /// Database ///
 ////////////////
 var Groups = require('./models/groups.js');
-Groups.connect(app.get('env'));
-
 var GroupAssignment = require('./models/group_assignment.js');
-GroupAssignment.connect(app.get('env'));
+Groups.connect(app.get('env'), function() {
+	GroupAssignment.connect(app.get('env'));
+});
 
 //////////////
 /// Routes ///
@@ -84,42 +84,158 @@ app.get('/groups', express_jwt({secret: app.get('jwt_secret'), credentialsRequir
 
 // gets a single group
 app.get('/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
-	
+	if(request.user) {
+		Groups.find_by_id(request.params.group_id, function(err, results, fields) {
+			if(err) {
+				response.send(err);
+			} else {
+				response.json(results);
+			}
+		});
+	}
 });
 
-// gets all groups for a category id
-app.get('/:category/:category_id/groups', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
-	
+// gets all groups for a item id
+app.get('/:item_type/:item_id/groups', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		Groups.find_all_by_item_query(request.query, {item_id: request.params.item_id, item_type: request.params.item_type}, function(err, results, fields) {
+			if(err) {
+				response.send(err);
+			} else {
+				response.json(results);
+			}
+		});
+	}
 });
 
-// returns a list of category id's for the group
-app.get('/groups/:group_id/:category', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
-	
+// returns a list of item id's for the group
+app.get('/groups/:group_id/:item_type', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		Groups.find_all_by_item_query(request.query, {item_type: request.params.item_type}, function(err, results, fields) {
+			if(err) {
+				response.send(err);
+			} else {
+				response.json(results);
+			}
+		});
+	}
 });
 
 // add a new group
 app.post('/groups', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		request.checkBody('name', "can't be empty").notEmpty();
 
+		request.getValidationResult().then(function(result) {
+			if (!result.isEmpty()) {
+				console.log(JSON.stringify(result.array()));
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				Groups.add(request.body, function(err, results, fields) {
+					if(err) {
+						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+					} else {
+						response.json({status: "success", message: "Group added!", group_id: results.insertId});
+					}
+				});
+			}
+		});
+	}
 });
 
-// adds a new group assignment to a category
-app.post('/:category/:category_id/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+// adds a new group assignment to a item type
+app.post('/:item_type/:item_id/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		var service_url;
+		var servName = request.params.item_type + '_service';
+		switch(app.get('env')) {
+			case 'development':
+				service_url = api_urls.local_development[servName];
+				break;
+			case 'remote_development':
+				service_url = api_urls.remote_development[servName];
+				break;
+			case 'production':
+				service_url = api_urls.production[servName];
+				break;
+			default:
+				throw new Error('Unknown execution environment: ' + app.get('env'));
+		}
 
+		httpRequest(service_url + "/" + request.params.item_type + "/" + request.params.item_id, function(error, httpResponse, body) {
+			if(error) {
+				//return without the user details
+				console.log("Error: " + error);
+				response.json(results);
+			} else {
+				//return with the user details
+				if(!(Object.keys(body).length === 0)) {
+					GroupAssignment.add(request.params.group_id, request.params.item_id, request.params.item_type, function(err, results, fields) {
+						if(err) {
+							console.log(err);
+							response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+						} else {
+							response.json({status: "success", message: "Group assignment added.", group_assignment_id: results.insertId});
+						}
+					});
+				} else {
+					response.status(400).json({status: "fail", message: "Can't add a new group assignment to a " + request.params.item_type, errors: []});
+				}
+			}
+		});
+	}
 });
 
 // edit a group
 app.put('/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	
+	if(request.user) {
+		request.checkBody('name', "can't be empty").optional().notEmpty();
+		
+		request.getValidationResult().then(function(result) {
+			if (!result.isEmpty()) {
+				console.log(JSON.stringify(result.array()));
+				response.status(400).json({status: "fail", message: "Validation error", errors: result.array()});
+				return;
+			} else {
+				Groups.update(request.params.group_id, request.body, function(err, results, fields) {
+					if(err) {
+						response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+					} else {
+						response.json({status: "success", message: "Group updated!", group_id: request.params.group_id});
+					}
+				});
+			}
+		});
+	}
 });
 
 // fully delete a group, this should delete all group assignments too for the group
 app.delete('/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-	
+	if(request.user) {
+		Groups.delete(request.params.group_id, function(err, results, fields) {
+			if(err) {
+				console.log(err);
+				response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+			} else {
+				response.json({status: "success", message: "Group deleted.", group_id: request.params.group_id});
+			}
+		});
+	}
 });
 
-// remove a group from a category
-app.delete('/:category/:category_id/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
-
+// remove a group from a item type
+app.delete('/:item_type/:item_id/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		GroupAssignment.delete(request.params.group_id, request.params.item_id, request.params.item_type, function(err, results, fields) {
+			if(err) {
+				console.log(err);
+				response.status(400).json({status: "fail", message: "MySQL error", errors: err});
+			} else {
+				response.json({status: "success", message: "Group assignment deleted.", item_id: request.params.item_id});
+			}
+		});
+	}
 });
 
 app.listen(app.get('port'), function() {

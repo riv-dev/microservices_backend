@@ -19,7 +19,7 @@ Groups.schema = {
   name: {type: "varchar(255)", required: true}
 }
 
-Groups.connect = function (env) {
+Groups.connect = function (env, call_back) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
     user: credentials.mysql[env].username,
@@ -33,7 +33,7 @@ Groups.connect = function (env) {
     }
   });
 
-  Groups.initialize_db(env);
+  Groups.initialize_db(env, call_back);
 }
 
 Groups.disconnect = function () {
@@ -47,6 +47,7 @@ Groups.initialize_db = function(env, call_back) {
     if(err) {
       console.log(err);
     }
+    call_back();
   });
 
   this.db.query('USE ' + db_name[env] + ';', function(err) {
@@ -136,6 +137,49 @@ Groups.find_by_id = function (id, call_back) {
   });
 }
 
+Groups.find_all_by_item_query = function(query, item_query, call_back) {
+  console.log("find_all_by_item_id called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("groups." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  if(query) {
+    for (var property in item_query) {
+        if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push("group_assignment." + property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  //Pagination
+  var limitStr = "";
+
+  if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+    limitStr = " LIMIT " + (parseInt(query.page) - 1) * parseInt(query.limit) + "," + query.limit;
+  }
+  else if(query && query.limit && parseInt(query.limit) > 0) {
+    limitStr = " LIMIT " + query.limit;
+  }
+
+  this.db.query('SELECT * FROM groups INNER JOIN group_assignment ON groups.id = group_assignment.item_id WHERE ' + queryStringArray.join(" AND ") + limitStr + ';', queryValuesArray, function (err, results, fields) {
+    call_back(err, results, fields);
+  });
+}
+
 Groups.add = function(body, call_back) {
   console.log("add called.");
 
@@ -167,10 +211,10 @@ Groups.update = function(id, body, call_back) {
   var updateValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property) && body[property] != null) {
-        updateStringArray.push(property + " = ?");
-        updateValuesArray.push(body[property]);
-      }
+    if (body.hasOwnProperty(property) && body[property] != null) {
+      updateStringArray.push(property + " = ?");
+      updateValuesArray.push(body[property]);
+    }
   }
 
   updateValuesArray.push(id);

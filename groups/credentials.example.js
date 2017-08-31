@@ -9,12 +9,12 @@ module.exports = {
             password: 'password'
         },
         development: {
-            host: 'db-tags',
+            host: 'db-groups',
             username: 'root',
             password: 'password'
         },
         test: {
-            host: 'db-tags',
+            host: 'db-groups',
             username: 'root',
             password: 'password'
         }

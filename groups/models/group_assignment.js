@@ -7,9 +7,9 @@ var GroupAssignment = function (id, lastname, firstname, title) {
 }
 
 var db_name = {
-  development: "ryukyu_social_group_assignment_service_dev",
-  test: "ryukyu_social_group_assignment_service_test",
-  production: "ryukyu_social_group_assignment_service"
+  development: "ryukyu_social_groups_service_dev",
+  test: "ryukyu_social_groups_service_test",
+  production: "ryukyu_social_groups_service"
 }
 
 //Static Methods and Variables
@@ -51,7 +51,7 @@ GroupAssignment.initialize_db = function(env, call_back) {
 		}
 	});
 
-	this.db.query('CREATE TABLE IF NOT EXISTS group_assignment (id int NOT NULL AUTO_INCREMENT, group_id int NOT NULL, item_id int NOT NULL, item_type varchar(255) NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_GroupAssginment FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE);', function(err) {
+	this.db.query('CREATE TABLE IF NOT EXISTS group_assignment (id int NOT NULL AUTO_INCREMENT, group_id int NOT NULL, item_id int NOT NULL, item_type varchar(255) NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_GroupAssignment FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE);', function(err) {
 		if(err) {
 			console.log(err);
 		} 
@@ -59,11 +59,39 @@ GroupAssignment.initialize_db = function(env, call_back) {
 
 }
 
+GroupAssignment.find_all = function(query, call_back) {
+	console.log("find_all called.");
+
+	var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+      if (Projects.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        queryStringArray.push(property + " = ?");
+        queryValuesArray.push(query[property]);
+      } else {
+        console.log("Try to access unknown property: " + property);
+      }
+    }
+  }
+
+	if (queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM group_assignment WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+		this.db.query('SELECT * FROM group_assignment;', function (err, results, fields) {
+			call_back(err, results, fields);
+		});
+	}
+}
+
 GroupAssignment.add = function(group_id, item_id, item_type, call_back) {
 	console.log("add called.");
-	this.db.query("INSERT into group_assignment (project_id, item_id, item_type) values (?,?,?);", [group_id, item_id, item_type], function(err, results, fields) {
+	this.db.query("INSERT into group_assignment (group_id, item_id, item_type) values (?,?,?);", [group_id, item_id, item_type], function(err, results, fields) {
 	  if(err) {
-		console.log(err);
+			console.log(err);
 	  }
 	  call_back(err, results, fields);
 	});

@@ -44,7 +44,7 @@ Patches.apply_patch = function(env, call_back) {
     }
   });
 
-  this.db.query('UPDATE project_users SET write_access = 1 WHERE write_access = NULL;', function(err) {
+  this.db.query('UPDATE project_users SET write_access = 1 WHERE write_access IS NULL;', function(err) {
     if(err) {
       console.log(err);
     } 

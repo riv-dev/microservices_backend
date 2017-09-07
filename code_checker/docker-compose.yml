@@ -18,7 +18,7 @@ services:
       - LC_ALL=en_US.UTF-8
 
   db-code-checker-projects:
-    image: mysql:5.7
+    image: jamesatwork/docker-mysql-utf-8
     ports:
       - "5400:3306"
     volumes:

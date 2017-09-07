@@ -1,8 +1,8 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
 
-//The URLsToCheck model class
-var URLsToCheck = function (id, lastname, firstname, title) {
+//The ResultMessages model class
+var ResultMessages = function (id, lastname, firstname, title) {
 
 }
 
@@ -13,13 +13,14 @@ var db_name = {
 }
 
 //Static Methods and Variables
-URLsToCheck.db = "Yo!";
+ResultMessages.db = "Yo!";
 
-URLsToCheck.connect = function (env) {
+ResultMessages.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
     user: credentials.mysql[env].username,
     password: credentials.mysql[env].password,
+    multipleStatements: true
   });
 
   this.db.connect(function(err) {
@@ -29,14 +30,14 @@ URLsToCheck.connect = function (env) {
     }
   });
 
-  URLsToCheck.initialize_db(env);
+  ResultMessages.initialize_db(env);
 }
 
-URLsToCheck.disconnect = function () {
+ResultMessages.disconnect = function () {
   this.db.end()
 }
 
-URLsToCheck.initialize_db = function(env, call_back) {
+ResultMessages.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
   this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
@@ -51,14 +52,14 @@ URLsToCheck.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, msg_level varchar(32), msg varchar(255), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, msg_type varchar(32), msg_level varchar(32), msg varchar(255), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 
   });
 }
 
-URLsToCheck.find_all = function (query, call_back) {
+ResultMessages.find_all = function (query, call_back) {
   console.log("find_all called.");
 
   this.db.query('SELECT * FROM result_messages;', function(err, results, fields) {
@@ -66,7 +67,7 @@ URLsToCheck.find_all = function (query, call_back) {
   });
 }
 
-URLsToCheck.find_all_by_project_id = function (project_id, call_back) {
+ResultMessages.find_all_by_project_id = function (project_id, call_back) {
   console.log("find_by_id called.");
 
   this.db.query("SELECT * FROM result_messages WHERE project_id = ?;", [project_id], function (err, results, fields) {
@@ -74,7 +75,7 @@ URLsToCheck.find_all_by_project_id = function (project_id, call_back) {
   });
 }
 
-URLsToCheck.add = function(body, call_back) {
+ResultMessages.add = function(body, call_back) {
   console.log("add called.");
 
   var addStringArray = [];
@@ -97,8 +98,35 @@ URLsToCheck.add = function(body, call_back) {
   });
 }
 
+//Do a bulk query for better efficieny
+ResultMessages.bulk_add = function(body_arr, call_back) {
+  var bulk_query = ""; 
+  var addValuesArray = [];
 
-URLsToCheck.update = function(id, body, call_back) {
+  for (var i = 0; i < body_arr.length; i++) {
+    var addStringArray = [];
+    var addMarksArray = [];
+
+    for (var property in body_arr[i]) {
+      if (body_arr[i].hasOwnProperty(property) && body_arr[i][property] != null) {
+        addStringArray.push(property);
+        addMarksArray.push("?");
+        addValuesArray.push(body_arr[i][property]);
+      }
+    }
+    var current_query = "INSERT into result_messages (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");"
+    bulk_query = bulk_query + current_query;
+  }
+
+  this.db.query(bulk_query, addValuesArray, function(err, results, fields) {
+    if(err) {
+      console.log(err);
+    }
+    call_back(err, results, fields);
+  });
+}
+
+ResultMessages.update = function(id, body, call_back) {
   console.log("update called");
 
   var updateStringArray = [];
@@ -121,7 +149,7 @@ URLsToCheck.update = function(id, body, call_back) {
   });  
 }
 
-URLsToCheck.delete = function(id, call_back) {
+ResultMessages.delete = function(id, call_back) {
   console.log("delete called");
 
   this.db.query("DELETE from result_messages WHERE id = ?;", [id], function(err, results, fields) {
@@ -129,7 +157,7 @@ URLsToCheck.delete = function(id, call_back) {
   });    
 }
 
-URLsToCheck.delete_all = function(project_id, call_back) {
+ResultMessages.delete_all = function(project_id, call_back) {
   console.log("delete called");
 
   this.db.query("DELETE from result_messages WHERE project_id = ?;", [project_id], function(err, results, fields) {
@@ -137,4 +165,4 @@ URLsToCheck.delete_all = function(project_id, call_back) {
   });
 }
 
-module.exports = URLsToCheck;
+module.exports = ResultMessages;

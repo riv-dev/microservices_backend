@@ -51,7 +51,7 @@ URLsToCheck.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS urls_to_check (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, url varchar(512), UNIQUE (project_id, url), PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS urls_to_check (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, url varchar(255), UNIQUE (project_id, url), PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 

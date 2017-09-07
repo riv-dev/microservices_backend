@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  ryukyu-projects-service:
+    build: .
+    image: ryukyu-code-checker-projects-service-img
+    ports:
+      - "8100:8100"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    links:
+      - db-code-checker-projects
+    environment:
+      - NODE_ENV=development
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+
+  db-code-checker-projects:
+    image: jamesatwork/docker-mysql-utf-8
+    ports:
+      - "5400:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

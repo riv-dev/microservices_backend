@@ -51,7 +51,7 @@ CodeCheckerProjects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(2083), development_server varchar(2083), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(512), development_server varchar(512), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
     if(err) {
       console.log(err);
     } 

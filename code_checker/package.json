@@ -1,0 +1,27 @@
+{
+  "name": "projects",
+  "version": "1.0.0",
+  "description": "Projects",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha --timeout 10000"
+  },
+  "author": "Ken Le",
+  "license": "ISC",
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "mysql": "*",
+    "express-jwt": "*",
+    "morgan": "*",
+    "express-validator": "3.2.1",
+    "moment": "*"
+  },
+  "devDependencies": {
+    "faker": "*",
+    "chai": "*",
+    "chai-http": "*",
+    "mocha": "*"
+  } 
+}

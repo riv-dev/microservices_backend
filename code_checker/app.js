@@ -172,12 +172,17 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 										response.status(500).json({status: "fail", message: "MySQL Error", errors: deleteErrs});
 									} else {
 										var all_result_message_bodies = []
+										var errors_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
+										var warnings_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
 
 										for (var i = 0; i < output_json.length; i++) {
 											var checked_file = output_json[i];
 
 											for (var j = 0; j < checked_file.errors.length; j++) {
 												var current_message = checked_file.errors[j];
+
+												errors_count[current_message.type] += 1;
+												errors_count.total += 1;
 
 												var result_message_body = {
 													msg_level: "error",
@@ -193,6 +198,9 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 											for (var j = 0; j < checked_file.warnings.length; j++) {
 												var current_message = checked_file.errors[j];
+
+												warnings_count[current_message.type] += 1;
+												warnings_count.total += 1;
 
 												var result_message_body = {
 													msg_level: "warning",
@@ -210,7 +218,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 										ResultMessages.bulk_add(all_result_message_bodies, function (err, results, fields) {
 											console.log("Done.");
-											response.json({ status: "success", message: "Code Checker completed. Please check results", project_id: request.params.id });
+											response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
 										});
 									} //End if errs for delete_all SQL
 								}); //End delete_all result_messages

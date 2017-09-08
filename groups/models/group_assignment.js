@@ -127,7 +127,7 @@ GroupAssignment.delete = function(group_id, item_id, item_type, call_back) {
 
   this.db.query("DELETE from group_assignment WHERE group_id = ? AND item_id = ? AND item_type = ?;", [group_id, item_id, item_type], function(err, results, fields) {
     call_back(err, results, fields);
-  });    
+  });
 }
 
 GroupAssignment.delete_all = function(group_id, call_back) {

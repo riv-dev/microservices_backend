@@ -145,23 +145,23 @@ Groups.find_all_by_item_query = function(query, item_query, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
-          queryStringArray.push("groups." + property + " = ?");
-          queryValuesArray.push(query[property]);
-        } else {
-          console.log("Try to access unknown property: " + property);
-        }
+      if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        queryStringArray.push("groups." + property + " = ?");
+        queryValuesArray.push(query[property]);
+      } else {
+        console.log("Try to access unknown property: " + property);
+      }
     }
   }
 
-  if(query) {
+  if(item_query) {
     for (var property in item_query) {
-        if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
-          queryStringArray.push("group_assignment." + property + " = ?");
-          queryValuesArray.push(query[property]);
-        } else {
-          console.log("Try to access unknown property: " + property);
-        }
+      if (item_query.hasOwnProperty(property) && item_query[property] && item_query[property] != null) {
+        queryStringArray.push("group_assignment." + property + " = ?");
+        queryValuesArray.push(item_query[property]);
+      } else {
+        console.log("Try to access unknown property: " + property);
+      }
     }
   }
 
@@ -175,7 +175,7 @@ Groups.find_all_by_item_query = function(query, item_query, call_back) {
     limitStr = " LIMIT " + query.limit;
   }
 
-  this.db.query('SELECT * FROM groups INNER JOIN group_assignment ON groups.id = group_assignment.item_id WHERE ' + queryStringArray.join(" AND ") + limitStr + ';', queryValuesArray, function (err, results, fields) {
+  this.db.query('SELECT * FROM groups INNER JOIN group_assignment ON groups.id = group_assignment.group_id WHERE ' + queryStringArray.join(" AND ") + limitStr + ';', queryValuesArray, function (err, results, fields) {
     call_back(err, results, fields);
   });
 }

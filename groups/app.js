@@ -89,6 +89,19 @@ app.get('/groups/:group_id', express_jwt({secret: app.get('jwt_secret'), credent
 			if(err) {
 				response.send(err);
 			} else {
+				response.json(results[0]);
+			}
+		});
+	}
+});
+
+// gets a single group assignment
+app.get('/group-assign/:group_id', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
+	if(request.user) {
+		Groups.find_all_by_item_query(request.query, {group_id: request.params.group_id}, function(err, results, fields) {
+			if(err) {
+				response.send(err);
+			} else {
 				response.json(results);
 			}
 		});
@@ -167,7 +180,7 @@ app.post('/:item_type/:item_id/groups/:group_id', express_jwt({secret: app.get('
 			if(error) {
 				//return without the user details
 				console.log("Error: " + error);
-				response.json(results);
+				response.sendStatus(404);
 			} else {
 				//return with the user details
 				if(!(Object.keys(body).length === 0)) {

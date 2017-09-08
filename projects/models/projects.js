@@ -220,6 +220,14 @@ Projects.find_by_id = function (id, call_back) {
   });
 }
 
+Projects.find_all_by_ids = function(ids, call_back) {
+  console.log("find_all_by_id called: " + ids);
+
+  this.db.query('SELECT * FROM projects WHERE id IN (?);', ids, function (err, rows, fields) {
+    call_back(err, rows, fields);
+  });
+}
+
 Projects.add = function(body, call_back) {
   console.log("add called.");
 

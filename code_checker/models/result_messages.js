@@ -52,7 +52,7 @@ ResultMessages.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, msg_type varchar(32), msg_level varchar(32), msg varchar(255), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, validator varchar(32), level varchar(32), message varchar(255), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 

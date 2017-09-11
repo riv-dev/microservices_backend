@@ -202,9 +202,9 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 												errors_count.total += 1;
 
 												var result_message_body = {
-													msg_level: "error",
-													msg_type: current_message.validator,
-													msg: current_message.message,
+													level: "error",
+													validator: current_message.validator,
+													message: current_message.message,
 													line_num: current_message.line_num,
 													source: current_message.source,
 													project_id: request.params.id
@@ -220,9 +220,9 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 												warnings_count.total += 1;
 
 												var result_message_body = {
-													msg_level: "warning",
-													msg_type: current_message.validator,
-													msg: current_message.message,
+													level: "warning",
+													validator: current_message.validator,
+													message: current_message.message,
 													line_num: current_message.line_num,
 													source: current_message.source,
 													project_id: request.params.id
@@ -292,7 +292,7 @@ app.post('/code-checker-projects', express_jwt({secret: app.get('jwt_secret'), g
 				CodeCheckerProjects.add(request.body, function(err, results, fields) {
 					if(err) {
 						if(err.code == "ER_DUP_ENTRY") {
-							var errors = [{"param":"project_id", "msg":"Code Checker Project already exists for project_id", "project_id": request.body.project_id}];
+							var errors = [{"param":"project_id", "message":"Code Checker Project already exists for project_id", "project_id": request.body.project_id}];
 							response.status(400).json({status: "fail", message: "Validation error", errors: errors});
 						} else {
 							response.status(400).json({status: "fail", message: "MySQL error", errors: err.sqlMessage});
@@ -322,7 +322,7 @@ app.post('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.ge
 				URLsToCheck.add(request.body, function(err, results, fields) {
 					if(err) {
 						if(err.code == 'ER_DUP_ENTRY') {
-							var errors = [{"param":"url", "msg":"URL to check already exists for this project.", "url": request.body.url}];
+							var errors = [{"param":"url", "message":"URL to check already exists for this project.", "url": request.body.url}];
 							response.status(400).json({status: "fail", message: "Validation error", errors: errors});	
 						} else {
 							response.status(400).json({status: "fail", message: "MySQL error", errors: err.sqlMessage});

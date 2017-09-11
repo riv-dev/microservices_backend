@@ -59,36 +59,11 @@ ResultMessages.initialize_db = function(env, call_back) {
   });
 }
 
-ResultMessages.find_all = function (query, call_back) {
-  console.log("find_all called.");
+ResultMessages.count_all = function(query, call_back) {
+  console.log("count_all called.");
 
   var queryStringArray = [];
   var queryValuesArray = [];
-
-  if(query) {
-    for (var property in query) {
-        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
-          queryStringArray.push(property + " = ?");
-          queryValuesArray.push(query[property]);
-        }
-    }
-  }
-
-  if (queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
-      call_back(err, results, fields);
-    });
-  } else {
-    this.db.query('SELECT * FROM result_messages;', function (err, results, fields) {
-      call_back(err, results, fields);
-    });
-  }
-}
-
-ResultMessages.find_all_by_project_id = function (project_id, query, call_back) {
-  console.log("find_by_id called.");
-  var queryStringArray = [];
-  var queryValuesArray = [project_id];
 
   if(query) {
     for (var property in query) {
@@ -99,12 +74,48 @@ ResultMessages.find_all_by_project_id = function (project_id, query, call_back) 
     }
   }
 
-  if (queryStringArray.length > 0) {
-    this.db.query('SELECT * FROM result_messages WHERE project_id = ? AND ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT count(id) as num_rows FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT * FROM result_messages WHERE project_id = ?;', [project_id], function (err, results, fields) {
+    this.db.query('SELECT count(id) as num_rows FROM result_messages;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+}
+
+ResultMessages.find_all = function (query, call_back) {
+  console.log("find_all called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (property != "limit" && property != "page" && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  //Pagination
+  var limitStr = "";
+  
+    if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+      limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+    }
+    else if(query && query.limit && parseInt(query.limit) > 0) {
+      limitStr = " LIMIT " + query.limit;
+    }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM result_messages WHERE ' + queryStringArray.join(" AND ") + limitStr + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM result_messages' + limitStr + ';', function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

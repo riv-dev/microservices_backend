@@ -107,8 +107,23 @@ app.get('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.get
 	});
 });
 
+//app.get('/projects/:project_id/tasks');
+app.get('/code-checker-projects/:project_id/result-messages-count', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	ResultMessages.count_all(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
 app.get('/code-checker-projects/:id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	ResultMessages.find_all_by_project_id(request.params.id, request.query, function(err,results,fields) {
+	request.query.project_id = request.params.project_id;
+	ResultMessages.find_all(request.query, function(err,results,fields) {
 		if(err) {
 			response.send(err);
 		} else {

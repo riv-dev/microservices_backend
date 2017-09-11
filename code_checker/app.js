@@ -108,7 +108,7 @@ app.get('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.get
 });
 
 app.get('/code-checker-projects/:id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	ResultMessages.find_all_by_project_id(request.params.id, function(err,results,fields) {
+	ResultMessages.find_all_by_project_id(request.params.id, request.query, function(err,results,fields) {
 		if(err) {
 			response.send(err);
 		} else {

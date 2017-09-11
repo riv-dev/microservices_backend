@@ -62,17 +62,52 @@ ResultMessages.initialize_db = function(env, call_back) {
 ResultMessages.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM result_messages;', function(err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM result_messages;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
-ResultMessages.find_all_by_project_id = function (project_id, call_back) {
+ResultMessages.find_all_by_project_id = function (project_id, query, call_back) {
   console.log("find_by_id called.");
+  var queryStringArray = [];
+  var queryValuesArray = [project_id];
 
-  this.db.query("SELECT * FROM result_messages WHERE project_id = ?;", [project_id], function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  if(query) {
+    for (var property in query) {
+        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        } 
+    }
+  }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM result_messages WHERE project_id = ? AND ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM result_messages WHERE project_id = ?;', [project_id], function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
 ResultMessages.add = function(body, call_back) {

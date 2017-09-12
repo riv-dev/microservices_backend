@@ -180,9 +180,6 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 								//console.log(JSON.stringify(output_json));
 
-								CodeCheckerProjects.update(request.params.id, {last_checked: moment().format("YYYY-MM-DD HH:mm:ss")}, function(err, results, fields) {
-								});
-
 								//Clear result messages for the project before adding new ones
 								ResultMessages.delete_all(request.params.id, function(deleteErrs, deleteResults, deleteFields) {
 									if(deleteErrs) {
@@ -239,6 +236,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 											CodeCheckerProjects.update(request.params.id, {
 												last_check_status: "success",
 												last_check_message: "Code Checker completed. Please check results",
+												last_checked: moment().format("YYYY-MM-DD HH:mm:ss"),
 												total_error_count: errors_count.total,
 												w3c_error_count: errors_count.W3C,
 												ryukyu_error_count: errors_count.Ryukyu,

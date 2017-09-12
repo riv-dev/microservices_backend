@@ -107,8 +107,23 @@ app.get('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.get
 	});
 });
 
-app.get('/code-checker-projects/:id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	ResultMessages.find_all_by_project_id(request.params.id, function(err,results,fields) {
+//app.get('/projects/:project_id/tasks');
+app.get('/code-checker-projects/:project_id/result-messages-count', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	request.query.project_id = request.params.project_id;
+
+	ResultMessages.count_all(request.query, function(err,results,fields) {
+		if(err) {
+			console.log(err)
+			response.status(500).json({status: "fail", message: "System error."});
+		} else {
+			response.json(results[0].num_rows);
+		}
+	});
+});
+
+app.get('/code-checker-projects/:project_id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+	request.query.project_id = request.params.project_id;
+	ResultMessages.find_all(request.query, function(err,results,fields) {
 		if(err) {
 			response.send(err);
 		} else {
@@ -163,6 +178,8 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 								var output = stdout.replace(/invalid byte sequence in US-ASCII/gi, "");
 								var output_json = JSON.parse(output);
 
+								//console.log(JSON.stringify(output_json));
+
 								CodeCheckerProjects.update(request.params.id, {last_checked: moment().format("YYYY-MM-DD HH:mm:ss")}, function(err, results, fields) {
 								});
 
@@ -181,13 +198,13 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 											for (var j = 0; j < checked_file.errors.length; j++) {
 												var current_message = checked_file.errors[j];
 
-												errors_count[current_message.type] += 1;
+												errors_count[current_message.validator] += 1;
 												errors_count.total += 1;
 
 												var result_message_body = {
-													msg_level: "error",
-													msg_type: current_message.type,
-													msg: current_message.message,
+													level: "error",
+													validator: current_message.validator,
+													message: current_message.message,
 													line_num: current_message.line_num,
 													source: current_message.source,
 													project_id: request.params.id
@@ -199,13 +216,13 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 											for (var j = 0; j < checked_file.warnings.length; j++) {
 												var current_message = checked_file.errors[j];
 
-												warnings_count[current_message.type] += 1;
+												warnings_count[current_message.validator] += 1;
 												warnings_count.total += 1;
 
 												var result_message_body = {
-													msg_level: "warning",
-													msg_type: current_message.type,
-													msg: current_message.message,
+													level: "warning",
+													validator: current_message.validator,
+													message: current_message.message,
 													line_num: current_message.line_num,
 													source: current_message.source,
 													project_id: request.params.id
@@ -218,16 +235,40 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 										ResultMessages.bulk_add(all_result_message_bodies, function (err, results, fields) {
 											console.log("Done.");
-											response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+
+											CodeCheckerProjects.update(request.params.id, {
+												last_check_status: "success",
+												last_check_message: "Code Checker completed. Please check results",
+												total_error_count: errors_count.total,
+												w3c_error_count: errors_count.W3C,
+												ryukyu_error_count: errors_count.Ryukyu,
+												achecker_error_count: errors_count.AChecker,
+												total_warning_count: warnings_count.total,
+												w3c_warning_count: warnings_count.W3C,
+												ryukyu_warning_count: warnings_count.Ryukyu,
+												achecker_warning_count: warnings_count.AChecker
+											}, function() {
+												response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+											});
 										});
 									} //End if errs for delete_all SQL
 								}); //End delete_all result_messages
 							} catch(err) {
-								response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", errors: err})
+								CodeCheckerProjects.update(request.params.id, {
+									last_check_status: "fail",
+									last_check_message: "An error occured while running code_checker. Most likely have to debug code_checker source code."
+								}, function() {
+									response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", errors: err})
+								});
 							} //End try parse JSON response catch block
 						}); //End exec code_checker ruby command 
 					} else {
-						response.json({status: "alert", message: "No urls to check have been specified."});
+						CodeCheckerProjects.update(request.params.id, {
+							last_check_status: "alert",
+							last_check_message: "No urls to check have been specified."
+						}, function() {
+							response.json({status: "alert", message: "No urls to check have been specified."});
+						});
 					} //End if urls_to_check.length > 0
 				} //End if errs for mysql
 			}); //End URLsToCheck.find_all_by_project_id
@@ -251,7 +292,7 @@ app.post('/code-checker-projects', express_jwt({secret: app.get('jwt_secret'), g
 				CodeCheckerProjects.add(request.body, function(err, results, fields) {
 					if(err) {
 						if(err.code == "ER_DUP_ENTRY") {
-							var errors = [{"param":"project_id", "msg":"Code Checker Project already exists for project_id", "project_id": request.body.project_id}];
+							var errors = [{"param":"project_id", "message":"Code Checker Project already exists for project_id", "project_id": request.body.project_id}];
 							response.status(400).json({status: "fail", message: "Validation error", errors: errors});
 						} else {
 							response.status(400).json({status: "fail", message: "MySQL error", errors: err.sqlMessage});
@@ -281,7 +322,7 @@ app.post('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.ge
 				URLsToCheck.add(request.body, function(err, results, fields) {
 					if(err) {
 						if(err.code == 'ER_DUP_ENTRY') {
-							var errors = [{"param":"url", "msg":"URL to check already exists for this project.", "url": request.body.url}];
+							var errors = [{"param":"url", "message":"URL to check already exists for this project.", "url": request.body.url}];
 							response.status(400).json({status: "fail", message: "Validation error", errors: errors});	
 						} else {
 							response.status(400).json({status: "fail", message: "MySQL error", errors: err.sqlMessage});

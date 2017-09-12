@@ -178,7 +178,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 								var output = stdout.replace(/invalid byte sequence in US-ASCII/gi, "");
 								var output_json = JSON.parse(output);
 
-								//console.log(JSON.stringify(output_json));
+								console.log(JSON.stringify(output_json));
 
 								//Clear result messages for the project before adding new ones
 								ResultMessages.delete_all(request.params.id, function(deleteErrs, deleteResults, deleteFields) {
@@ -191,6 +191,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 										for (var i = 0; i < output_json.length; i++) {
 											var checked_file = output_json[i];
+											var relative_url = checked_file.file_path.replace(/code_checker_output\/imported/gi,"");
 
 											for (var j = 0; j < checked_file.errors.length; j++) {
 												var current_message = checked_file.errors[j];
@@ -200,6 +201,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 												var result_message_body = {
 													level: "error",
+													url: relative_url,
 													validator: current_message.validator,
 													message: current_message.message,
 													line_num: current_message.line_num,
@@ -218,6 +220,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 												var result_message_body = {
 													level: "warning",
+													url: relative_url,
 													validator: current_message.validator,
 													message: current_message.message,
 													line_num: current_message.line_num,

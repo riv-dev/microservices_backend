@@ -121,7 +121,7 @@ app.get('/code-checker-projects/:project_id/result-messages-count', express_jwt(
 	});
 });
 
-app.get('/code-checker-projects/:id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+app.get('/code-checker-projects/:project_id/result-messages', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	request.query.project_id = request.params.project_id;
 	ResultMessages.find_all(request.query, function(err,results,fields) {
 		if(err) {

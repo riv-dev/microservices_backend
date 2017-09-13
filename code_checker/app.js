@@ -248,8 +248,12 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 												w3c_warning_count: warnings_count.W3C,
 												ryukyu_warning_count: warnings_count.Ryukyu,
 												achecker_warning_count: warnings_count.AChecker
-											}, function() {
-												response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+											}, function(err, results, fields) {
+												if(err) {
+													response.json({status: "fail", message: "MySQL error.", error: err});
+												} else {
+													response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+												}
 											});
 										});
 									} //End if errs for delete_all SQL

@@ -100,7 +100,7 @@ Groups.find_all = function (query, call_back) {
 
   if(query) {
     for (var property in query) {
-      if (Projects.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+      if (Groups.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
         queryStringArray.push(property + " = ?");
         queryValuesArray.push(query[property]);
       } else {

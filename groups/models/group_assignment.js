@@ -1,7 +1,7 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
 
-//The ProjectUsers model class
+//The GroupAssignment model class
 var GroupAssignment = function (id, lastname, firstname, title) {
 
 }
@@ -67,7 +67,7 @@ GroupAssignment.find_all = function(query, call_back) {
 
   if(query) {
     for (var property in query) {
-      if (Projects.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+      if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
         queryStringArray.push(property + " = ?");
         queryValuesArray.push(query[property]);
       } else {

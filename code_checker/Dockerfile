@@ -7,6 +7,7 @@ RUN apt-get install --yes npm
 RUN apt-get install --yes ruby-dev
 RUN apt-get install --yes rubygems
 RUN apt-get install --yes git
+RUN apt-get install --yes subversion
 
 
 #RUN mkdir -p /usr/src/app

@@ -1,8 +1,8 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
 
-//The CodeCheckerProjects model class
-var CodeCheckerProjects = function (id, lastname, firstname, title) {
+//The SASSFolders model class
+var SASSFolders = function (id, lastname, firstname, title) {
 
 }
 
@@ -13,9 +13,9 @@ var db_name = {
 }
 
 //Static Methods and Variables
-CodeCheckerProjects.db = "Yo!";
+SASSFolders.db = "Yo!";
 
-CodeCheckerProjects.connect = function (env, call_back) {
+SASSFolders.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
     user: credentials.mysql[env].username,
@@ -29,14 +29,14 @@ CodeCheckerProjects.connect = function (env, call_back) {
     }
   });
 
-  CodeCheckerProjects.initialize_db(env, call_back);
+  SASSFolders.initialize_db(env);
 }
 
-CodeCheckerProjects.disconnect = function () {
+SASSFolders.disconnect = function () {
   this.db.end()
 }
 
-CodeCheckerProjects.initialize_db = function(env, call_back) {
+SASSFolders.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
   this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
@@ -51,32 +51,30 @@ CodeCheckerProjects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(255), source_username varchar(255), source_password varchar(255), development_server varchar(255), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, last_check_status varchar(32), last_check_message varchar(255), total_error_count int , w3c_error_count int , ryukyu_error_count int , achecker_error_count int, w3c_warning_count int , ryukyu_warning_count int , achecker_warning_count int, total_warning_count int, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS sass_folders (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, relative_path varchar(255), UNIQUE (project_id, relative_path), PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 
-    call_back();
   });
-
 }
 
-CodeCheckerProjects.find_all = function (query, call_back) {
+SASSFolders.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM code_checker_projects;', function(err, results, fields) {
-    call_back(err, results, fields);
-  })
-}
-
-CodeCheckerProjects.find_by_project_id = function (project_id, call_back) {
-  console.log("find_by_id called.");
-
-  this.db.query("SELECT * FROM code_checker_projects WHERE project_id = ? LIMIT 1;", [project_id], function (err, results, fields) {
+  this.db.query('SELECT * FROM sass_folders;', function(err, results, fields) {
     call_back(err, results, fields);
   });
 }
 
-CodeCheckerProjects.add = function(body, call_back) {
+SASSFolders.find_all_by_project_id = function (project_id, call_back) {
+  console.log("find_by_id called.");
+
+  this.db.query("SELECT * FROM sass_folders WHERE project_id = ?;", [project_id], function (err, results, fields) {
+    call_back(err, results, fields);
+  });
+}
+
+SASSFolders.add = function(body, call_back) {
   console.log("add called.");
 
   var addStringArray = [];
@@ -91,7 +89,7 @@ CodeCheckerProjects.add = function(body, call_back) {
       }
   }
 
-  this.db.query("INSERT into code_checker_projects (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
+  this.db.query("INSERT into sass_folders (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
@@ -100,7 +98,7 @@ CodeCheckerProjects.add = function(body, call_back) {
 }
 
 
-CodeCheckerProjects.update = function(id, body, call_back) {
+SASSFolders.update = function(id, body, call_back) {
   console.log("update called");
 
   var updateStringArray = [];
@@ -118,17 +116,25 @@ CodeCheckerProjects.update = function(id, body, call_back) {
   console.log(updateStringArray.join(", "));
   console.log(updateValuesArray.join(", "));
 
-  this.db.query("UPDATE code_checker_projects SET " + updateStringArray.join(", ") + " WHERE project_id = ?;", updateValuesArray, function(err, results, fields) {
+  this.db.query("UPDATE sass_folders SET " + updateStringArray.join(", ") + " WHERE project_id = ?;", updateValuesArray, function(err, results, fields) {
     call_back(err, results, fields);
   });  
 }
 
-CodeCheckerProjects.delete = function(id, call_back) {
+SASSFolders.delete = function(id, call_back) {
   console.log("delete called");
 
-  this.db.query("DELETE from code_checker_projects WHERE project_id = ?;", [id], function(err, results, fields) {
+  this.db.query("DELETE from sass_folders WHERE id = ?;", [id], function(err, results, fields) {
     call_back(err, results, fields);
   });    
 }
 
-module.exports = CodeCheckerProjects;
+SASSFolders.delete_all = function(project_id, call_back) {
+  console.log("delete called");
+
+  this.db.query("DELETE from sass_folders WHERE project_id = ?;", [project_id], function(err, results, fields) {
+    call_back(err, results, fields);
+  });
+}
+
+module.exports = SASSFolders;

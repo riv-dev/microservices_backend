@@ -1,0 +1,1281 @@
+[
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported/gold_special/index.html",
+    "file_type": "html",
+    "errors": [
+      {
+        "validator": "W3C",
+        "line_num": 22,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "rd ▼ -->\n\t<meta name=\"twitter:card\" value=\"summary_large_image\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 22,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "rd ▼ -->\n\t<meta name=\"twitter:card\" value=\"summary_large_image\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 23,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "_image\">\n\t<meta name=\"twitter:url\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 23,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "_image\">\n\t<meta name=\"twitter:url\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 24,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "ecial/\">\n\t<meta name=\"twitter:title\" value=\"UCC ゴールドスペシャル\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 24,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "ecial/\">\n\t<meta name=\"twitter:title\" value=\"UCC ゴールドスペシャル\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 25,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "ドスペシャル\">\n\t<meta name=\"twitter:description\" value=\"自分のために、誰かのために。コーヒーを淹れるって、しあわせ。UCCゴールドスペシャル　#家淹れコーヒー\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 25,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "ドスペシャル\">\n\t<meta name=\"twitter:description\" value=\"自分のために、誰かのために。コーヒーを淹れるって、しあわせ。UCCゴールドスペシャル　#家淹れコーヒー\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 26,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "淹れコーヒー\">\n\t<meta name=\"twitter:image\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/images/ogimage.png\">\n\n\n\t<!"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 26,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "淹れコーヒー\">\n\t<meta name=\"twitter:image\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/images/ogimage.png\">\n\n\n\t<!"
+      }
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 7,
+        "message": "Ryukyu: No half-width spaces in Japanese characters",
+        "source": "UCC ゴールドスペシャル\u001b[0;39;43m \u001b[0m|\u001b[0;39;43m \u001b[0mコーヒーはUCC上島珈琲"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 67,
+        "message": "Ryukyu: No trailing white spaces at end of attribute value",
+        "source": "<span class=\"nav-open-sp\u001b[0;39;43m \u001b[0m\">"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 12,
+        "message": "Consider avoiding viewport values that prevent users from resizing documents.",
+        "source": "C,上島珈琲\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0\">\n\t<!--"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 48,
+        "message": "Ryukyu: No hover style is defined. <a>, <input>, <button> tags require hover",
+        "source": "<a class=\"l-header-mobile js-header\" href=\"javascript:void(0)\">"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 231,
+        "message": "Ryukyu: No hover style is defined. <a>, <input>, <button> tags require hover",
+        "source": "<a href=\"http://ucc-jp.ryukyu-i-dev.com/cpn/gsp2017/\">"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported/gold_special/make/enjoy/index.html",
+    "file_type": "html",
+    "errors": [
+      {
+        "validator": "W3C",
+        "line_num": 22,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "rd ▼ -->\n\t<meta name=\"twitter:card\" value=\"summary_large_image\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 22,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "rd ▼ -->\n\t<meta name=\"twitter:card\" value=\"summary_large_image\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 23,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "_image\">\n\t<meta name=\"twitter:url\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 23,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "_image\">\n\t<meta name=\"twitter:url\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 24,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "ecial/\">\n\t<meta name=\"twitter:title\" value=\"UCC ゴールドスペシャル\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 24,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "ecial/\">\n\t<meta name=\"twitter:title\" value=\"UCC ゴールドスペシャル\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 25,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "ドスペシャル\">\n\t<meta name=\"twitter:description\" value=\"自分のために、誰かのために。コーヒーを淹れるって、しあわせ。UCCゴールドスペシャル　#家淹れコーヒー\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 25,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "ドスペシャル\">\n\t<meta name=\"twitter:description\" value=\"自分のために、誰かのために。コーヒーを淹れるって、しあわせ。UCCゴールドスペシャル　#家淹れコーヒー\">\n\t<met"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 26,
+        "message": "Attribute “value” not allowed on element “meta” at this point.",
+        "source": "淹れコーヒー\">\n\t<meta name=\"twitter:image\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/images/ogimage.png\">\n\n\n\t<!"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 26,
+        "message": "Element “meta” is missing one or more of the following attributes: “content”, “property”.",
+        "source": "淹れコーヒー\">\n\t<meta name=\"twitter:image\" value=\"http://ucc.ryukyu-i-dev.com/gold_special/images/ogimage.png\">\n\n\n\t<!"
+      },
+      {
+        "validator": "AChecker",
+        "line_num": "53",
+        "message": "AChecker: Header nesting - header following h1 is incorrect. Repair: Modify the header levels so only an h1 or h2 follows h1.",
+        "source": "<h1 class=\"l-logo\">\n\t\t\t<a class=\"l-logo-link\" href=\"/gold_special/\">\n\t\t\t\t<img src=\"/gold_special/ima ..."
+      }
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 7,
+        "message": "Ryukyu: No half-width spaces in Japanese characters",
+        "source": "田丸さんとご一緒に！家淹れコーヒーを楽しむ方法\u001b[0;39;43m \u001b[0m|\u001b[0;39;43m \u001b[0mUCC ゴールドスペシャル\u001b[0;39;43m \u001b[0m|\u001b[0;39;43m \u001b[0mコーヒーはUCC上島珈琲"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 67,
+        "message": "Ryukyu: No trailing white spaces at end of attribute value",
+        "source": "<span class=\"nav-open-sp\u001b[0;39;43m \u001b[0m\">"
+      },
+      {
+        "validator": "W3C",
+        "line_num": 12,
+        "message": "Consider avoiding viewport values that prevent users from resizing documents.",
+        "source": "C,上島珈琲\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0\">\n\t<!--"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 48,
+        "message": "Ryukyu: No hover style is defined. <a>, <input>, <button> tags require hover",
+        "source": "<a class=\"l-header-mobile js-header\" href=\"javascript:void(0)\">"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout/_container.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout/_footer.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 67,
+        "message": "Ryukyu: Use compass mixin @include border-radius()",
+        "source": "border-radius: 50%;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 23,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "footer {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 34,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout/_header.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 122,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 178,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "svg{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 202,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 135,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 13px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 162,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 210,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 28px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout/_navigation.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 59,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "text-transform: uppercase;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 243,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 247,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 1;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 253,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 257,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 1;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 263,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 267,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 1;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 233,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "svg {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 24,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 56,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 15px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout/_topic-path.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_base-layout.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_bootstrap.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_baner.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_border.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_box.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_button.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 22,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "text-transform: uppercase;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 116,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "text-transform: uppercase;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 26,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 27px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_campaign.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 77,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "text-transform: uppercase;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 127,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 175,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{}"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 195,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 201,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 215,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 234,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 74,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 34px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_carousel.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_colors.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_form.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_gallery.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 14,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "p {"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_grid-gutter.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_hover.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 13,
+        "message": "Ryukyu: Hover must be defined inside @media for PC only or using .no-touchevents class",
+        "source": "&:hover {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 22,
+        "message": "Ryukyu: Hover must be defined inside @media for PC only or using .no-touchevents class",
+        "source": "&:hover {"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_icon.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_kv.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 22,
+        "message": "Ryukyu: Use compass mixin @include border-radius()",
+        "source": "border-radius: 50%;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 35,
+        "message": "Ryukyu: Use compass mixin @include border-radius()",
+        "source": "border-radius: 50%;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 18,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "li {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 27,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "button{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 77,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 17,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_list.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 12,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "li {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 25,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "li {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 38,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dt,dd,li {"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_modal.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_notice.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 141,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "transform: rotate(90deg);"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 145,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "transform: rotate(180deg);"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_scale.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_space.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_statement.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 7,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_view.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component/_wrap.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_component.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_default.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 15,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "body{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 31,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 37,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "br {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 38,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_fonts-web.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_fonts.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_mixins.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_pages-layout/_page-detail.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 228,
+        "message": "Ryukyu: Use compass mixin @include border-radius()",
+        "source": "border-radius: 50%;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 5,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 21,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 134,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "span{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 205,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "span{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 220,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "em{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 301,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "iframe{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 234,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 45px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 240,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 70px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 372,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 30px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_pages-layout/_page-infor-detail.scss",
+    "file_type": "sass",
+    "errors": [
+      {
+        "validator": null,
+        "line_num": 928,
+        "message": "Invalid line.",
+        "source": "\t\t\t\t\t"
+      }
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 180,
+        "message": "Ryukyu: Use compass mixin @include background-size()",
+        "source": "background-size: cover;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 254,
+        "message": "Ryukyu: Use compass mixin @include transform()",
+        "source": "text-transform: uppercase;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 162,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "iframe{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 848,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "p{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 954,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 103,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 123px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 148,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 50px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 190,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 801,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 100px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_pages-layout/_page-product.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 131,
+        "message": "Ryukyu: Use compass mixin @include opacity()",
+        "source": "opacity: 1;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 166,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 74,
+        "message": "Ryukyu: Use px for font-size,don't use em, rem, %... , because it offers absolute control over text.",
+        "source": "font-size: 0;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_pages-layout/_page-top.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 46,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "body.loading .overlay {"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_pages-layout.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_tinymce/_tinymce-default.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 99,
+        "message": "Ryukyu: Use compass mixin @include border-radius()",
+        "source": "border-radius: 0;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 106,
+        "message": "Ryukyu: Use compass mixin @include box-shadow()",
+        "source": "-webkit-box-shadow: none;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 107,
+        "message": "Ryukyu: Use compass mixin @include box-shadow()",
+        "source": "box-shadow: none;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 272,
+        "message": "Ryukyu: Use compass mixin @include box-shadow()",
+        "source": "box-shadow: 0 1px 3px rgba(0,0,0,0.5);"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 325,
+        "message": "Ryukyu: Use compass mixin @include box-shadow()",
+        "source": "box-shadow: 0 1px 3px rgba(0,0,0,0.8);"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 488,
+        "message": "Ryukyu: Use compass mixin @include background-size()",
+        "source": "background-size: 1900px 20px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 493,
+        "message": "Ryukyu: Use compass mixin @include background-size()",
+        "source": "background-size: 1900px 20px;"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 18,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "html.wp-fullscreen body {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 27,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dl.aligncenter {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 66,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "div.mceTemp {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 71,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dl.wp-caption * {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 141,
+        "message": "Ryukyu: Hover must be defined inside @media for PC only or using .no-touchevents class",
+        "source": ".mce-content-body img.wp-media:hover {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 172,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "embed {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 178,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "audio {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 324,
+        "message": "Ryukyu: Hover must be defined inside @media for PC only or using .no-touchevents class",
+        "source": "#wp-image-toolbar div:hover {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 457,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "img.wp-oembed {"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 77,
+        "message": "Ryukyu: Use em or unitless for line-height, because em can change dynamically with the font in use.",
+        "source": "line-height: 17px;"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/_tinymce/_tinymce.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+      {
+        "validator": "Ryukyu",
+        "line_num": 45,
+        "message": "Ryukyu: Hover must be defined inside @media for PC only or using .no-touchevents class",
+        "source": "&:hover{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 65,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "ul{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 66,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "li{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 73,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "ol{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 74,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "li{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 85,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "table{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 89,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "tr{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 91,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "td{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 97,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dl{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 104,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dt{"
+      },
+      {
+        "validator": "Ryukyu",
+        "line_num": 110,
+        "message": "Ryukyu: Avoid styling directly on HTML tag, define a class instead.",
+        "source": "dd{"
+      }
+    ],
+    "success": false
+  },
+  {
+    "version": "2.0.0",
+    "file_path": "code_checker_output/imported_sass/gold_special/_dev/_sass/style.scss",
+    "file_type": "sass",
+    "errors": [
+
+    ],
+    "warnings": [
+
+    ],
+    "success": true
+  }
+]

@@ -1,7 +1,7 @@
 {
-  "name": "projects",
+  "name": "code_checker",
   "version": "1.0.0",
-  "description": "Projects",
+  "description": "Code Checker",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

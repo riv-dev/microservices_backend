@@ -165,167 +165,258 @@ app.get('/code-checker-projects/:project_id/result-messages', express_jwt({secre
 });
 
 //Run code-checker on a project
-app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	//Code Checker must be installed on the computer running this application
 	//Visit for installation details: https://github.com/riv-dev/code_checker
 	CodeCheckerProjects.find_by_project_id(request.params.id, function(err, results, fields) {
 		if(err) {
+			CodeCheckerProjects.update(request.params.id, {
+				last_check_status: "fail",
+				last_check_message: "MySQL Error. " + err.sqlMessage
+			}, function() {
+			});	
 			response.send({status: "fail", message: "MySQL Error", errors: err.sqlMessage});
 		} else {
 			var project = results[0];
 			var dev_server_url = project.development_server;
+			var source_server_url = project.source_code_server;
 
-			URLsToCheck.find_all_by_project_id(request.params.id, function(err, results, fields) {
-				if(err) {
-					response.send({status: "fail", message: "MySQL Error", errors: err.sqlMessage});
+			URLsToCheck.find_all_by_project_id(request.params.id, function(err1, results1, fields1) {
+				if(err1) {
+					CodeCheckerProjects.update(request.params.id, {
+						last_check_status: "fail",
+						last_check_message: "MySQL Error. " + err1.sqlMessage
+					}, function() {
+					});	
+					response.send({status: "fail", message: "MySQL Error", errors: err1.sqlMessage});
 				} else {
-					var urls_to_check = results;
+					SASSFolders.find_all_by_project_id(request.params.id, function(err2, results2, fields2) {
+						if(err2) {
+							CodeCheckerProjects.update(request.params.id, {
+								last_check_status: "fail",
+								last_check_message: "MySQL Error. " + err2.sqlMessage
+							}, function() {
+							});								
+							return response.send({status: "fail", message: "MySQL Error", errors: err2.sqlMessage});
+						} else {
+							var urls_to_check = results1;
+							var sass_folder_paths = results2;
 
-					if(dev_server_url && urls_to_check && urls_to_check.length > 0) {
-						var urls_to_check_arr = [] 
+							var urls_to_check_str;
+							var sass_folder_paths_str;
 
-						for(var i=0;i<urls_to_check.length;i++) {
-							urls_to_check_arr.push(urls_to_check[i].url);
-						}
+							var execution_str = "code_checker -W ";
 
-						var urls_to_check_str = urls_to_check_arr.join(",");
+							if(dev_server_url ) {
+								if(urls_to_check && urls_to_check.length > 0) {
+									var urls_to_check_arr = []; 
 
-						var execution_str = "";
-						execution_str = "code_checker -l " + urls_to_check_str + " -r " + dev_server_url + " -W ";						
+									for(var i=0;i<urls_to_check.length;i++) {
+										urls_to_check_arr.push(urls_to_check[i].url);
+									}
 
-						if(project.dev_server_username && project.dev_server_password) {
-							var username = project.dev_server_username;
-							var password = project.dev_server_password; 
-							execution_str = execution_str + " -u " + username + " -p " + password;
-						}
+									urls_to_check_str = urls_to_check_arr.join(",");
 
-						if(project.source_code_server) {
-							execution_str = execution_str + " -g " + project.source_code_server + " -S gold_special/_dev/_sass -X _bootstrap,_animate -x _animate.scss";
+									execution_str = execution_str + "-l " + urls_to_check_str + " -r " + dev_server_url;
 
-							if(project.source_username && project.source_password) {
-								execution_str = execution_str + " -U " + project.source_username + " -P " + decrypt(project.source_password);
+									if(project.dev_server_username && project.dev_server_password) {
+										var username = project.dev_server_username;
+										var password = project.dev_server_password; 
+										execution_str = execution_str + " -u " + username + " -p " + password;
+									}
+								} else {
+									CodeCheckerProjects.update(request.params.id, {
+										last_check_status: "alert",
+										last_check_message: "No urls to check have been specified."
+									}, function() {
+									});
+									return response.json({status: "alert", message: "No urls to check have been specified."});
+								}
 							}
-						}
 
-						console.log("Running code_checker...");
-						console.log("Execution string: " + execution_str);
+							if(source_server_url) {
+								if(sass_folder_paths && sass_folder_paths.length > 0) {
+									var sass_folder_paths_arr = [];
 
-						exec(execution_str, function (err, stdout, stderr) {
-							if(err) {
-								response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", errors: err, stdout: stdout, stderr: stderr});
-								return;
-							}
-							try {
-								var output = stdout.replace(/invalid byte sequence in US-ASCII/gi, "");
+									for(var i=0;i<sass_folder_paths.length;i++) {
+										sass_folder_paths_arr.push(sass_folder_paths[i].relative_path);
+									}
 
-								var output_json = JSON.parse(output);
+									sass_folder_paths_str = sass_folder_paths_arr.join(",");
 
-								console.log(JSON.stringify(output_json));
+									execution_str = execution_str + " -g " + project.source_code_server + " -S " + sass_folder_paths_str + " -X _bootstrap,_animate -x _animate.scss";
 
-								//Clear result messages for the project before adding new ones
-								ResultMessages.delete_all(request.params.id, function(deleteErrs, deleteResults, deleteFields) {
-									if(deleteErrs) {
-										response.status(500).json({status: "fail", message: "MySQL Error", errors: deleteErrs});
+									if(project.source_username && project.source_password) {
+										execution_str = execution_str + " -U " + project.source_username + " -P " + decrypt(project.source_password);
 									} else {
-										var all_result_message_bodies = []
-										var errors_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
-										var warnings_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
+										CodeCheckerProjects.update(request.params.id, {
+											last_check_status: "fail",
+											last_check_message: "Must specify github username and password."
+										}, function() {
+										});										
+										return response.status(400).json({status: "fail", message: "Must specify github username and password."});
+									}
+								} else {
+									CodeCheckerProjects.update(request.params.id, {
+										last_check_status: "alert",
+										last_check_message: "No sass folders have been specified."
+									}, function() {
+									});
 
-										for (var i = 0; i < output_json.length; i++) {
-											var checked_file = output_json[i];
-											var relative_url = checked_file.file_path.replace(/code_checker_output\/imported/gi,"");
-											var file_type = checked_file.file_type
+									return response.json({status: "alert", message: "No sass folders have been specified."});
+								}
+							}
 
-											for (var j = 0; j < checked_file.errors.length; j++) {
-												var current_message = checked_file.errors[j];
+							if(!dev_server_url && !source_server_url) {
+								CodeCheckerProjects.update(request.params.id, {
+									last_check_status: "alert",
+									last_check_message: "Need to specify either development server or source code server to check."
+								}, function() {
+								});								
 
-												errors_count[current_message.validator] += 1;
-												errors_count.total += 1;
+								return response.json({status: "alert", message: "Need to specify either development server or source code server to check."}); 
+							}
 
-												var result_message_body = {
-													level: "error",
-													url: relative_url,
-													file_type: file_type,
-													validator: current_message.validator,
-													message: current_message.message,
-													line_num: current_message.line_num,
-													source: current_message.source,
-													project_id: request.params.id
-												}
+							try {
+								console.log("Running code_checker...");
+								console.log("Execution string: " + execution_str);
 
-												all_result_message_bodies.push(result_message_body);
-											}
+								exec(execution_str, function (err, stdout, stderr) {
+									if(err) {
+										CodeCheckerProjects.update(request.params.id, {
+											last_check_status: "fail",
+											last_check_message: "An error occured while running code_checker. Most likely have to debug code_checker source code. err: " + err + ", stdout: " + stdout + ", stderr: " + stderr
+										}, function() {
+										});												
+										return response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", errors: err, stdout: stdout, stderr: stderr});
+									}
 
-											for (var j = 0; j < checked_file.warnings.length; j++) {
-												var current_message = checked_file.warnings[j];
+									var output = stdout.replace(/invalid byte sequence in US-ASCII/gi, "");
 
-												warnings_count[current_message.validator] += 1;
-												warnings_count.total += 1;
+									if(output.match(/^Error/)) {
+										CodeCheckerProjects.update(request.params.id, {
+											last_check_status: "success",
+											last_check_message: stdout
+										}, function() {
+										});	
+										return response.status(400).json({status: "fail", message: stdout});
+									}
 
-												var result_message_body = {
-													level: "warning",
-													url: relative_url,
-													file_type: file_type,
-													validator: current_message.validator,
-													message: current_message.message,
-													line_num: current_message.line_num,
-													source: current_message.source,
-													project_id: request.params.id
-												}
+									var output_json = JSON.parse(output);
 
-												all_result_message_bodies.push(result_message_body);
-											}
+									console.log(JSON.stringify(output_json));
 
-										} //End for each output_json file checked
-
-										ResultMessages.bulk_add(all_result_message_bodies, function (err, results, fields) {
-											console.log("Done.");
-
+									//Clear result messages for the project before adding new ones
+									ResultMessages.delete_all(request.params.id, function(deleteErrs, deleteResults, deleteFields) {
+										if(deleteErrs) {
 											CodeCheckerProjects.update(request.params.id, {
-												last_check_status: "success",
-												last_check_message: "Code Checker completed. Please check results",
-												last_checked: moment().format("YYYY-MM-DD HH:mm:ss"),
-												total_error_count: errors_count.total,
-												w3c_error_count: errors_count.W3C,
-												ryukyu_error_count: errors_count.Ryukyu,
-												achecker_error_count: errors_count.AChecker,
-												total_warning_count: warnings_count.total,
-												w3c_warning_count: warnings_count.W3C,
-												ryukyu_warning_count: warnings_count.Ryukyu,
-												achecker_warning_count: warnings_count.AChecker
-											}, function(err, results, fields) {
-												if(err) {
-													response.json({status: "fail", message: "MySQL error.", error: err});
-												} else {
-													response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+												last_check_status: "fail",
+												last_check_message: "MySQL Error. " + deleteErrs
+											}, function() {
+											});												
+											return response.status(500).json({status: "fail", message: "MySQL Error", errors: deleteErrs});
+										} else {
+											var all_result_message_bodies = []
+											var errors_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
+											var warnings_count = {total: 0, W3C: 0, Ryukyu: 0, AChecker: 0};
+
+											for (var i = 0; i < output_json.length; i++) {
+												var checked_file = output_json[i];
+												var relative_url = checked_file.file_path.replace(/code_checker_output\/imported/gi,"");
+												var file_type = checked_file.file_type
+
+												for (var j = 0; j < checked_file.errors.length; j++) {
+													var current_message = checked_file.errors[j];
+
+													errors_count[current_message.validator] += 1;
+													errors_count.total += 1;
+
+													var result_message_body = {
+														level: "error",
+														url: relative_url,
+														file_type: file_type,
+														validator: current_message.validator,
+														message: current_message.message,
+														line_num: current_message.line_num,
+														source: current_message.source,
+														project_id: request.params.id
+													}
+
+													all_result_message_bodies.push(result_message_body);
 												}
+
+												for (var j = 0; j < checked_file.warnings.length; j++) {
+													var current_message = checked_file.warnings[j];
+
+													warnings_count[current_message.validator] += 1;
+													warnings_count.total += 1;
+
+													var result_message_body = {
+														level: "warning",
+														url: relative_url,
+														file_type: file_type,
+														validator: current_message.validator,
+														message: current_message.message,
+														line_num: current_message.line_num,
+														source: current_message.source,
+														project_id: request.params.id
+													}
+
+													all_result_message_bodies.push(result_message_body);
+												}
+
+											} //End for each output_json file checked
+
+											ResultMessages.bulk_add(all_result_message_bodies, function (err, results, fields) {
+												console.log("Done.");
+
+												CodeCheckerProjects.update(request.params.id, {
+													last_check_status: "success",
+													last_check_message: "Code Checker completed. Please check results",
+													last_checked: moment().format("YYYY-MM-DD HH:mm:ss"),
+													total_error_count: errors_count.total,
+													w3c_error_count: errors_count.W3C,
+													ryukyu_error_count: errors_count.Ryukyu,
+													achecker_error_count: errors_count.AChecker,
+													total_warning_count: warnings_count.total,
+													w3c_warning_count: warnings_count.W3C,
+													ryukyu_warning_count: warnings_count.Ryukyu,
+													achecker_warning_count: warnings_count.AChecker
+												}, function(err, results, fields) {
+													if(err) {
+														CodeCheckerProjects.update(request.params.id, {
+															last_check_status: "fail",
+															last_check_message: "MySQL error. " + err 
+														}, function() {
+														});													
+														return response.json({status: "fail", message: "MySQL error.", error: err});
+													} else {
+														CodeCheckerProjects.update(request.params.id, {
+															last_check_status: "success",
+															last_check_message: "Code Checker completed. Please check results"
+														}, function() {
+														});			
+														return response.json({ status: "success", message: "Code Checker completed. Please check results", error_count: errors_count, warning_count: warnings_count, results: "/code-checker-projects/" + request.params.id + "/result-messages"});
+													}
+												});
 											});
-										});
-									} //End if errs for delete_all SQL
-								}); //End delete_all result_messages
-							} catch(catch_err) {
+										} //End if errs for delete_all SQL
+									}); //End delete_all result_messages
+								}); //End exec code_checker ruby command 
+							}catch(exception) {
 								CodeCheckerProjects.update(request.params.id, {
 									last_check_status: "fail",
-									last_check_message: "An error occured while running code_checker. Most likely have to debug code_checker source code."
-								}, function(errors, results, fields) {
-									response.status(500).json({status: "fail", message: "A catch error occured while running code_checker. Most likely have to debug code_checker source code.", catch_err: catch_err, errors: errors})
-								});
-							} //End try parse JSON response catch block
-						}); //End exec code_checker ruby command 
-					} else {
-						CodeCheckerProjects.update(request.params.id, {
-							last_check_status: "alert",
-							last_check_message: "No urls to check have been specified."
-						}, function() {
-							response.json({status: "alert", message: "No urls to check have been specified."});
-						});
-					} //End if urls_to_check.length > 0
+									last_check_message: "An error occured while running code_checker."
+								}, function() {
+								});								
+								return response.json({status: "fail", message: "An error occured while running code_checker.", err: exception});
+							}
+						}
+					});
 				} //End if errs for mysql
 			}); //End URLsToCheck.find_all_by_project_id
-
 		} //End if err for mysql
 	}); //End CodeCheckerProjects.find_by_project_id
-
 });
 
 app.post('/code-checker-projects', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
@@ -460,6 +551,21 @@ app.delete('/code-checker-projects/:project_id/urls-to-check/:url_id', express_j
 				response.status(500).json({ status: "fail", message: "System error.", errors: err.sqlMessage });
 			} else {
 				response.json({status: "success", message: "URL deleted." });
+			}
+		});
+	} else {
+		response.sendStatus(401);
+	}
+});
+
+app.delete('/code-checker-projects/:project_id/sass-folders/:path_id', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response) {
+	if (request.user) {
+		SASSFolders.delete(request.params.path_id, function (err, results, fields) {
+			if (err) {
+				console.log(err);
+				response.status(500).json({ status: "fail", message: "System error.", errors: err.sqlMessage });
+			} else {
+				response.json({status: "success", message: "SASS Folder Path deleted." });
 			}
 		});
 	} else {

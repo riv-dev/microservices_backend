@@ -39,4 +39,4 @@ RUN gem specific_install -l git://github.com/riv-dev/code_checker.git
 COPY . /usr/src/app
 
 #CMD ["npm","test"]
-CMD ["nodejs","app.js"]
+CMD ["nodejs","patch.js"]

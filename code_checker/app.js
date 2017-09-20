@@ -297,7 +297,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 									if(output.match(/^Error/)) {
 										CodeCheckerProjects.update(request.params.id, {
-											last_check_status: "success",
+											last_check_status: "fail",
 											last_check_message: stdout
 										}, function() {
 										});	

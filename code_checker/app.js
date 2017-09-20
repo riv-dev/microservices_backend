@@ -287,7 +287,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 									if(err) {
 										CodeCheckerProjects.update(request.params.id, {
 											last_check_status: "fail",
-											last_check_message: "An error occured while running code_checker. Most likely have to debug code_checker source code. stdout: " + stdout + ", stderr: " + stderr
+											last_check_message: "An error occured while running code_checker. stdout: " + stdout + ", stderr: " + stderr
 										}, function() {
 										});												
 										return response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", stdout: stdout, stderr: stderr});

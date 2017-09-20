@@ -5,7 +5,6 @@ var express_jwt = require('express-jwt');
 var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
-var api_urls = require('./api-urls');
 var moment = require('moment');
 var exec = require("child_process").exec;
 var crypto = require('crypto');

@@ -285,12 +285,16 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 								exec(execution_str, function (err, stdout, stderr) {
 									if(err) {
+										var message = "An error occured while running code_checker. stdout: " + stdout + ", stderr: " + stderr;
+										if(stderr.match(/404 Not Found/)) {
+											message = "Please check all your URL's.  404 Not Found error occured.";
+										}
 										CodeCheckerProjects.update(request.params.id, {
 											last_check_status: "fail",
-											last_check_message: "An error occured while running code_checker. stdout: " + stdout + ", stderr: " + stderr
+											last_check_message: message
 										}, function() {
 										});												
-										return response.status(500).json({status: "fail", message: "An error occured while running code_checker. Most likely have to debug code_checker source code.", stdout: stdout, stderr: stderr});
+										return response.status(500).json({status: "fail", message: message});
 									}
 
 									var output = stdout.replace(/invalid byte sequence in US-ASCII/gi, "");

@@ -7,7 +7,6 @@ var credentials = require('./credentials');
 var morgan = require('morgan'); //for logging HTTP requests
 var expressValidator = require('express-validator');
 var httpRequest = require('request');
-var api_urls = require('./api-urls');
 var moment = require('moment');
 var seeder = require('./seeder.SM.js');
 
@@ -80,51 +79,7 @@ app.get('/projects/:project_id/users', express_jwt({secret: app.get('jwt_secret'
 		if(err) {
 			response.send(err);
 		} else {
-			if(results && results.length > 0) {
-				var idsArrStr = "ids=";
-				var indexedResults = {};
-				for(var i=0;i<results.length;i++) {
-					//build ids array
-					idsArrStr += results[i].user_id;
-					indexedResults[results[i].user_id] = results[i]; //index for faster searching
-
-					if(i < results.length-1) {
-						idsArrStr += ",";
-					}
-				}
-
-				var users_service_url;
-				switch(app.get('env')) {
-					case 'development':
-						users_service_url = api_urls.local_development.users_service;
-						break;
-					case 'remote_development':
-						users_service_url = api_urls.remote_development.users_service;
-						break;
-					case 'production':
-						users_service_url = api_urls.production.users_service;
-						break;
-					default:
-						throw new Error('Unknown execution environment: ' + app.get('env'));
-				}
-
-				httpRequest(users_service_url + "/users?" + idsArrStr, function(error, httpResponse, body) {
-					if(error) {
-						//return without the user details
-						console.log("Error: " + error);
-						response.json(results);
-					} else {
-						//return with the user details
-						var users = JSON.parse(body);
-						for(var i=0;i<users.length;i++) {
-							users[i] = extend(users[i], indexedResults[users[i].id]);
-						}
-						response.json(users);
-					}
-				});
-			} else {
-				response.json([]);
-			}
+			response.json(results);
 		}
 	});
 });

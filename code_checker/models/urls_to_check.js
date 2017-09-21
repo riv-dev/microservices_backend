@@ -15,6 +15,12 @@ var db_name = {
 //Static Methods and Variables
 URLsToCheck.db = "Yo!";
 
+URLsToCheck.schema = {
+  id: {type: "int"},
+  project_id: {type: "int"},
+  url: {type: "varchar(255)"}
+}
+
 URLsToCheck.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,

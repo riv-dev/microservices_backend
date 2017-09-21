@@ -128,6 +128,20 @@ app.get('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.get
 	});
 });
 
+app.get('/code-checker-projects/:id/output-urls', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
+	ResultMessages.all_urls(request.query, function(err,results,fields) {
+		if(err) {
+			response.send(err);
+		} else {
+			if(results && results.length > 0) {
+				response.json(results);
+			} else {
+				response.sendStatus(404);
+			}
+		}
+	});
+});
+
 app.get('/code-checker-projects/:id/sass-folders', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	SASSFolders.find_all_by_project_id(request.params.id, function(err,results,fields) {
 		if(err) {

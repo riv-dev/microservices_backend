@@ -121,6 +121,31 @@ ResultMessages.find_all = function (query, call_back) {
   }
 }
 
+ResultMessages.all_urls = function(query, call_back) {
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT DISTINCT url FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT DISTINCT url FROM result_messages;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+
+}
+
 ResultMessages.add = function(body, call_back) {
   console.log("add called.");
 

@@ -15,6 +15,12 @@ var db_name = {
 //Static Methods and Variables
 SASSFolders.db = "Yo!";
 
+SASSFolders.schema = {
+  id: {type: "int"},
+  project_id: {type: "int"},
+  relative_path: {type: "varchar(255)"}
+}
+
 SASSFolders.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,

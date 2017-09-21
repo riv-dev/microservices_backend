@@ -15,6 +15,18 @@ var db_name = {
 //Static Methods and Variables
 ResultMessages.db = "Yo!";
 
+ResultMessages.schema = {
+  id: {type: "int"},
+  project_id: {type: "int", required: true},
+  validator: {type: "varchar(32)"},
+  level: {type: "varchar(32)"},
+  message: {type: "varchar(255)"},
+  url: {type: "varchar(255)"},
+  line_num: {type: "int"},
+  source: {type: "text"},
+  file_type: {type: "varchar(32)"}
+}
+
 ResultMessages.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
@@ -67,7 +79,7 @@ ResultMessages.count_all = function(query, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
           queryStringArray.push(property + " = ?");
           queryValuesArray.push(query[property]);
         } 
@@ -93,7 +105,7 @@ ResultMessages.find_all = function (query, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (property != "limit" && property != "page" && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
           queryStringArray.push(property + " = ?");
           queryValuesArray.push(query[property]);
         }
@@ -127,7 +139,7 @@ ResultMessages.all_urls = function(query, call_back) {
 
   if(query) {
     for (var property in query) {
-        if (query.hasOwnProperty(property) && query[property] && query[property] != null) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
           queryStringArray.push(property + " = ?");
           queryValuesArray.push(query[property]);
         }

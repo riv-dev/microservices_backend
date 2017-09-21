@@ -280,7 +280,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 								console.log("Running code_checker...");
 
 								//Comment out below for debugging only.  Do not want to print github password
-								//console.log("Execution string: " + execution_str);
+								//console.log("Execution string: " + execution_str.replace(/-P\s+\w*\d*.*\s*?/,"-P password "));
 
 								exec(execution_str, function (err, stdout, stderr) {
 									if(err) {

@@ -51,7 +51,7 @@ CodeCheckerProjects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(255), source_username varchar(255), source_password varchar(255), development_server varchar(255), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, last_check_status varchar(32), last_check_message varchar(255), total_error_count int , w3c_error_count int , ryukyu_error_count int , achecker_error_count int, w3c_warning_count int , ryukyu_warning_count int , achecker_warning_count int, total_warning_count int, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(255), source_username varchar(255), source_password varchar(255), development_server varchar(255), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, last_check_status varchar(32), last_check_message text, total_error_count int , w3c_error_count int , ryukyu_error_count int , achecker_error_count int, w3c_warning_count int , ryukyu_warning_count int , achecker_warning_count int, total_warning_count int, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
     if(err) {
       console.log(err);
     } 

@@ -51,7 +51,7 @@ ProjectPhotos.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS project_photos (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, name varchar(255), caption varchar(255), filepath varchar(255), mimetype varchar(30), PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS project_photos (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, name varchar(255), caption varchar(255), filepath varchar(255), mimetype varchar(30), updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 

@@ -129,7 +129,7 @@ app.get('/code-checker-projects/:id/urls-to-check', express_jwt({secret: app.get
 });
 
 app.get('/code-checker-projects/:id/output-urls', express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
-	ResultMessages.all_urls(request.query, function(err,results,fields) {
+	ResultMessages.all_urls(request.params.id, request.query, function(err,results,fields) {
 		if(err) {
 			response.send(err);
 		} else {

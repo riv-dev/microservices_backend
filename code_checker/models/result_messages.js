@@ -133,7 +133,7 @@ ResultMessages.find_all = function (query, call_back) {
   }
 }
 
-ResultMessages.all_urls = function(query, call_back) {
+ResultMessages.all_urls = function(project_id, query, call_back) {
   var queryStringArray = [];
   var queryValuesArray = [];
 
@@ -147,11 +147,12 @@ ResultMessages.all_urls = function(query, call_back) {
   }
 
   if (queryStringArray.length > 0) {
-    this.db.query('SELECT DISTINCT url FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+    queryValuesArray.push(project_id);
+    this.db.query('SELECT DISTINCT url FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ' AND project_id = ?;', queryValuesArray, function (err, results, fields) {
       call_back(err, results, fields);
     });
   } else {
-    this.db.query('SELECT DISTINCT url FROM result_messages;', function (err, results, fields) {
+    this.db.query('SELECT DISTINCT url FROM result_messages WHERE project_id = ?;', [project_id], function (err, results, fields) {
       call_back(err, results, fields);
     });
   }

@@ -194,6 +194,29 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 			var dev_server_url = project.development_server;
 			var source_server_url = project.source_code_server;
 
+			if(!project.check_sass && !project.check_html) {
+				CodeCheckerProjects.update(request.params.id, {
+					last_check_status: "alert",
+					last_check_message: "Nothing to check. Make sure check_sass and check_html are selected."
+				}, function() {
+				});										
+				return response.status(400).json({status: "alert", message: "Nothing to check. Make sure check_sass and check_html are selected."});				
+			} else if(project.check_sass && !source_server_url) {
+				CodeCheckerProjects.update(request.params.id, {
+					last_check_status: "alert",
+					last_check_message: "Need to specify source code server to check."
+				}, function () {
+				});
+				return response.json({ status: "alert", message: "Need to specify source code server to check." });
+			} else if(project.check_html && !dev_server_url) {
+				CodeCheckerProjects.update(request.params.id, {
+					last_check_status: "alert",
+					last_check_message: "Need to specify development server to check."
+				}, function () {
+				});
+				return response.json({ status: "alert", message: "Need to specify development server to check." });
+			}
+
 			URLsToCheck.find_all_by_project_id(request.params.id, function(err1, results1, fields1) {
 				if(err1) {
 					CodeCheckerProjects.update(request.params.id, {
@@ -220,7 +243,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 
 							var execution_str = "code_checker -W ";
 
-							if(dev_server_url ) {
+							if(dev_server_url && project.check_html) {
 								if(urls_to_check && urls_to_check.length > 0) {
 									var urls_to_check_arr = []; 
 
@@ -247,7 +270,7 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 								}
 							}
 
-							if(source_server_url) {
+							if(source_server_url && project.check_sass) {
 								if(sass_folder_paths && sass_folder_paths.length > 0) {
 									var sass_folder_paths_arr = [];
 
@@ -280,21 +303,11 @@ app.put('/code-checker-projects/:id/run', express_jwt({secret: app.get('jwt_secr
 								}
 							}
 
-							if(!dev_server_url && !source_server_url) {
-								CodeCheckerProjects.update(request.params.id, {
-									last_check_status: "alert",
-									last_check_message: "Need to specify either development server or source code server to check."
-								}, function() {
-								});								
-
-								return response.json({status: "alert", message: "Need to specify either development server or source code server to check."}); 
-							}
-
 							try {
 								console.log("Running code_checker...");
 
 								//Comment out below for debugging only.  Do not want to print github password
-								//console.log("Execution string: " + execution_str.replace(/-P\s+\w*\d*.*\s*?/,"-P password "));
+								console.log("Execution string: " + execution_str.replace(/-P\s+\w*\d*.*\s*?/,"-P password "));
 
 								exec(execution_str, function (err, stdout, stderr) {
 									if(err) {

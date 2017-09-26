@@ -16,6 +16,17 @@ var db_name = {
 //Static Methods and Variables
 Users.db = "Yo!";
 
+Users.schema = {
+  id: {type: "int"},
+  lastname: {type: "varchar(255)"},
+  firstname: {type: "varchar(255)"},
+  title: {type: "varchar(255)"},
+  email: {type: "varchar(255)"},
+  hashed_password: {type: "char(60)"},
+  admin: {type: "boolean"},
+  active: {type: "boolean"}
+}
+
 Users.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
@@ -52,7 +63,7 @@ Users.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS users (id int NOT NULL AUTO_INCREMENT, lastname varchar(255) NOT NULL, firstname varchar(255) NOT NULL, title varchar(255), email varchar(255), hashed_password char(60), admin boolean DEFAULT FALSE, UNIQUE(email), PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS users (id int NOT NULL AUTO_INCREMENT, lastname varchar(255) NOT NULL, firstname varchar(255) NOT NULL, title varchar(255), email varchar(255), hashed_password char(60), admin boolean DEFAULT FALSE, active boolean DEFAULT true, UNIQUE(email), PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -62,7 +73,7 @@ Users.initialize_db = function(env, call_back) {
 }
 
 Users.create_default_user = function() {
-  Users.find_all(function(err, rows, fields) {
+  Users.find_all(null, function(err, rows, fields) {
     if(err) {
       console.log(err);
       return;
@@ -78,12 +89,32 @@ Users.create_default_user = function() {
   });
 }
 
-Users.find_all = function (call_back) {
+Users.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT id,lastname,firstname,title,email,admin FROM users ORDER BY lastname;', function (err, rows, fields) {
-    call_back(err, rows, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (Users.schema.hasOwnProperty(property) && property != "hashed_password" && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        } else {
+          console.log("Try to access unknown property: " + property);
+        }
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT id,lastname,firstname,title,email,admin,active FROM users WHERE ' + queryStringArray.join(" AND ") + ' ORDER BY lastname;', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT id,lastname,firstname,title,email,admin,active FROM users ORDER BY lastname;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
 Users.find_all_by_ids = function(idArr, call_back) {
@@ -98,7 +129,7 @@ Users.find_all_by_ids = function(idArr, call_back) {
     }
   }
 
-  this.db.query('SELECT id,lastname,firstname,title,email,admin FROM users WHERE ' + whereStr + ';', function (err, rows, fields) {
+  this.db.query('SELECT id,lastname,firstname,title,email,admin,active FROM users WHERE ' + whereStr + ';', function (err, rows, fields) {
     call_back(err, rows, fields);
   });
 }
@@ -106,7 +137,7 @@ Users.find_all_by_ids = function(idArr, call_back) {
 Users.find_by_id = function (id, call_back) {
   console.log("find_by_id called.");
 
-  this.db.query("SELECT id,lastname,firstname,title,email,admin FROM users WHERE id='"+id+"' LIMIT 1;", function (err, rows, fields) {
+  this.db.query("SELECT id,lastname,firstname,title,email,admin,active FROM users WHERE id='"+id+"' LIMIT 1;", function (err, rows, fields) {
     call_back(err, rows, fields);
   });
 }
@@ -121,12 +152,25 @@ Users.find_by_email = function(email, call_back) {
 
 Users.add = function(body, call_back) { //lastname, firstname, title, email, hashed_password, admin, call_back) {
   console.log("add called.");
-  this.db.query("INSERT into users (lastname, firstname, title, email, hashed_password, admin) values (?,?,?,?,?,?);", [body.lastname, body.firstname, body.title, body.email, body.hashed_password, body.admin], function(err, rows, fields) {
-    if(err) {
-      console.log(err);
+  
+    var addStringArray = [];
+    var addMarksArray = [];
+    var addValuesArray = [];
+  
+    for (var property in body) {
+        if (Users.schema.hasOwnProperty(property) && body.hasOwnProperty(property) && body[property] != null) {
+          addStringArray.push(property);
+          addMarksArray.push("?");
+          addValuesArray.push(body[property]);
+        }
     }
-    call_back(err, rows, fields);
-  });
+  
+    this.db.query("INSERT into users (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
+      if(err) {
+        console.log(err);
+      }
+      call_back(err, results, fields);
+    });
 }
 
 Users.update = function(id, body, call_back) {
@@ -136,7 +180,7 @@ Users.update = function(id, body, call_back) {
   var updateValuesArray = [];
 
   for (var property in body) {
-      if (body.hasOwnProperty(property) && body[property] != null) {
+      if (Users.schema.hasOwnProperty(property) && body.hasOwnProperty(property) && body[property] != null) {
         updateStringArray.push(property + " = ?");
         updateValuesArray.push(body[property]);
       }

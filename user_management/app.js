@@ -103,7 +103,7 @@ app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequire
 			}
 		});		
 	} else {
-		Users.find_all(function(err,results,fields) {
+		Users.find_all(request.query, function(err,results,fields) {
 			if(err) {
 				console.log(err)
 				response.status(500).json({status: "fail", message: "System error."});

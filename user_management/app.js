@@ -66,6 +66,10 @@ app.post('/users/authenticate', function(req, res) {
 		bcrypt.compare(req.body.password, user.hashed_password, function(err, validated) {
 			// res == true
 			if(validated == true) {
+				if(!user.active) {
+					return res.status(401).json({ status: "fail", message: 'You have been de-activated from the system.' });	
+				}
+
 				user.hashed_password = null;
 				var token = jwt.sign(user, app.get('jwt_secret'), {expiresIn: '8h'});
 
@@ -102,7 +106,7 @@ app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequire
 			}
 		});		
 	} else {
-		Users.find_all(function(err,results,fields) {
+		Users.find_all(request.query, function(err,results,fields) {
 			if(err) {
 				console.log(err)
 				response.status(500).json({status: "fail", message: "System error."});

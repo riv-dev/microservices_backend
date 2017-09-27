@@ -51,7 +51,7 @@ Files.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS files (id int NOT NULL AUTO_INCREMENT, parent_id int NOT NULL, category varchar(20) NOT NULL, original_file_name varchar(255), filepath varchar(255), mimetype varchar(180), updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS files (id int NOT NULL AUTO_INCREMENT, parent_id int NOT NULL, category varchar(20) NOT NULL, original_file_name varchar(255), filepath varchar(255), mimetype varchar(180), filesize int, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function(err) {
     if(err) {
       console.log(err);
     } 
@@ -123,7 +123,7 @@ Files.update = function(id, body, call_back) {
 Files.delete_all = function(parent_id, category, call_back) {
   console.log("delete all called");
 
-  this.db.query("DELETE from files WHERE parent_id = ? AND category = ?;", [parent_id, category], function(err, rows, fields) {
+  this.db.query("DELETE FROM files WHERE parent_id = ? AND category = ?;", [parent_id, category], function(err, rows, fields) {
     call_back(err, rows, fields);
   });    
 }
@@ -131,9 +131,17 @@ Files.delete_all = function(parent_id, category, call_back) {
 Files.delete = function(id, call_back) {
   console.log("delete called");
 
-  this.db.query("DELETE from files WHERE id = ?;", [id], function(err, rows, fields) {
+  this.db.query("DELETE FROM files WHERE id = ?;", [id], function(err, rows, fields) {
     call_back(err, rows, fields);
   });    
+}
+
+Files.sum_filesize = function(call_back) {
+  console.log("sum filesize called");
+
+  this.db.query("SELECT SUM(filesize) AS total_memory_usage FROM files;", function(err, rows, fields) {
+    call_back(err, rows, fields);
+  })
 }
 
 module.exports = Files;

@@ -1,8 +1,8 @@
 var mysql = require('mysql')
 var credentials = require('../credentials.js');
 
-//The URLsToCheck model class
-var URLsToCheck = function (id, lastname, firstname, title) {
+//The SASSFolders model class
+var SASSFolders = function (id, lastname, firstname, title) {
 
 }
 
@@ -13,15 +13,15 @@ var db_name = {
 }
 
 //Static Methods and Variables
-URLsToCheck.db = "Yo!";
+SASSFolders.db = "Yo!";
 
-URLsToCheck.schema = {
+SASSFolders.schema = {
   id: {type: "int"},
   project_id: {type: "int"},
-  url: {type: "varchar(255)"}
+  relative_path: {type: "varchar(255)"}
 }
 
-URLsToCheck.connect = function (env) {
+SASSFolders.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
     user: credentials.mysql[env].username,
@@ -35,14 +35,14 @@ URLsToCheck.connect = function (env) {
     }
   });
 
-  URLsToCheck.initialize_db(env);
+  SASSFolders.initialize_db(env);
 }
 
-URLsToCheck.disconnect = function () {
+SASSFolders.disconnect = function () {
   this.db.end()
 }
 
-URLsToCheck.initialize_db = function(env, call_back) {
+SASSFolders.initialize_db = function(env, call_back) {
   console.log("create_db called.");
 
   this.db.query('CREATE DATABASE IF NOT EXISTS ' + db_name[env] + ';', function(err) {
@@ -57,30 +57,30 @@ URLsToCheck.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS urls_to_check (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, url varchar(255), UNIQUE (project_id, url), PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS sass_folders (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, relative_path varchar(255), UNIQUE (project_id, relative_path), PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 
   });
 }
 
-URLsToCheck.find_all = function (query, call_back) {
+SASSFolders.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM urls_to_check;', function(err, results, fields) {
+  this.db.query('SELECT * FROM sass_folders;', function(err, results, fields) {
     call_back(err, results, fields);
   });
 }
 
-URLsToCheck.find_all_by_project_id = function (project_id, call_back) {
+SASSFolders.find_all_by_project_id = function (project_id, call_back) {
   console.log("find_by_id called.");
 
-  this.db.query("SELECT * FROM urls_to_check WHERE project_id = ?;", [project_id], function (err, results, fields) {
+  this.db.query("SELECT * FROM sass_folders WHERE project_id = ?;", [project_id], function (err, results, fields) {
     call_back(err, results, fields);
   });
 }
 
-URLsToCheck.add = function(body, call_back) {
+SASSFolders.add = function(body, call_back) {
   console.log("add called.");
 
   var addStringArray = [];
@@ -95,7 +95,7 @@ URLsToCheck.add = function(body, call_back) {
       }
   }
 
-  this.db.query("INSERT into urls_to_check (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
+  this.db.query("INSERT into sass_folders (" + addStringArray.join(", ") +") values ("+ addMarksArray.join(",")+");", addValuesArray, function(err, results, fields) {
     if(err) {
       console.log(err);
     }
@@ -104,7 +104,7 @@ URLsToCheck.add = function(body, call_back) {
 }
 
 
-URLsToCheck.update = function(id, body, call_back) {
+SASSFolders.update = function(id, body, call_back) {
   console.log("update called");
 
   var updateStringArray = [];
@@ -122,25 +122,25 @@ URLsToCheck.update = function(id, body, call_back) {
   console.log(updateStringArray.join(", "));
   console.log(updateValuesArray.join(", "));
 
-  this.db.query("UPDATE urls_to_check SET " + updateStringArray.join(", ") + " WHERE project_id = ?;", updateValuesArray, function(err, results, fields) {
+  this.db.query("UPDATE sass_folders SET " + updateStringArray.join(", ") + " WHERE project_id = ?;", updateValuesArray, function(err, results, fields) {
     call_back(err, results, fields);
   });  
 }
 
-URLsToCheck.delete = function(id, call_back) {
+SASSFolders.delete = function(id, call_back) {
   console.log("delete called");
 
-  this.db.query("DELETE from urls_to_check WHERE id = ?;", [id], function(err, results, fields) {
+  this.db.query("DELETE from sass_folders WHERE id = ?;", [id], function(err, results, fields) {
     call_back(err, results, fields);
   });    
 }
 
-URLsToCheck.delete_all = function(project_id, call_back) {
+SASSFolders.delete_all = function(project_id, call_back) {
   console.log("delete called");
 
-  this.db.query("DELETE from urls_to_check WHERE project_id = ?;", [project_id], function(err, results, fields) {
+  this.db.query("DELETE from sass_folders WHERE project_id = ?;", [project_id], function(err, results, fields) {
     call_back(err, results, fields);
   });
 }
 
-module.exports = URLsToCheck;
+module.exports = SASSFolders;

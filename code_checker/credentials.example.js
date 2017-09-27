@@ -21,6 +21,7 @@ module.exports = {
     },
     authentication: {
         secret: 'secret',
-        development_token: ""
+        development_token: "",
+        encryption_pw: 'password'
     }
 }

@@ -15,6 +15,18 @@ var db_name = {
 //Static Methods and Variables
 ResultMessages.db = "Yo!";
 
+ResultMessages.schema = {
+  id: {type: "int"},
+  project_id: {type: "int", required: true},
+  validator: {type: "varchar(32)"},
+  level: {type: "varchar(32)"},
+  message: {type: "varchar(255)"},
+  url: {type: "varchar(255)"},
+  line_num: {type: "int"},
+  source: {type: "text"},
+  file_type: {type: "varchar(32)"}
+}
+
 ResultMessages.connect = function (env) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
@@ -52,27 +64,99 @@ ResultMessages.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, msg_type varchar(32), msg_level varchar(32), msg varchar(255), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS result_messages (id int NOT NULL AUTO_INCREMENT, project_id int NOT NULL, validator varchar(32), level varchar(32), message varchar(255), url varchar(255), file_type varchar(32), line_num int, source text, PRIMARY KEY(id), FOREIGN KEY (project_id) REFERENCES code_checker_projects(project_id) ON DELETE CASCADE);', function(err) {
     if(err) {
       console.log(err);
     } 
   });
 }
 
+ResultMessages.count_all = function(query, call_back) {
+  console.log("count_all called.");
+
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        } 
+    }
+  }
+
+  if(queryStringArray.length > 0) {
+    this.db.query('SELECT count(id) as num_rows FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT count(id) as num_rows FROM result_messages;', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+}
+
 ResultMessages.find_all = function (query, call_back) {
   console.log("find_all called.");
 
-  this.db.query('SELECT * FROM result_messages;', function(err, results, fields) {
-    call_back(err, results, fields);
-  });
+  var queryStringArray = [];
+  var queryValuesArray = [];
+
+  if(query) {
+    for (var property in query) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  //Pagination
+  var limitStr = "";
+  
+    if(query && query.limit && parseInt(query.limit) > 0 && query.page && parseInt(query.page) > 1) {
+      limitStr = " LIMIT " + (parseInt(query.page)-1)*parseInt(query.limit) + "," + query.limit;
+    }
+    else if(query && query.limit && parseInt(query.limit) > 0) {
+      limitStr = " LIMIT " + query.limit;
+    }
+
+  if (queryStringArray.length > 0) {
+    this.db.query('SELECT * FROM result_messages WHERE ' + queryStringArray.join(" AND ") + limitStr + ';', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT * FROM result_messages' + limitStr + ';', function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
 }
 
-ResultMessages.find_all_by_project_id = function (project_id, call_back) {
-  console.log("find_by_id called.");
+ResultMessages.all_urls = function(project_id, query, call_back) {
+  var queryStringArray = [];
+  var queryValuesArray = [];
 
-  this.db.query("SELECT * FROM result_messages WHERE project_id = ?;", [project_id], function (err, results, fields) {
-    call_back(err, results, fields);
-  });
+  if(query) {
+    for (var property in query) {
+        if (ResultMessages.schema.hasOwnProperty(property) && query.hasOwnProperty(property) && query[property] && query[property] != null) {
+          queryStringArray.push(property + " = ?");
+          queryValuesArray.push(query[property]);
+        }
+    }
+  }
+
+  if (queryStringArray.length > 0) {
+    queryValuesArray.push(project_id);
+    this.db.query('SELECT DISTINCT url FROM result_messages WHERE ' + queryStringArray.join(" AND ") + ' AND project_id = ?;', queryValuesArray, function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  } else {
+    this.db.query('SELECT DISTINCT url FROM result_messages WHERE project_id = ?;', [project_id], function (err, results, fields) {
+      call_back(err, results, fields);
+    });
+  }
+
 }
 
 ResultMessages.add = function(body, call_back) {

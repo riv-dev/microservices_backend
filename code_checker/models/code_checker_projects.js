@@ -15,6 +15,31 @@ var db_name = {
 //Static Methods and Variables
 CodeCheckerProjects.db = "Yo!";
 
+CodeCheckerProjects.schema = {
+  project_id: {type: "int"},
+  source_code_server: {type: "varchar(255)"},
+  development_server: {type: "varchar(255)"},
+  dev_server_username: {type: "varchar(32)"},
+  dev_server_password: {type: "varchar(32)"},
+  last_checked: {type: "datetime"},
+  last_check_status: {type: "varchar(32)"},
+  last_check_message: {type: "text"},
+  total_error_count: {type: "int"},
+  w3c_error_count: {type: "int"},
+  ryukyu_error_count: {type: "int"},
+  w3c_warning_count: {type: "int"},
+  ryukyu_warning_count: {type: "int"},
+  achecker_warning_count: {type: "int"},
+  total_warning_count: {type: "int"},
+  ryukyu_checker: {type: "boolean"},
+  w3c_checker: {type: "boolean"},
+  a_checker: {type: "boolean"},
+  source_username: {type: "varchar(255)"},
+  source_password: {type: "varchar(255)"},
+  check_sass: {type: "boolean"},
+  check_html: {type: "boolean"}
+}
+
 CodeCheckerProjects.connect = function (env, call_back) {
   this.db = mysql.createConnection({
     host: credentials.mysql[env].host,
@@ -51,7 +76,7 @@ CodeCheckerProjects.initialize_db = function(env, call_back) {
     }
   });
 
-  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(255), development_server varchar(255), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
+  this.db.query('CREATE TABLE IF NOT EXISTS code_checker_projects (project_id int NOT NULL, source_code_server varchar(255), source_username varchar(255), source_password varchar(255), development_server varchar(255), dev_server_username varchar(32), dev_server_password varchar(32), last_checked datetime, last_check_status varchar(32), last_check_message text, total_error_count int , w3c_error_count int , ryukyu_error_count int , achecker_error_count int, w3c_warning_count int , ryukyu_warning_count int , achecker_warning_count int, total_warning_count int, ryukyu_checker BOOLEAN DEFAULT true, w3c_checker BOOLEAN DEFAULT true, a_checker BOOLEAN DEFAULT true, check_sass BOOLEAN DEFAULT true, check_html BOOLEAN DEFAULT true, PRIMARY KEY(project_id));', function(err) {
     if(err) {
       console.log(err);
     } 

@@ -66,6 +66,10 @@ app.post('/users/authenticate', function(req, res) {
 		bcrypt.compare(req.body.password, user.hashed_password, function(err, validated) {
 			// res == true
 			if(validated == true) {
+				if(!user.active) {
+					return res.status(401).json({ status: "fail", message: 'You have been de-activated from the system.' });	
+				}
+
 				user.hashed_password = null;
 				var token = jwt.sign(user, app.get('jwt_secret'), {expiresIn: '8h'});
 

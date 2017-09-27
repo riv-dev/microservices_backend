@@ -97,8 +97,7 @@ app.get('/', function(request, response) {
 
 app.get('/users', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response) {
 	if(request.query.ids) {
-		var idsArr = request.query.ids.split(",");
-		Users.find_all_by_ids(idsArr, function(err,results,fields) {
+		Users.find_all_by_ids(request.query.ids, function(err,results,fields) {
 			if(err) {
 				console.log(err)
 				response.status(500).json({status: "fail", message: "System error."});

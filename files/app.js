@@ -111,6 +111,50 @@ app.get('/files/:file_id/filename/:filename', express_jwt({secret: app.get('jwt_
 	});
 });
 
+app.get('/files/:file_id/size', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = Files.find_by_id(request.params.file_id, function(err,rows,fields) {
+		if(err) {
+			response.send(err);
+		} else {
+			if(rows && rows.length > 0) {
+				numType = 1048576;
+				type = ' MB';
+				if (rows[0].filesize > 1024 && rows[0].filesize < numType) {
+					numType = 1024;
+					type = ' KB';
+				} else {
+					numType = 1;
+					type = ' bytes';
+				}
+				size = rows[0].filesize / numType;
+				response.json({filesize: Math.ceil(size) + type});
+			} else {
+				response.sendStatus(404);
+			}
+		}
+	});
+});
+
+app.get('/files/size', express_jwt({secret: app.get('jwt_secret'), credentialsRequired: false, getToken: getTokenFromHeader}), function(request, response, next) {
+	result = Files.sum_filesize(function(err,rows,fields) {
+		if(err) {
+			response.send(err);
+		} else {
+			numType = 1048576;
+			type = ' MB';
+			if (rows[0].total_memory_usage > 1024 && rows[0].total_memory_usage < numType) {
+				numType = 1024;
+				type = ' KB';
+			} else {
+				numType = 1;
+				type = ' bytes';
+			}
+			size = rows[0].total_memory_usage / numType;
+			response.json({total_memory_usage: Math.ceil(size) + type});
+		}
+	});
+});
+
 app.post('/:category/:category_id/files', upload.single('file'), express_jwt({secret: app.get('jwt_secret'), getToken: getTokenFromHeader}), function(request, response, next) {
 	if(request.user) {
 
@@ -124,7 +168,8 @@ app.post('/:category/:category_id/files', upload.single('file'), express_jwt({se
 				category: request.params.category,
 				original_file_name: request.file.originalname,
 				filepath: request.file.path,
-				mimetype: request.file.mimetype
+				mimetype: request.file.mimetype,
+				filesize: request.file.size
 			};
 			//Add new entry in the database
 			Files.add(requestBody, function(err, results, fields) {

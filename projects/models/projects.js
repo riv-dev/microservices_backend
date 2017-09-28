@@ -220,10 +220,17 @@ Projects.find_by_id = function (id, call_back) {
   });
 }
 
-Projects.find_all_by_ids = function(ids, call_back) {
-  console.log("find_all_by_id called: " + ids);
+Projects.find_all_by_ids = function(idsArr, call_back) {
+  console.log("find_all_by_id called: " + idsArr);
 
-  this.db.query('SELECT * FROM projects WHERE id IN (?);', ids, function (err, rows, fields) {
+  var queryStringArray = [];
+  
+    for(var i=0;i<idsArr.length;i++) {
+      queryStringArray.push("id = ?");
+    }
+  
+
+  this.db.query('SELECT * FROM projects WHERE ' + queryStringArray.join(" OR ") + ';', idsArr, function (err, rows, fields) {
     call_back(err, rows, fields);
   });
 }

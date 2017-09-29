@@ -47,7 +47,6 @@ Groups.initialize_db = function(env, call_back) {
     if(err) {
       console.log(err);
     }
-    call_back();
   });
 
   this.db.query('USE ' + db_name[env] + ';', function(err) {
@@ -60,6 +59,7 @@ Groups.initialize_db = function(env, call_back) {
     if(err) {
       console.log(err);
     } 
+    call_back();
   });
 
 }

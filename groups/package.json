@@ -1,0 +1,32 @@
+{
+  "name": "groups",
+  "version": "1.0.0",
+  "description": "Groups",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha --timeout 10000"
+  },
+  "author": "Huy Pho",
+  "license": "ISC",
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "mysql": "*",
+    "jsonwebtoken": "*",
+    "express-jwt": "*",
+    "morgan": "*",
+    "express-validator": "*",
+    "request": "*",
+    "moment": "*",
+    "faker": "*",
+    "chai": "*",
+    "chai-http": "*"
+  },
+  "devDependencies": {
+    "faker": "*",
+    "chai": "*",
+    "chai-http": "*",
+    "mocha": "*"
+  } 
+}

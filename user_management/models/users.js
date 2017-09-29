@@ -117,19 +117,17 @@ Users.find_all = function (query, call_back) {
   }
 }
 
-Users.find_all_by_ids = function(idArr, call_back) {
-  console.log("find_all_by_id called: " + idArr);
-  var whereStr = "";
-  for(var i=0;i<idArr.length;i++) {
-    if(!isNaN(idArr[i])) { //make sure a valid int
-      whereStr += "id="+idArr[i];
-      if(i < idArr.length - 1) {
-        whereStr +=" OR ";
-      }
-    }
+Users.find_all_by_ids = function(idsArr, call_back) {
+  console.log("find_all_by_id called: " + idsArr);
+
+  var queryStringArray = [];
+
+  for(var i=0;i<idsArr.length;i++) {
+    queryStringArray.push("id = ?");
   }
 
-  this.db.query('SELECT id,lastname,firstname,title,email,admin,active FROM users WHERE ' + whereStr + ';', function (err, rows, fields) {
+  this.db.query('SELECT id,lastname,firstname,title,email,admin,active FROM users WHERE ' + queryStringArray.join(" OR ") + ';', idsArr, function (err, rows, fields) {
+
     call_back(err, rows, fields);
   });
 }

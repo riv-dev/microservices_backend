@@ -13,7 +13,7 @@
     "express": "*",
     "body-parser": "*",
     "mysql": "*",
-    "jsonwebtoken": "*",
+    "jsonwebtoken": "7.4.1",
     "express-jwt": "*",
     "morgan": "*",
     "bcrypt-nodejs": "*",
